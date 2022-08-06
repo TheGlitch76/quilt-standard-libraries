@@ -16,14 +16,13 @@ jobs:
         with:
           distribution: "temurin"
           java-version: ${{ matrix.java }}
-      - run: ./gradlew checkLicenses generateQmj --parallel --stacktrace
-      # Generate the build number based on tags to allow per branch build numbers, not something github provides by default.
-      - name: Generate build number
+      - name: Generate build number for branch
         id: buildnumber
         uses: einaregilsson/build-number@v3
         with:
           token: ${{ secrets.github_token }}
           prefix: ${{ github.ref }}
+      - run: ./gradlew checkLicenses generateQmj --parallel --stacktrace
       - run: ./gradlew build --stacktrace --parallel
       - run: ./gradlew publish --stacktrace --parrallel
         env:
