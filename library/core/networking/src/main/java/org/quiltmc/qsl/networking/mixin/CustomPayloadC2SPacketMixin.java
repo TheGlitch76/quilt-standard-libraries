@@ -25,6 +25,7 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -34,6 +35,7 @@ import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.util.Identifier;
 
 import org.quiltmc.qsl.networking.api.PacketByteBufs;
+import org.quiltmc.qsl.networking.impl.NetworkingImpl;
 import org.quiltmc.qsl.networking.impl.payload.PacketByteBufPayload;
 
 @Mixin(CustomPayloadC2SPacket.class)
@@ -53,5 +55,16 @@ public class CustomPayloadC2SPacketMixin {
 		PacketByteBuf copied = PacketByteBufs.copy(buf);
 		cir.setReturnValue(new PacketByteBufPayload(id, copied));
 		buf.skipBytes(buf.readableBytes());
+	}
+
+	@ModifyArg(method = "apply(Lnet/minecraft/network/listener/ServerCommonPacketListener;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/listener/ServerCommonPacketListener;onCustomPayload(Lnet/minecraft/network/packet/c2s/common/CustomPayloadC2SPacket;)V"))
+	public CustomPayloadC2SPacket reserialize(CustomPayloadC2SPacket packet) {
+		if (NetworkingImpl.RESERIALIZE_CUSTOM_PAYLOADS) {
+			PacketByteBuf buf = PacketByteBufs.create();
+			packet.write(buf);
+			return new CustomPayloadC2SPacket(buf);
+		}
+
+		return packet;
 	}
 }

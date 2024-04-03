@@ -66,6 +66,12 @@ public final class NetworkingImpl {
 	 */
 	public static final Identifier EARLY_REGISTRATION_CHANNEL_FABRIC = new Identifier("fabric-networking-api-v1", "early_registration");
 
+	/**
+	 * Forces reserialization of packets.
+	 */
+	// TODO: Remove for 1.20.5. This is done there already.
+	public static final boolean RESERIALIZE_CUSTOM_PAYLOADS = Boolean.parseBoolean(System.getProperty("quilt.networking.reserialize_custom_payloads"));
+
 	public static void init(ModContainer mod) {
 		// Login setup
 		ServerLoginConnectionEvents.QUERY_START.register((handler, server, sender, synchronizer) -> {
