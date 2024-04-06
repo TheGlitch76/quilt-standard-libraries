@@ -72,7 +72,7 @@ public class QuiltItemSettings extends Item.Settings {
 
 	/**
 	 * Sets the stack-aware recipe remainder provider of the item.
-	 * Defaults to setting both crafting and furnace fuel remainder, like vanilla.
+	 * Defaults to setting both crafting, furnace fuel remainder, and brewing stand addition, like vanilla.
 	 *
 	 * @param provider the {@link RecipeRemainderProvider} for the item
 	 */
@@ -82,7 +82,7 @@ public class QuiltItemSettings extends Item.Settings {
 
 	/**
 	 * Sets the stack-aware recipe remainder to damage the item by 1 every time it is used in crafting.
-	 * Defaults to setting both crafting and furnace fuel remainder, like vanilla.
+	 * Defaults to setting both crafting, furnace fuel remainder, and brewing stand addition, like vanilla.
 	 */
 	public QuiltItemSettings recipeDamageRemainder() {
 		return this.recipeDamageRemainder(1, RecipeRemainderLocation.DEFAULT_LOCATIONS);
@@ -90,7 +90,7 @@ public class QuiltItemSettings extends Item.Settings {
 
 	/**
 	 * Sets the stack-aware recipe remainder to return the item itself.
-	 * Defaults to setting both crafting and furnace fuel remainder, like vanilla.
+	 * Defaults to setting both crafting, furnace fuel remainder, and brewing stand addition, like vanilla.
 	 */
 	public QuiltItemSettings recipeSelfRemainder() {
 		return this.recipeDamageRemainder(0, RecipeRemainderLocation.DEFAULT_LOCATIONS);
@@ -98,7 +98,7 @@ public class QuiltItemSettings extends Item.Settings {
 
 	/**
 	 * Sets the stack-aware recipe remainder to damage the item by a certain amount every time it is used in crafting.
-	 * Defaults to setting both crafting and furnace fuel remainder, like vanilla.
+	 * Defaults to setting both crafting, furnace fuel remainder, and brewing stand addition, like vanilla.
 	 *
 	 * @param by the amount
 	 */

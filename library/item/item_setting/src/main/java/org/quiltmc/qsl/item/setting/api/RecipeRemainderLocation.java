@@ -57,7 +57,7 @@ public interface RecipeRemainderLocation {
 	/**
 	 * Remainder location for the potion addition in brewing stands.
 	 */
-	RecipeRemainderLocation POTION_ADDITION = getOrCreate(new Identifier("minecraft:potion_addition"));
+	RecipeRemainderLocation POTION_ADDITION = addToDefaultLocations(getOrCreate(new Identifier("minecraft:potion_addition")));
 
 	/**
 	 * Remainder location for the input to the stonecutter.
@@ -80,7 +80,7 @@ public interface RecipeRemainderLocation {
 	RecipeRemainderLocation SMITHING_INGREDIENT = getOrCreate(new Identifier("minecraft:smithing_ingredient"));
 
 	/**
-	 * Remainder location for the default locations. This starts with {@link #CRAFTING} and {@link #FURNACE_FUEL}.
+	 * Remainder location for the default locations. This starts with {@link #CRAFTING}, {@link #FURNACE_FUEL}, and {@link #POTION_ADDITION}.
 	 */
 	RecipeRemainderLocation DEFAULT_LOCATIONS = getOrCreate(new Identifier("quilt:default"));
 

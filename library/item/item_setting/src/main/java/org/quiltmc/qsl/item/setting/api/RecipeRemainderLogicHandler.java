@@ -53,9 +53,9 @@ public interface RecipeRemainderLogicHandler {
 		Map<RecipeRemainderLocation, RecipeRemainderProvider> providers = CustomItemSettingImpl.RECIPE_REMAINDER_PROVIDER
 				.get(original.getItem());
 
-		RecipeRemainderProvider provider = (_original, _recipe) -> ItemStack.EMPTY;
+		RecipeRemainderProvider provider = (_original, _recipe) -> _original.getItem().hasRecipeRemainder() ? _original.getItem().getRecipeRemainder().getDefaultStack() : ItemStack.EMPTY;
 
-		if (RecipeRemainderLogicHandlerImpl.DEFAULT_LOCATIONS.contains(location)) {
+		if (RecipeRemainderLogicHandlerImpl.DEFAULT_LOCATIONS.contains(location) && providers.containsKey(RecipeRemainderLocation.DEFAULT_LOCATIONS)) {
 			provider = providers.get(RecipeRemainderLocation.DEFAULT_LOCATIONS);
 		}
 
