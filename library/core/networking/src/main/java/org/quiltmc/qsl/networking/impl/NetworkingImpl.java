@@ -70,9 +70,11 @@ public final class NetworkingImpl {
 	 * Forces reserialization of packets.
 	 */
 	// TODO: Remove for 1.20.5. This is done there already.
-	public static final boolean RESERIALIZE_CUSTOM_PAYLOADS = Boolean.parseBoolean(System.getProperty("quilt.networking.reserialize_custom_payloads"));
+	public static final boolean RESERIALIZE_CUSTOM_PAYLOADS = Boolean.parseBoolean(System.getProperty("quilt.networking.reserialize_custom_payloads", "false"));
 
 	public static void init(ModContainer mod) {
+		LOGGER.info("quilt.networking.reserialize_custom_payloads set to {}", RESERIALIZE_CUSTOM_PAYLOADS);
+
 		// Login setup
 		ServerLoginConnectionEvents.QUERY_START.register((handler, server, sender, synchronizer) -> {
 			// Send early registration packet

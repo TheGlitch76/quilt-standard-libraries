@@ -30,7 +30,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.util.Identifier;
