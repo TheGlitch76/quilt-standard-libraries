@@ -26,6 +26,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientNetworkHandler;
 import net.minecraft.client.network.ClientConfigurationNetworkHandler;
 import net.minecraft.network.ClientConnection;
+import net.minecraft.network.packet.s2c.configuration.FinishConfigurationS2CPacket;
 import net.minecraft.unmapped.C_qqflkeyp;
 
 import org.quiltmc.loader.api.minecraft.ClientOnly;
@@ -50,6 +51,11 @@ abstract class ClientConfigurationNetworkHandlerMixin extends AbstractClientNetw
 		// A bit of a hack but it allows the field above to be set in case someone registers handlers during INIT event which refers to said field
 		ClientNetworkingImpl.setClientConfigurationAddon(this.addon);
 		this.addon.lateInit();
+	}
+
+	@Inject(method = "onFinishConfiguration", at = @At(value = "NEW", target = "(Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/network/ClientConnection;Lnet/minecraft/unmapped/C_qqflkeyp;)Lnet/minecraft/client/network/ClientPlayNetworkHandler;"))
+	void onConfigured(FinishConfigurationS2CPacket packet, CallbackInfo ci) {
+		this.addon.onConfigured();
 	}
 
 	@Override

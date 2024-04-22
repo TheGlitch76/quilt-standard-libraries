@@ -47,9 +47,21 @@ public final class ClientConfigurationConnectionEvents {
 	 * <p>
 	 * At this stage, the network handler is ready to send packets to the server since the client's local state has been set up.
 	 */
-	public static final Event<Ready> READY = Event.create(Ready.class, callbacks -> (handler, sender, client) -> {
-		for (Ready callback : callbacks) {
-			callback.onConfigurationReady(handler, sender, client);
+	public static final Event<Start> START = Event.create(Start.class, callbacks -> (handler, sender, client) -> {
+		for (Start callback : callbacks) {
+			callback.onConfigurationStart(handler, sender, client);
+		}
+	});
+
+	/**
+	 * An event for notification when the client play network handler has been configured and has received the {@link net.minecraft.network.packet.s2c.configuration.FinishConfigurationS2CPacket FinishConfigurationS2CPacket}.
+	 * Called right before switching to the {@link net.minecraft.network.NetworkState#PLAY PLAY} stage.
+	 * <p>
+	 * No packets should be sent when this event is invoked.
+	 */
+	public static final Event<Configured> CONFIGURED = Event.create(Configured.class, callbacks -> (handler, client) -> {
+		for (Configured callback : callbacks) {
+			callback.onConfigured(handler, client);
 		}
 	});
 
@@ -77,12 +89,18 @@ public final class ClientConfigurationConnectionEvents {
 	}
 
 	/**
-	 * @see #READY
+	 * @see #START
 	 */
 	@ClientOnly
 	@FunctionalInterface
-	public interface Ready extends ClientEventAwareListener {
-		void onConfigurationReady(ClientConfigurationNetworkHandler handler, PacketSender<CustomPayload> sender, MinecraftClient client);
+	public interface Start extends ClientEventAwareListener {
+		void onConfigurationStart(ClientConfigurationNetworkHandler handler, PacketSender<CustomPayload> sender, MinecraftClient client);
+	}
+
+	@ClientOnly
+	@FunctionalInterface
+	public interface Configured extends ClientEventAwareListener {
+		void onConfigured(ClientConfigurationNetworkHandler handler, MinecraftClient client);
 	}
 
 	/**

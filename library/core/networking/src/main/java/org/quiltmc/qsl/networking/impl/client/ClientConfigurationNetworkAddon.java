@@ -68,10 +68,11 @@ public final class ClientConfigurationNetworkAddon extends AbstractChanneledNetw
 		}
 
 		ClientConfigurationConnectionEvents.INIT.invoker().onConfigurationInit(this.handler, this.client);
-		ClientConfigurationConnectionEvents.READY.invoker().onConfigurationReady(this.handler, this, this.client);
 
 		this.sendInitialChannelRegistrationPacket();
 		this.sentInitialRegisterPacket = true;
+
+		ClientConfigurationConnectionEvents.START.invoker().onConfigurationStart(this.handler, this, this.client);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -129,6 +130,10 @@ public final class ClientConfigurationNetworkAddon extends AbstractChanneledNetw
 				this.sendPacket(new CustomPayloadC2SPacket(payload));
 			}
 		}
+	}
+
+	public void onConfigured() {
+		ClientConfigurationConnectionEvents.CONFIGURED.invoker().onConfigured(this.handler, this.client);
 	}
 
 	@Override
