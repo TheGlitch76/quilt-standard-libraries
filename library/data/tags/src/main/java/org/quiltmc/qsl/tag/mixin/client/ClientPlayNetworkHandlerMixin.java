@@ -25,11 +25,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientNetworkHandler;
+import net.minecraft.client.network.ClientConnectionState;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
 import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.unmapped.C_qqflkeyp;
 
 import org.quiltmc.loader.api.minecraft.ClientOnly;
 import org.quiltmc.qsl.tag.impl.TagRegistryImpl;
@@ -43,8 +43,8 @@ public abstract class ClientPlayNetworkHandlerMixin extends AbstractClientNetwor
 	@Final
 	private DynamicRegistryManager.Frozen clientRegistryManager;
 
-	protected ClientPlayNetworkHandlerMixin(MinecraftClient client, ClientConnection connection, C_qqflkeyp c_qqflkeyp) {
-		super(client, connection, c_qqflkeyp);
+	protected ClientPlayNetworkHandlerMixin(MinecraftClient client, ClientConnection connection, ClientConnectionState clientConnectionState) {
+		super(client, connection, clientConnectionState);
 	}
 
 	@Inject(

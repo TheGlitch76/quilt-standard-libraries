@@ -59,7 +59,7 @@ public class MinecraftClientMixin {
 	// Take an Optional<Throwable> parameter.
 	@SuppressWarnings("target")
 	@Inject(method = "method_53522", at = @At("HEAD"))
-	private void onFirstEndReloadResources(MinecraftClient.C_vfwwgdbg c_vfwwgdbg, Optional<Throwable> error, CallbackInfo ci) {
+	private void onFirstEndReloadResource(MinecraftClient.LoadingContext loadingContext, Optional<Throwable> error, CallbackInfo ci) {
 		ClientResourceLoaderEvents.END_PACK_RELOAD.invoker().onEndPackReload(
 				new ClientResourceLoaderEventContextsImpl.ReloadEndContext(this.resourceManager, true, error)
 		);
@@ -72,7 +72,7 @@ public class MinecraftClientMixin {
 					target = "Lnet/minecraft/resource/ReloadableResourceManager;reload(Ljava/util/concurrent/Executor;Ljava/util/concurrent/Executor;Ljava/util/concurrent/CompletableFuture;Ljava/util/List;)Lnet/minecraft/resource/ResourceReload;"
 			)
 	)
-	private void onStartReloadResources(boolean bl, @Nullable MinecraftClient.C_vfwwgdbg c_vfwwgdbg, CallbackInfoReturnable<CompletableFuture<Void>> cir) {
+	private void onStartReloadResources(boolean bl, @Nullable MinecraftClient.LoadingContext loadingContext, CallbackInfoReturnable<CompletableFuture<Void>> cir) {
 		ClientResourceLoaderImpl.pushReloadContext(false);
 	}
 
@@ -80,7 +80,7 @@ public class MinecraftClientMixin {
 	// Take an Optional<Throwable> parameter.
 	@SuppressWarnings("target")
 	@Inject(method = "method_24228", at = @At(value = "HEAD"))
-	private void onEndReloadResources(boolean force, MinecraftClient.C_vfwwgdbg c_vfwwgdbg, CompletableFuture<Void> completableFuture, Optional<Throwable> error, CallbackInfo ci) {
+	private void onEndReloadResources(boolean force, MinecraftClient.LoadingContext loadingContext, CompletableFuture<Void> completableFuture, Optional<Throwable> error, CallbackInfo ci) {
 		ClientResourceLoaderEvents.END_PACK_RELOAD.invoker().onEndPackReload(
 				new ClientResourceLoaderEventContextsImpl.ReloadEndContext(this.resourceManager, false, error)
 		);

@@ -19,6 +19,8 @@ package org.quiltmc.qsl.resource.loader.mixin.client;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -30,10 +32,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.client.resource.ClientBuiltinResourcePackProvider;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.resource.pack.BuiltinPackProvider;
+import net.minecraft.resource.pack.PackLocationInfo;
 import net.minecraft.resource.pack.PackProfile;
 import net.minecraft.resource.pack.PackSource;
 import net.minecraft.resource.pack.ResourcePack;
 import net.minecraft.text.Text;
+import net.minecraft.unmapped.C_yzksgymh;
 
 import org.quiltmc.loader.api.minecraft.ClientOnly;
 import org.quiltmc.qsl.resource.loader.api.QuiltPackProfile;
@@ -47,22 +51,19 @@ public abstract class ClientBuiltinResourcePackProviderMixin {
 	@Final
 	private static Map<String, Text> BUILTIN_PACK_DISPLAY_NAMES;
 
-	@ModifyArg(
+	@WrapOperation(
 			method = "createBuiltinPackProfile(Ljava/lang/String;Lnet/minecraft/resource/pack/PackProfile$PackFactory;Lnet/minecraft/text/Text;)Lnet/minecraft/resource/pack/PackProfile;",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/resource/pack/PackProfile;of(Ljava/lang/String;Lnet/minecraft/text/Text;ZLnet/minecraft/resource/pack/PackProfile$PackFactory;Lnet/minecraft/resource/ResourceType;Lnet/minecraft/resource/pack/PackProfile$InsertionPosition;Lnet/minecraft/resource/pack/PackSource;)Lnet/minecraft/resource/pack/PackProfile;"
-			),
-			index = 3
+					target = "Lnet/minecraft/resource/pack/PackProfile;of(Lnet/minecraft/resource/pack/PackLocationInfo;Lnet/minecraft/resource/pack/PackProfile$PackFactory;Lnet/minecraft/resource/ResourceType;Lnet/minecraft/unmapped/C_yzksgymh;)Lnet/minecraft/resource/pack/PackProfile;"
+			)
 	)
-	private PackProfile.PackFactory onCreateBuiltinResourcePackProfile(String name, Text displayName, boolean alwaysEnabled,
-			PackProfile.PackFactory factory, ResourceType type, PackProfile.InsertionPosition insertionPosition,
-			PackSource source) {
-		if (BUILTIN_PACK_DISPLAY_NAMES.containsKey(name)) {
-			return QuiltPackProfile.wrapToFactory(ResourceLoaderImpl.buildVanillaBuiltinPack(factory.openPrimary(name), ResourceType.CLIENT_RESOURCES, name));
+	private PackProfile onCreateBuiltinResourcePackProfile(PackLocationInfo locationInfo, PackProfile.PackFactory packFactory, ResourceType type, C_yzksgymh c_yzksgymh, Operation<PackProfile> original) {
+		if (BUILTIN_PACK_DISPLAY_NAMES.containsKey(locationInfo.id())) {
+			packFactory = QuiltPackProfile.wrapToFactory(ResourceLoaderImpl.buildVanillaBuiltinPack(packFactory.openPrimary(locationInfo), ResourceType.CLIENT_RESOURCES, locationInfo.id()));
 		}
 
-		return factory;
+		return original.call(locationInfo, packFactory, type, c_yzksgymh);
 	}
 
 	@ModifyArg(

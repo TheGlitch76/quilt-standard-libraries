@@ -55,8 +55,8 @@ public abstract class GameOptionsMixin {
 	@Unique
 	private List<String> quilt$availableResourcePacks = new ArrayList<>();
 
-	@Inject(method = "accept(Lnet/minecraft/client/option/GameOptions$Visitor;)V", at = @At("HEAD"))
-	private void onAccept(GameOptions.Visitor visitor, CallbackInfo ci) {
+	@Inject(method = "accept(Lnet/minecraft/client/option/GameOptions$TypeVisitor;)V", at = @At("HEAD"))
+	private void onAccept(GameOptions.TypeVisitor visitor, CallbackInfo ci) {
 		this.quilt$availableResourcePacks = visitor.visitObject("quilt_available_resource_packs",
 				this.quilt$availableResourcePacks, GameOptionsMixin::deserializeStringList, GSON::toJson);
 	}

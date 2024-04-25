@@ -31,6 +31,7 @@ import net.minecraft.resource.pack.PackProfile;
 import net.minecraft.resource.pack.PackSource;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
+import net.minecraft.unmapped.C_yzksgymh;
 import net.minecraft.util.Identifier;
 
 import org.quiltmc.loader.api.ModContainer;
@@ -112,8 +113,14 @@ public class VirtualResourcePackTestMod implements ModInitializer, PackRegistrat
 				}
 				""");
 
-		profileAdder.accept(PackProfile.of("activation_test", Text.literal("Activation Test"), false,
-				QuiltPackProfile.wrapToFactory(pack), type, PackProfile.InsertionPosition.BOTTOM, PackSource.PACK_SOURCE_BUILTIN));
+		profileAdder.accept(PackProfile.of(pack.getLocationInfo(),
+				QuiltPackProfile.wrapToFactory(pack),
+				type,
+				new C_yzksgymh(
+					true,
+					PackProfile.InsertionPosition.BOTTOM,
+					true
+				)));
 	}
 
 	@Override

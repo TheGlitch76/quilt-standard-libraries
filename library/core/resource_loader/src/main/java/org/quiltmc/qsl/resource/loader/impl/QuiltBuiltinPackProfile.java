@@ -28,6 +28,7 @@ import net.minecraft.resource.pack.PackProfile;
 import net.minecraft.resource.pack.PackSource;
 import net.minecraft.resource.pack.ResourcePack;
 import net.minecraft.text.Text;
+import net.minecraft.unmapped.C_yzksgymh;
 import net.minecraft.util.Formatting;
 
 import org.quiltmc.qsl.resource.loader.api.QuiltPackProfile;
@@ -40,7 +41,7 @@ public final class QuiltBuiltinPackProfile extends PackProfile {
 
 	static @Nullable QuiltBuiltinPackProfile of(ModNioPack pack) {
 		int version = SharedConstants.getGameVersion().getResourceVersion(pack.type);
-		Info info = readInfoFromPack(pack.getName(), QuiltPackProfile.wrapToFactory(pack), version);
+		Metadata info = loadMetadata(pack.getLocationInfo(), QuiltPackProfile.wrapToFactory(pack), version);
 
 		if (info == null) {
 			LOGGER.warn("Couldn't find pack meta for pack {}.", pack.getName());
@@ -50,16 +51,16 @@ public final class QuiltBuiltinPackProfile extends PackProfile {
 		return new QuiltBuiltinPackProfile(pack, info);
 	}
 
-	private QuiltBuiltinPackProfile(ModNioPack pack, Info info) {
+	private QuiltBuiltinPackProfile(ModNioPack pack, Metadata info) {
 		super(
-				pack.getName(),
-                pack.getActivationType() == PackActivationType.ALWAYS_ENABLED,
+				pack.getLocationInfo(),
 				QuiltPackProfile.wrapToFactory(pack),
-				pack.getDisplayName(),
 				info,
-				PackProfile.InsertionPosition.TOP,
-				false,
-				new BuiltinPackSource(pack)
+				new C_yzksgymh(
+					true,
+					PackProfile.InsertionPosition.TOP,
+					false
+				)
 		);
 		this.pack = pack;
 	}

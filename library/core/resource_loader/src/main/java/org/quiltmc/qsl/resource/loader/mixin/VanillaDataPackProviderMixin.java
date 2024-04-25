@@ -16,6 +16,8 @@
 
 package org.quiltmc.qsl.resource.loader.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -23,11 +25,13 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 import net.minecraft.resource.ResourceType;
+import net.minecraft.resource.pack.PackLocationInfo;
 import net.minecraft.resource.pack.PackProfile;
 import net.minecraft.resource.pack.PackSource;
 import net.minecraft.resource.pack.ResourcePack;
 import net.minecraft.resource.pack.VanillaDataPackProvider;
 import net.minecraft.text.Text;
+import net.minecraft.unmapped.C_yzksgymh;
 import net.minecraft.util.Identifier;
 
 import org.quiltmc.qsl.resource.loader.api.QuiltPackProfile;
@@ -51,19 +55,18 @@ public class VanillaDataPackProviderMixin {
 		return ResourceLoaderImpl.buildMinecraftPack(ResourceType.SERVER_DATA, pack);
 	}
 
-	@ModifyArg(
+	@WrapOperation(
 			method = "createBuiltinPackProfile(Ljava/lang/String;Lnet/minecraft/resource/pack/PackProfile$PackFactory;Lnet/minecraft/text/Text;)Lnet/minecraft/resource/pack/PackProfile;",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/resource/pack/PackProfile;of(Ljava/lang/String;Lnet/minecraft/text/Text;ZLnet/minecraft/resource/pack/PackProfile$PackFactory;Lnet/minecraft/resource/ResourceType;Lnet/minecraft/resource/pack/PackProfile$InsertionPosition;Lnet/minecraft/resource/pack/PackSource;)Lnet/minecraft/resource/pack/PackProfile;"
-			),
-			index = 3
+					target = "Lnet/minecraft/resource/pack/PackProfile;of(Lnet/minecraft/resource/pack/PackLocationInfo;Lnet/minecraft/resource/pack/PackProfile$PackFactory;Lnet/minecraft/resource/ResourceType;Lnet/minecraft/unmapped/C_yzksgymh;)Lnet/minecraft/resource/pack/PackProfile;"
+			)
 	)
-	private PackProfile.PackFactory onCreateBuiltinResourcePackProfile(String name, Text displayName, boolean alwaysEnabled,
-			PackProfile.PackFactory factory, ResourceType type, PackProfile.InsertionPosition insertionPosition,
-			PackSource source) {
-		return QuiltPackProfile.wrapToFactory(ResourceLoaderImpl.buildVanillaBuiltinPack(factory.openPrimary(name), ResourceType.SERVER_DATA,
-				"data/" + DATA_PACKS_DIR.getNamespace() + '/' + DATA_PACKS_DIR.getPath() + '/' + name
+	private PackProfile onCreateBuiltinResourcePackProfile(PackLocationInfo locationInfo, PackProfile.PackFactory packFactory, ResourceType type, C_yzksgymh c_yzksgymh, Operation<PackProfile> original) {
+		packFactory = QuiltPackProfile.wrapToFactory(ResourceLoaderImpl.buildVanillaBuiltinPack(packFactory.openPrimary(locationInfo), ResourceType.SERVER_DATA,
+			"data/" + DATA_PACKS_DIR.getNamespace() + '/' + DATA_PACKS_DIR.getPath() + '/' + locationInfo.id()
 		));
+
+		return original.call(locationInfo, packFactory, type, c_yzksgymh);
 	}
 }

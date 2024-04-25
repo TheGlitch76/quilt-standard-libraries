@@ -29,9 +29,11 @@ import net.minecraft.resource.MultiPackResourceManager;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.resource.pack.DefaultPack;
+import net.minecraft.resource.pack.PackLocationInfo;
 import net.minecraft.resource.pack.PackManager;
 import net.minecraft.resource.pack.PackProfile;
 import net.minecraft.resource.pack.PackSource;
+import net.minecraft.unmapped.C_yzksgymh;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.profiler.Profiler;
 
@@ -52,8 +54,19 @@ final class ClientDefaultTagManagerReloader extends ClientOnlyTagManagerReloader
 
 		var pack = ResourceLoaderImpl.buildMinecraftPack(ResourceType.SERVER_DATA, defaultPack);
 		this.resourcePackManager = new PackManager((profileAdder) -> {
-			profileAdder.accept(PackProfile.of("vanilla", pack.getDisplayName(), true, QuiltPackProfile.wrapToFactory(pack),
-					ResourceType.SERVER_DATA, PackProfile.InsertionPosition.BOTTOM, PackSource.PACK_SOURCE_BUILTIN
+			profileAdder.accept(PackProfile.of(
+				new PackLocationInfo(
+						"vanilla",
+						pack.getDisplayName(),
+						null,
+						pack.getKnownPackInfo()),
+					QuiltPackProfile.wrapToFactory(pack),
+					ResourceType.SERVER_DATA,
+					new C_yzksgymh(
+						true,
+						PackProfile.InsertionPosition.BOTTOM,
+						true
+					)
 			));
 		}, ModPackProvider.SERVER_RESOURCE_PACK_PROVIDER);
 	}

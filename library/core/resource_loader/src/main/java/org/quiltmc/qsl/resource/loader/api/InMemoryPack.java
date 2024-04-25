@@ -24,6 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -45,8 +46,10 @@ import org.slf4j.Logger;
 
 import net.minecraft.resource.ResourceIoSupplier;
 import net.minecraft.resource.ResourceType;
+import net.minecraft.resource.pack.PackLocationInfo;
 import net.minecraft.resource.pack.ResourcePack;
 import net.minecraft.resource.pack.metadata.ResourceMetadataSectionReader;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 
@@ -280,6 +283,16 @@ public abstract class InMemoryPack implements MutablePack {
 
 		public Named(String name) {
 			this.name = name;
+		}
+
+		@Override
+		public PackLocationInfo getLocationInfo() {
+			return new PackLocationInfo(
+				this.name,
+				Text.literal(this.name),
+				null,
+				Optional.empty()
+			);
 		}
 
 		@Override

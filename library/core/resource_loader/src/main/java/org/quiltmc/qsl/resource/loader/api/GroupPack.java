@@ -33,6 +33,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 
 import net.minecraft.resource.ResourceIoSupplier;
 import net.minecraft.resource.ResourceType;
+import net.minecraft.resource.pack.PackLocationInfo;
 import net.minecraft.resource.pack.ResourcePack;
 import net.minecraft.resource.pack.metadata.ResourceMetadataSectionReader;
 import net.minecraft.text.Text;
@@ -103,8 +104,6 @@ public abstract class GroupPack implements ResourcePack {
 		this.packs.forEach(pack -> pack.getNamespaces(this.type)
 				.forEach(namespace -> this.namespacedPacks.computeIfAbsent(namespace, value -> new ArrayList<>())
 						.add(pack)));
-
-		this.builtin = this.packs.stream().allMatch(ResourcePack::isBuiltin);
 	}
 
 	@Override
@@ -144,11 +143,6 @@ public abstract class GroupPack implements ResourcePack {
 
 	public @NotNull String getFullName() {
 		return this.getName() + " (" + this.packs.stream().map(ResourcePack::getName).collect(Collectors.joining(", ")) + ")";
-	}
-
-	@Override
-	public boolean isBuiltin() {
-		return this.builtin;
 	}
 
 	@Override
@@ -197,6 +191,11 @@ public abstract class GroupPack implements ResourcePack {
 		@Override
 		public <T> @Nullable T parseMetadata(ResourceMetadataSectionReader<T> metaReader) throws IOException {
 			return this.basePack.parseMetadata(metaReader);
+		}
+
+		@Override
+		public PackLocationInfo getLocationInfo() {
+			return this.basePack.getLocationInfo();
 		}
 
 		@Override

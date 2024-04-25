@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Quilt Project
+ * Copyright 2022 The Quilt Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,22 @@
  * limitations under the License.
  */
 
-package org.quiltmc.qsl.rendering.entity.mixin.client;
+package org.quiltmc.qsl.resource.loader.mixin.client;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.gen.Accessor;
 
-import net.minecraft.item.ArmorMaterial;
+import net.minecraft.client.gui.screen.pack.PackScreen;
+import net.minecraft.client.gui.widget.list.pack.PackEntryListWidget;
 
-import org.quiltmc.qsl.rendering.entity.api.client.QuiltArmorMaterialExtensions;
+import org.quiltmc.loader.api.minecraft.ClientOnly;
 
-@Mixin(ArmorMaterial.class)
-public interface ArmorMaterialMixin extends QuiltArmorMaterialExtensions {}
+@ClientOnly
+@Mixin(PackScreen.class)
+public interface PackScreenAccessor {
+	@Accessor("availablePackList")
+	PackEntryListWidget getAvailablePackList();
+
+	@Accessor("selectedPackList")
+	PackEntryListWidget getSelectedPackList();
+}

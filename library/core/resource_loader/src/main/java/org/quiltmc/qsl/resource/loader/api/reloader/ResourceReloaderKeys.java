@@ -76,7 +76,6 @@ public final class ResourceReloaderKeys {
 	public static final class Server {
 		public static final Identifier ADVANCEMENTS = id("advancements");
 		public static final Identifier FUNCTIONS = id("functions");
-		public static final Identifier LOOT_TABLES = id("loot_tables");
 		public static final Identifier RECIPES = id("recipes");
 		public static final Identifier TAGS = id("tags");
 

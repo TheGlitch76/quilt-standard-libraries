@@ -26,7 +26,7 @@
     "client.IntegratedServerLoaderMixin",
     "client.KeyedClientResourceReloaderMixin",
     "client.MinecraftClientMixin",
-    "client.PackScreenMixin",
+    "client.PackScreenAccessor",
     "client.ReloadableResourceManagerMixin",
     "client.ResourcePackEntryAccessor",
     "client.ShaderResourceReloadListenerMixin"

@@ -20,10 +20,9 @@ import java.util.Optional;
 
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Lifecycle;
-import net.minecraft.world.SaveProperties;
+
 import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Coerce;
@@ -34,7 +33,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.world.CreateWorldScreen;
 import net.minecraft.registry.LayeredRegistryManager;
 import net.minecraft.resource.AutoCloseableResourceManager;
@@ -43,6 +41,7 @@ import net.minecraft.server.ServerReloadableResources;
 import net.minecraft.server.WorldLoader;
 import net.minecraft.server.WorldStem;
 import net.minecraft.server.integrated.IntegratedServerLoader;
+import net.minecraft.world.SaveProperties;
 import net.minecraft.world.storage.WorldSaveStorage;
 
 import org.quiltmc.loader.api.minecraft.ClientOnly;
@@ -53,11 +52,6 @@ import org.quiltmc.qsl.resource.loader.impl.ResourceLoaderEventContextsImpl;
 @ClientOnly
 @Mixin(IntegratedServerLoader.class)
 public abstract class IntegratedServerLoaderMixin {
-
-	@Shadow
-	protected abstract void start(WorldSaveStorage.Session session, com.mojang.serialization.Dynamic<?> dynamic,
-								  boolean bl, boolean bl2, Runnable runnable);
-
 	@Unique
 	private static final TriState EXPERIMENTAL_SCREEN_OVERRIDE = TriState.fromProperty("quilt.resource_loader.experimental_screen_override");
 
@@ -85,7 +79,7 @@ public abstract class IntegratedServerLoaderMixin {
 	}
 
 	@ModifyArg(
-			method = {"createAndStart", "start(Lnet/minecraft/world/storage/WorldSaveStorage$Session;Lcom/mojang/serialization/Dynamic;ZZLjava/lang/Runnable;)V"},
+			method = {"createAndStart", "start"},
 			at = @At(value = "INVOKE", target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;Ljava/lang/Throwable;)V", remap = false),
 			index = 1
 	)
@@ -97,7 +91,7 @@ public abstract class IntegratedServerLoaderMixin {
 	}
 
 	@Inject(
-			method = "start(Lnet/minecraft/world/storage/WorldSaveStorage$Session;Lcom/mojang/serialization/Dynamic;ZZLjava/lang/Runnable;)V",
+			method = "method_57775(Lnet/minecraft/world/storage/WorldSaveStorage$Session;Lnet/minecraft/server/WorldStem;Lnet/minecraft/resource/pack/PackManager;Ljava/lang/Runnable;)V",
 			at = @At(
 					value = "INVOKE",
 					target = "Lnet/minecraft/server/integrated/IntegratedServerLoader;askForBackup(Lnet/minecraft/world/storage/WorldSaveStorage$Session;ZLjava/lang/Runnable;Ljava/lang/Runnable;)V"
@@ -105,12 +99,12 @@ public abstract class IntegratedServerLoaderMixin {
 			locals = LocalCapture.CAPTURE_FAILHARD,
 			cancellable = true
 	)
-	private void onBackupExperimentalWarning(WorldSaveStorage.Session session, com.mojang.serialization.Dynamic<?> dynamic, boolean safeMode, boolean requireBackup, Runnable runnable, CallbackInfo ci,
-											 PackManager resourcePackManager, WorldStem worldStem) {
-		if (EXPERIMENTAL_SCREEN_OVERRIDE.toBooleanOrElse(true)
-				&& !worldStem.saveProperties().getGeneratorOptions().hasLegacyCustomOptions()) {
+	private void onBackupExperimentalWarning(WorldSaveStorage.Session session, WorldStem worldStem, PackManager packManager, Runnable runnable, CallbackInfo ci, SaveProperties saveProperties, boolean legacyCustomized, boolean unstable) {
+		if (EXPERIMENTAL_SCREEN_OVERRIDE.toBooleanOrElse(true) && !legacyCustomized) {
+			// Copied from the second lambda in askForBackup
 			worldStem.close();
-			this.start(session, dynamic, safeMode, false, runnable);
+			session.method_54532();
+			runnable.run();
 			ci.cancel();
 		}
 	}

@@ -24,6 +24,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 
 import com.mojang.logging.LogUtils;
@@ -35,6 +36,9 @@ import org.slf4j.Logger;
 import net.minecraft.resource.ResourceIoSupplier;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.resource.pack.AbstractFileResourcePack;
+import net.minecraft.resource.pack.KnownPack;
+import net.minecraft.resource.pack.PackLocationInfo;
+import net.minecraft.resource.pack.PackSource;
 import net.minecraft.resource.pack.ResourcePack;
 import net.minecraft.resource.pack.metadata.ResourceMetadataSectionReader;
 import net.minecraft.text.Text;
@@ -79,7 +83,12 @@ public class ModNioPack extends AbstractFileResourcePack implements QuiltPack {
 
 	public ModNioPack(@Nullable String name, ModMetadata modInfo, @Nullable Text displayName, PackActivationType activationType,
 					  Path path, ResourceType type, @Nullable AutoCloseable closer) {
-		super(null, true);
+		super(new PackLocationInfo(
+				name,
+				displayName,
+				PackSource.PACK_SOURCE_BUILTIN,
+				Optional.empty()
+		));
 
 		/* Metadata */
 		this.name = name == null ? ModPackUtil.getName(modInfo) : name;
@@ -201,11 +210,6 @@ public class ModNioPack extends AbstractFileResourcePack implements QuiltPack {
 	@Override
 	public @NotNull Text getDisplayName() {
 		return this.displayName;
-	}
-
-	@Override
-	public boolean isBuiltin() {
-		return true;
 	}
 
 	@Override
