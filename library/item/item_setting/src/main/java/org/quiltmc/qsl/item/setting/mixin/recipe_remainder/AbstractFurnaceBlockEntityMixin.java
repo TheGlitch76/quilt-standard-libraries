@@ -85,7 +85,7 @@ public abstract class AbstractFurnaceBlockEntityMixin extends BlockEntity implem
 				ItemStack remainder = RecipeRemainderLogicHandler.getRemainder(original, recipeHolder.value(), RecipeRemainderLocation.FURNACE_INGREDIENT).copy();
 				original.decrement(1);
 
-				if (!remainder.isEmpty() && ItemStack.canCombine(original, remainder)) {
+				if (!remainder.isEmpty() && ItemStack.itemsAndComponentsMatch(original, remainder)) {
 					int toTake = Math.min(original.getMaxCount() - original.getCount(), remainder.getCount());
 					remainder.decrement(toTake);
 

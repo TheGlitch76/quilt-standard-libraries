@@ -201,12 +201,6 @@ public class QuiltItemSettings extends Item.Settings {
 	}
 
 	@Override
-	public QuiltItemSettings maxDamageIfAbsent(int maxDamage) {
-		super.maxDamageIfAbsent(maxDamage);
-		return this;
-	}
-
-	@Override
 	@Contract("_->this")
 	public QuiltItemSettings maxDamage(int maxDamage) {
 		super.maxDamage(maxDamage);

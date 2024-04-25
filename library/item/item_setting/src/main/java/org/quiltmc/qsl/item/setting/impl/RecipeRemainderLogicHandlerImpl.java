@@ -76,7 +76,7 @@ public final class RecipeRemainderLogicHandlerImpl implements RecipeRemainderLog
 	private static boolean tryMergeStacks(ItemStack base, ItemStack remainder) {
 		if (remainder.isEmpty()) {
 			return true;
-		} else if (!ItemStack.canCombine(base, remainder)) {
+		} else if (!ItemStack.itemsAndComponentsMatch(base, remainder)) {
 			return false;
 		}
 

@@ -31,6 +31,8 @@ import net.minecraft.block.enums.NoteBlockInstrument;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.EntityType;
 import net.minecraft.feature_flags.FeatureFlagBitSet;
+import net.minecraft.loot.LootTable;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
 
@@ -71,7 +73,7 @@ public interface AbstractBlockSettingsAccessor {
 	boolean getDynamicBounds();
 
 	@Accessor
-	Identifier getLootTableId();
+	RegistryKey<LootTable> getLootTableId();
 
 	@Accessor
 	boolean getOpaque();
@@ -140,7 +142,7 @@ public interface AbstractBlockSettingsAccessor {
 	void setRandomTicks(boolean ticksRandomly);
 
 	@Accessor
-	void setLootTableId(Identifier lootTableId);
+	void setLootTableId(RegistryKey<LootTable> lootTableId);
 
 	@Accessor
 	void setOpaque(boolean opaque);

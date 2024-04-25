@@ -21,6 +21,7 @@ import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.boss.dragon.EnderDragonPart;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.data.DataTracker;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
@@ -53,7 +54,7 @@ public abstract class AbstractEntityPart<E extends Entity> extends Entity implem
 	}
 
 	@Override
-	protected void initDataTracker() {}
+	protected void initDataTracker(DataTracker.Builder builder) {}
 
 	@Override
 	protected void readCustomDataFromNbt(NbtCompound nbt) {}

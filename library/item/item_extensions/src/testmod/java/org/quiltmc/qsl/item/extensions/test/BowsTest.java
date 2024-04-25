@@ -18,8 +18,10 @@ package org.quiltmc.qsl.item.extensions.test;
 
 import org.jetbrains.annotations.NotNull;
 
+import net.minecraft.component.type.ChargedProjectilesComponent;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
@@ -41,12 +43,14 @@ public class BowsTest implements ModInitializer {
 
 	public static final Item TEST_CROSSBOW = new ProjectileModifyingCrossbowItem(new Item.Settings().maxCount(1)) {
 		@Override
-		public void onProjectileShot(ItemStack crossbowStack, ItemStack projectileStack, LivingEntity entity, @NotNull PersistentProjectileEntity persistentProjectileEntity) {
-			persistentProjectileEntity.setDamage(1000);
+		public void onProjectileShot(ItemStack crossbowStack, ItemStack projectileStack, LivingEntity entity, @NotNull ProjectileEntity projectileEntity) {
+			if (projectileEntity instanceof PersistentProjectileEntity persistentProjectileEntity) {
+				persistentProjectileEntity.setDamage(1000);
+			}
 		}
 
 		@Override
-		public float getProjectileSpeed(@NotNull ItemStack stack, @NotNull LivingEntity entity) {
+		public float getProjectileSpeed(@NotNull ItemStack stack, @NotNull ChargedProjectilesComponent component, @NotNull LivingEntity entity) {
 			return 10f;
 		}
 	};
