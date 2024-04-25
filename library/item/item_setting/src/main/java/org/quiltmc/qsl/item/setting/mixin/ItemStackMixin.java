@@ -30,6 +30,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.random.RandomGenerator;
 
 import org.quiltmc.qsl.item.setting.api.CustomDamageHandler;
 import org.quiltmc.qsl.item.setting.impl.CustomItemSettingImpl;
@@ -40,22 +42,22 @@ public abstract class ItemStackMixin {
 	public abstract Item getItem();
 
 	@Unique
-	private LivingEntity quilt$damagingEntity;
+	private ServerPlayerEntity quilt$damagingEntity;
 
 	@Unique
-	private Consumer<LivingEntity> quilt$breakCallback;
+	private Runnable quilt$breakCallback;
 
-	@Inject(method = "damage(ILnet/minecraft/entity/LivingEntity;Ljava/util/function/Consumer;)V", at = @At("HEAD"))
-	private void saveDamager(int amount, LivingEntity entity, Consumer<LivingEntity> breakCallback, CallbackInfo ci) {
+	@Inject(method = "method_7956", at = @At("HEAD"))
+	private void saveDamager(int amount, RandomGenerator random, ServerPlayerEntity entity, Runnable breakCallback, CallbackInfo ci) {
 		this.quilt$damagingEntity = entity;
 		this.quilt$breakCallback = breakCallback;
 	}
 
 	@ModifyArg(
-			method = "damage(ILnet/minecraft/entity/LivingEntity;Ljava/util/function/Consumer;)V",
+			method = "method_7956",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/item/ItemStack;damage(ILnet/minecraft/util/random/RandomGenerator;Lnet/minecraft/server/network/ServerPlayerEntity;)Z"
+					target = "Lnet/minecraft/item/ItemStack;setDamage(I)V"
 			),
 			index = 0
 	)
@@ -69,8 +71,8 @@ public abstract class ItemStackMixin {
 		return amount;
 	}
 
-	@Inject(method = "damage(ILnet/minecraft/entity/LivingEntity;Ljava/util/function/Consumer;)V", at = @At("RETURN"))
-	private <T extends LivingEntity> void clearDamager(int amount, T entity, Consumer<T> breakCallback, CallbackInfo ci) {
+	@Inject(method = "method_7956", at = @At("RETURN"))
+	private <T extends LivingEntity> void clearDamager(int amount, RandomGenerator random, ServerPlayerEntity entity, Runnable breakCallback, CallbackInfo ci) {
 		this.quilt$damagingEntity = null;
 		this.quilt$breakCallback = null;
 	}
