@@ -42,13 +42,7 @@ public class ProfileIndependentS2CMessage extends AbstractChatMessage<ProfileInd
 				player,
 				isClient,
 				packet.message(),
-				packet.messageType().createParameters(player.getWorld().getRegistryManager()).orElseGet(() -> {
-					if (player instanceof ClientPlayerEntity clientPlayerEntity) {
-						clientPlayerEntity.networkHandler.getConnection().disconnect(Text.translatable("multiplayer.disconnect.invalid_packet"));
-					}
-
-					return null;
-				})
+				packet.messageType()
 		);
 	}
 
@@ -65,7 +59,7 @@ public class ProfileIndependentS2CMessage extends AbstractChatMessage<ProfileInd
 
 	@Override
 	public @NotNull ProfileIndependentMessageS2CPacket serialized() {
-		return new ProfileIndependentMessageS2CPacket(this.message, this.messageType.serialize(this.player.getWorld().getRegistryManager()));
+		return new ProfileIndependentMessageS2CPacket(this.message, this.messageType);
 	}
 
 	@Contract(pure = true)
