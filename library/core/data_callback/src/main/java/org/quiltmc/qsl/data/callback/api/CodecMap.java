@@ -21,6 +21,7 @@ import com.google.common.collect.HashBiMap;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.util.Identifier;
@@ -93,7 +94,7 @@ public class CodecMap<T extends CodecAware> {
 			}
 
 			return DataResult.success(codec);
-		}, DataResult::success);
+		}, codec -> DataResult.success(MapCodec.assumeMapUnsafe(codec)));
 	}
 
 	/**
