@@ -17,17 +17,15 @@
 
 package org.quiltmc.qsl.item.setting.mixin;
 
-import java.util.function.Consumer;
-
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -41,39 +39,26 @@ public abstract class ItemStackMixin {
 	@Shadow
 	public abstract Item getItem();
 
-	@Unique
-	private ServerPlayerEntity quilt$damagingEntity;
-
-	@Unique
-	private Runnable quilt$breakCallback;
-
-	@Inject(method = "method_7956", at = @At("HEAD"))
-	private void saveDamager(int amount, RandomGenerator random, ServerPlayerEntity entity, Runnable breakCallback, CallbackInfo ci) {
-		this.quilt$damagingEntity = entity;
-		this.quilt$breakCallback = breakCallback;
-	}
-
-	@ModifyArg(
-			method = "method_7956",
+	@WrapOperation(
+			method = "method_7970",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/item/ItemStack;setDamage(I)V"
-			),
-			index = 0
+					target = "Lnet/minecraft/item/ItemStack;method_7956(ILnet/minecraft/util/random/RandomGenerator;Lnet/minecraft/server/network/ServerPlayerEntity;Ljava/lang/Runnable;)V"
+			)
 	)
-	private int hookDamage(int amount) {
+	private void hookDamage(ItemStack instance, int amount, RandomGenerator random, ServerPlayerEntity player, Runnable breakCallback, Operation<Void> original, @Local(argsOnly = true) EquipmentSlot slot) {
 		CustomDamageHandler handler = CustomItemSettingImpl.CUSTOM_DAMAGE_HANDLER.get(this.getItem());
 
 		if (handler != null) {
-			return handler.damage((ItemStack) (Object) this, amount, this.quilt$damagingEntity, this.quilt$breakCallback);
+			MutableBoolean broken = new MutableBoolean(false);
+			amount = handler.damage((ItemStack) (Object) this, amount, player, slot, () -> {
+				breakCallback.run();
+				broken.setTrue();
+			});
+
+			if (broken.booleanValue()) return; // Item broke, don't continue trying to damage.
 		}
 
-		return amount;
-	}
-
-	@Inject(method = "method_7956", at = @At("RETURN"))
-	private <T extends LivingEntity> void clearDamager(int amount, RandomGenerator random, ServerPlayerEntity entity, Runnable breakCallback, CallbackInfo ci) {
-		this.quilt$damagingEntity = null;
-		this.quilt$breakCallback = null;
+		original.call(instance, amount, random, player, breakCallback);
 	}
 }
