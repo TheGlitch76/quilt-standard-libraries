@@ -22,9 +22,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.network.ClientConnection;
+import net.minecraft.network.ConnectedClientData;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.unmapped.C_eyqfalbd;
 
 import org.quiltmc.qsl.networking.impl.server.ServerNetworkingImpl;
 
@@ -37,7 +37,7 @@ abstract class PlayerManagerMixin {
 				target = "Lnet/minecraft/server/PlayerManager;sendToAll(Lnet/minecraft/network/packet/Packet;)V"
 			)
 	)
-	private void handlePlayerConnection(ClientConnection connection, ServerPlayerEntity player, C_eyqfalbd c_eyqfalbd, CallbackInfo ci) {
+	private void handlePlayerConnection(ClientConnection connection, ServerPlayerEntity player, ConnectedClientData connectedClientData, CallbackInfo ci) {
 		ServerNetworkingImpl.getAddon(player.networkHandler).onClientReady();
 	}
 }

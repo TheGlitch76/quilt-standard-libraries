@@ -23,13 +23,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.network.ClientConnection;
+import net.minecraft.network.ConnectedClientData;
 import net.minecraft.network.listener.AbstractServerPacketHandler;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.common.DisconnectS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.text.Text;
-import net.minecraft.unmapped.C_eyqfalbd;
 
 import org.quiltmc.qsl.networking.impl.DisconnectPacketSource;
 import org.quiltmc.qsl.networking.impl.NetworkHandlerExtensions;
@@ -41,8 +41,8 @@ abstract class ServerPlayNetworkHandlerMixin extends AbstractServerPacketHandler
 	@Unique
 	private ServerPlayNetworkAddon addon;
 
-	ServerPlayNetworkHandlerMixin(MinecraftServer server, ClientConnection connection, C_eyqfalbd c_eyqfalbd) {
-		super(server, connection, c_eyqfalbd);
+	ServerPlayNetworkHandlerMixin(MinecraftServer server, ClientConnection connection, ConnectedClientData connectedClientData) {
+		super(server, connection, connectedClientData);
 	}
 
 	@Inject(method = "<init>", at = @At("RETURN"))

@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.function.Consumer;
 
 import net.minecraft.network.NetworkState;
-import net.minecraft.network.ServerConfigurationPacketHandler;
+import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.network.configuration.ConfigurationTask;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.payload.CustomPayload;
@@ -64,13 +64,13 @@ public class CommonPacketsImpl {
 		});
 	}
 
-	private static void handleCommonVersion(MinecraftServer server, ServerConfigurationPacketHandler handler, CommonVersionPayload payload, PacketSender<CustomPayload> responseSender) {
+	private static void handleCommonVersion(MinecraftServer server, ServerConfigurationNetworkHandler handler, CommonVersionPayload payload, PacketSender<CustomPayload> responseSender) {
 		ServerConfigurationNetworkAddon addon = ServerNetworkingImpl.getAddon(handler);
 		addon.onCommonVersionPacket(getNegotiatedVersion(payload));
 		((ServerConfigurationTaskManager) handler).finishTask(CommonVersionConfigurationTask.KEY);
 	}
 
-	private static void handleCommonRegister(MinecraftServer server, ServerConfigurationPacketHandler handler, CommonRegisterPayload payload, PacketSender<CustomPayload> responseSender) {
+	private static void handleCommonRegister(MinecraftServer server, ServerConfigurationNetworkHandler handler, CommonRegisterPayload payload, PacketSender<CustomPayload> responseSender) {
 		ServerConfigurationNetworkAddon addon = ServerNetworkingImpl.getAddon(handler);
 
 		if (CommonRegisterPayload.PLAY_PHASE.equals(payload.phase())) {

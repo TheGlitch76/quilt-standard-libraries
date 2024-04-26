@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.network.ServerConfigurationPacketHandler;
+import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 
 import org.quiltmc.loader.api.ModContainer;
 import org.quiltmc.qsl.registry.impl.sync.mod_protocol.ModProtocolImpl;
@@ -69,7 +69,7 @@ public final class ModProtocol {
 	 * @return latest supported by player protocol for mod. -1 if not supported
 	 */
 	@Contract(pure = true)
-	public static int getSupported(@NotNull ServerConfigurationPacketHandler handler, @NotNull ModContainer modContainer) {
+	public static int getSupported(@NotNull ServerConfigurationNetworkHandler handler, @NotNull ModContainer modContainer) {
 		return ExtendedConnectionClient.from(handler).quilt$getModProtocol("mod:" + modContainer.metadata().id());
 	}
 }

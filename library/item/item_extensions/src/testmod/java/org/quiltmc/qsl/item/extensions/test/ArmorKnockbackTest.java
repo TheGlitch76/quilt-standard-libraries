@@ -20,7 +20,7 @@ import java.util.EnumMap;
 import java.util.List;
 
 
-import net.minecraft.client.item.TooltipContext;
+import net.minecraft.client.item.TooltipConfig;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ArmorItem.ArmorSlot;
 import net.minecraft.item.ArmorMaterial;
@@ -64,9 +64,9 @@ public class ArmorKnockbackTest implements ModInitializer {
 			new Item.Settings().rarity(Rarity.RARE)
 	) {
 		@Override
-		public void appendTooltip(ItemStack stack, C_rdhfmrgz c_rdhfmrgz, List<Text> tooltip, TooltipContext context) {
+		public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipConfig config) {
 			tooltip.add(Text.of("This tooltip should mention the knockback resistance."));
-			super.appendTooltip(stack, c_rdhfmrgz, tooltip, context);
+			super.appendTooltip(stack, context, tooltip, config);
 		}
 	};
 

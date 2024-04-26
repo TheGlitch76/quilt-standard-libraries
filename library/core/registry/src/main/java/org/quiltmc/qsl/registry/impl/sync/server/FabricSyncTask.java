@@ -18,7 +18,7 @@ package org.quiltmc.qsl.registry.impl.sync.server;
 
 import java.util.function.Consumer;
 
-import net.minecraft.network.ServerConfigurationPacketHandler;
+import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.network.configuration.ConfigurationTask;
 import net.minecraft.network.packet.Packet;
 
@@ -26,9 +26,9 @@ import org.quiltmc.qsl.networking.api.ServerConfigurationTaskManager;
 
 public class FabricSyncTask implements ConfigurationTask {
 	public static final Type TYPE = new Type("fabric:registry_sync");
-	private final ServerConfigurationPacketHandler packetHandler;
+	private final ServerConfigurationNetworkHandler packetHandler;
 
-	public FabricSyncTask(ServerConfigurationPacketHandler packetHandler) {
+	public FabricSyncTask(ServerConfigurationNetworkHandler packetHandler) {
 		this.packetHandler = packetHandler;
 	}
 

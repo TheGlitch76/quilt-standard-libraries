@@ -22,7 +22,7 @@ import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
 import net.minecraft.network.ClientConnection;
-import net.minecraft.network.ServerConfigurationPacketHandler;
+import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.network.configuration.ConfigurationTask;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.registry.Registries;
@@ -34,12 +34,12 @@ import org.quiltmc.qsl.registry.impl.sync.ProtocolVersions;
 public class QuiltSyncTask implements ConfigurationTask {
 	public static final Type TYPE = new Type("qsl:registry_sync");
 	private static final Logger LOGGER = LogUtils.getLogger();
-	private final ServerConfigurationPacketHandler packetHandler;
+	private final ServerConfigurationNetworkHandler packetHandler;
 	private final ExtendedConnectionClient extendedConnection;
 	private Consumer<Packet<?>> sender;
 	private int syncVersion = ProtocolVersions.NO_PROTOCOL;
 
-	public QuiltSyncTask(ServerConfigurationPacketHandler packetHandler, ClientConnection connection) {
+	public QuiltSyncTask(ServerConfigurationNetworkHandler packetHandler, ClientConnection connection) {
 		this.packetHandler = packetHandler;
 		this.extendedConnection = (ExtendedConnectionClient) connection;
 	}

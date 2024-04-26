@@ -22,7 +22,7 @@ import net.fabricmc.api.EnvType;
 
 import net.minecraft.item.Item;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.ServerConfigurationPacketHandler;
+import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.network.configuration.ConfigurationTask;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.payload.CustomPayload;
@@ -120,10 +120,10 @@ public class RegistryLibSyncOrderTest implements ModInitializer, DedicatedServer
 
 	public class SyncIDTask implements ConfigurationTask {
 		private static final Type TYPE = new Type("quilt:sync_id_task");
-		private final ServerConfigurationPacketHandler handler;
+		private final ServerConfigurationNetworkHandler handler;
 		private boolean early;
 
-		public SyncIDTask(ServerConfigurationPacketHandler handler, boolean early) {
+		public SyncIDTask(ServerConfigurationNetworkHandler handler, boolean early) {
 			this.early = early;
 			this.handler = handler;
 		}

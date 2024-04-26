@@ -18,7 +18,7 @@ package org.quiltmc.qsl.networking.api;
 
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.network.ServerConfigurationPacketHandler;
+import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.network.configuration.ConfigurationTask;
 
 import org.quiltmc.qsl.base.api.util.InjectedInterface;
@@ -26,7 +26,7 @@ import org.quiltmc.qsl.base.api.util.InjectedInterface;
 /**
  * An injected interface for {@link net.minecraft.network.ServerConfigurationPacketHandler} that exposes the task system.
  */
-@InjectedInterface(ServerConfigurationPacketHandler.class)
+@InjectedInterface(ServerConfigurationNetworkHandler.class)
 public interface ServerConfigurationTaskManager {
 	/**
 	 * Adds a task to the handler that must complete before joining.

@@ -34,6 +34,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.AttributeContainer;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.registry.Holder;
 
 import org.quiltmc.qsl.entity.effect.api.QuiltLivingEntityStatusEffectExtensions;
 import org.quiltmc.qsl.entity.effect.api.StatusEffectEvents;
@@ -134,8 +135,8 @@ public abstract class LivingEntityMixin extends Entity implements QuiltLivingEnt
 	 * @reason Adding removal reason
 	 */
 	@Overwrite
-	public boolean removeStatusEffect(StatusEffect type) {
-		return this.removeStatusEffect(type, StatusEffectRemovalReason.GENERIC_ONE);
+	public boolean removeStatusEffect(Holder<StatusEffect> type) {
+		return this.removeStatusEffect(type.value(), StatusEffectRemovalReason.GENERIC_ONE);
 	}
 
 	/**

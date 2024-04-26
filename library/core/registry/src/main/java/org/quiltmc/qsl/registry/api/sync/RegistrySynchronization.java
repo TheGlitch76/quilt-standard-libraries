@@ -20,7 +20,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.network.ServerConfigurationPacketHandler;
+import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.registry.SimpleRegistry;
 import net.minecraft.util.Identifier;
 
@@ -115,7 +115,7 @@ public final class RegistrySynchronization {
 	 * @return {@code true} if the given entry is known to player, or {@code false} otherwise
 	 */
 	@Contract(pure = true)
-	public static <T> boolean isEntryPresent(@NotNull ServerConfigurationPacketHandler handler, @NotNull SimpleRegistry<T> registry, T entry) {
+	public static <T> boolean isEntryPresent(@NotNull ServerConfigurationNetworkHandler handler, @NotNull SimpleRegistry<T> registry, T entry) {
 		var connection = ExtendedConnectionClient.from(handler);
 		var regFlags = SynchronizedRegistry.as(registry).quilt$getRegistryFlag();
 		var flags = SynchronizedRegistry.as(registry).quilt$getEntryFlag(entry);

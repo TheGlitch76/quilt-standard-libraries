@@ -36,7 +36,7 @@ import org.mockito.ArgumentCaptor;
 import net.minecraft.client.network.ClientConfigurationNetworkHandler;
 import net.minecraft.network.NetworkState;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.ServerConfigurationPacketHandler;
+import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.util.Identifier;
 
@@ -63,7 +63,7 @@ public class CommonPacketTests {
 	private ClientConfigurationNetworkHandler clientNetworkHandler;
 	private ClientConfigurationNetworkAddon clientAddon;
 
-	private ServerConfigurationPacketHandler serverNetworkHandler;
+	private ServerConfigurationNetworkHandler serverNetworkHandler;
 	private ServerConfigurationNetworkAddon serverAddon;
 
 	private static final Identifier CLIENT_RECEIVE = new Identifier("quilt", "global_client");
@@ -90,7 +90,7 @@ public class CommonPacketTests {
 		when(ClientNetworkingImpl.getAddon(clientNetworkHandler)).thenReturn(clientAddon);
 		when(clientAddon.getChannelInfoHolder()).thenReturn(channelInfoHolder);
 
-		serverNetworkHandler = mock(ServerConfigurationPacketHandler.class);
+		serverNetworkHandler = mock(ServerConfigurationNetworkHandler.class);
 		serverAddon = mock(ServerConfigurationNetworkAddon.class);
 		when(ServerNetworkingImpl.getAddon(serverNetworkHandler)).thenReturn(serverAddon);
 		when(serverAddon.getChannelInfoHolder()).thenReturn(channelInfoHolder);

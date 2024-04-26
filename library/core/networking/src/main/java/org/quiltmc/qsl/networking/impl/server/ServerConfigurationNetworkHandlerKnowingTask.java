@@ -14,18 +14,10 @@
  * limitations under the License.
  */
 
-package org.quiltmc.qsl.networking.mixin.accessor;
+package org.quiltmc.qsl.networking.impl.server;
 
-import java.util.Queue;
+import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.gen.Accessor;
-
-import net.minecraft.network.ServerConfigurationPacketHandler;
-import net.minecraft.network.configuration.ConfigurationTask;
-
-@Mixin(ServerConfigurationPacketHandler.class)
-public interface ServerConfigurationPacketHandlerAccessor {
-	@Accessor
-	Queue<ConfigurationTask> getTasks();
+public interface ServerConfigurationNetworkHandlerKnowingTask {
+	void setServerConfigurationNetworkHandler(ServerConfigurationNetworkHandler handler);
 }

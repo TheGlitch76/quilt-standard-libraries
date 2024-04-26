@@ -23,7 +23,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import net.minecraft.network.NetworkState;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.ServerConfigurationPacketHandler;
+import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
@@ -43,12 +43,12 @@ import org.quiltmc.qsl.networking.mixin.accessor.AbstractServerPacketHandlerAcce
 
 @ApiStatus.Internal
 public final class ServerConfigurationNetworkAddon extends AbstractChanneledNetworkAddon<ServerConfigurationNetworking.CustomChannelReceiver<?>> {
-	private final ServerConfigurationPacketHandler handler;
+	private final ServerConfigurationNetworkHandler handler;
 	private final MinecraftServer server;
 	private boolean sentInitialRegisterPacket = false;
 	public static int PING_ID = 0x0C147; // Somewhat looks like QUILT?
 
-	public ServerConfigurationNetworkAddon(ServerConfigurationPacketHandler handler, MinecraftServer server) {
+	public ServerConfigurationNetworkAddon(ServerConfigurationNetworkHandler handler, MinecraftServer server) {
 		super(ServerNetworkingImpl.CONFIGURATION, ((AbstractServerPacketHandlerAccessor) handler).getConnection(), "ServerConfigurationNetworkAddon for " + handler.getHost().getName());
 		this.handler = handler;
 		this.server = server;

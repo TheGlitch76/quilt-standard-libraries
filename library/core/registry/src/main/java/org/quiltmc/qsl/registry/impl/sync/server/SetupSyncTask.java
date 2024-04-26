@@ -18,7 +18,7 @@ package org.quiltmc.qsl.registry.impl.sync.server;
 
 import java.util.function.Consumer;
 
-import net.minecraft.network.ServerConfigurationPacketHandler;
+import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.network.configuration.ConfigurationTask;
 import net.minecraft.network.packet.Packet;
 
@@ -27,7 +27,7 @@ import org.quiltmc.qsl.networking.api.ServerConfigurationTaskManager;
 import org.quiltmc.qsl.registry.impl.sync.ServerPackets;
 import org.quiltmc.qsl.registry.mixin.AbstractServerPacketHandlerAccessor;
 
-public record SetupSyncTask(ServerConfigurationPacketHandler handler) implements ConfigurationTask {
+public record SetupSyncTask(ServerConfigurationNetworkHandler handler) implements ConfigurationTask {
 	public static final ConfigurationTask.Type TYPE = new Type("qsl:configure_sync");
 
 	@Override

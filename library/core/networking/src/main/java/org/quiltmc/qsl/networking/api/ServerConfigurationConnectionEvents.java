@@ -16,7 +16,7 @@
 
 package org.quiltmc.qsl.networking.api;
 
-import net.minecraft.network.ServerConfigurationPacketHandler;
+import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
@@ -32,7 +32,7 @@ public final class ServerConfigurationConnectionEvents {
 	/**
 	 * Event indicating a connection entered the CONFIGURATION state, ready for registering channel handlers.
 	 *
-	 * @see ServerConfigurationNetworking#registerReceiver(ServerConfigurationPacketHandler, Identifier, ServerConfigurationNetworking.CustomChannelReceiver)
+	 * @see ServerConfigurationNetworking#registerReceiver(ServerConfigurationNetworkHandler, Identifier, ServerConfigurationNetworking.CustomChannelReceiver)
 	 */
 	public static final Event<Init> INIT = Event.create(Init.class, callbacks -> (handler, server) -> {
 		for (Init callback : callbacks) {
@@ -80,7 +80,7 @@ public final class ServerConfigurationConnectionEvents {
 	 */
 	@FunctionalInterface
 	public interface Init extends EventAwareListener {
-		void onConfigurationInit(ServerConfigurationPacketHandler handler, MinecraftServer server);
+		void onConfigurationInit(ServerConfigurationNetworkHandler handler, MinecraftServer server);
 	}
 
 	/**
@@ -88,7 +88,7 @@ public final class ServerConfigurationConnectionEvents {
 	 */
 	@FunctionalInterface
 	public interface Join extends EventAwareListener {
-		void onConfigurationReady(ServerConfigurationPacketHandler handler, PacketSender<CustomPayload> sender, MinecraftServer server);
+		void onConfigurationReady(ServerConfigurationNetworkHandler handler, PacketSender<CustomPayload> sender, MinecraftServer server);
 	}
 
 	/**
@@ -96,7 +96,7 @@ public final class ServerConfigurationConnectionEvents {
 	 */
 	@FunctionalInterface
 	public interface Disconnect extends EventAwareListener {
-		void onConfigurationDisconnect(ServerConfigurationPacketHandler handler, MinecraftServer server);
+		void onConfigurationDisconnect(ServerConfigurationNetworkHandler handler, MinecraftServer server);
 	}
 
 	/**
@@ -104,6 +104,6 @@ public final class ServerConfigurationConnectionEvents {
 	 */
 	@FunctionalInterface
 	public interface AddTasks extends EventAwareListener {
-		void onAddTasks(ServerConfigurationPacketHandler handler, MinecraftServer server);
+		void onAddTasks(ServerConfigurationNetworkHandler handler, MinecraftServer server);
 	}
 }

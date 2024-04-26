@@ -24,29 +24,27 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import net.minecraft.network.ServerConfigurationPacketHandler;
+import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.network.configuration.ConfigurationTask;
 import net.minecraft.network.configuration.JoinWorldConfigurationTask;
 import net.minecraft.network.packet.Packet;
 
-import org.quiltmc.qsl.networking.api.ServerConfigurationNetworking;
 import org.quiltmc.qsl.networking.api.ServerConfigurationTaskManager;
-import org.quiltmc.qsl.networking.impl.server.ServerConfigurationPacketHandlerKnowingTask;
+import org.quiltmc.qsl.networking.impl.server.ServerConfigurationNetworkHandlerKnowingTask;
 import org.quiltmc.qsl.networking.impl.server.ServerNetworkingImpl;
-import org.quiltmc.qsl.networking.mixin.accessor.ServerConfigurationPacketHandlerAccessor;
+import org.quiltmc.qsl.networking.mixin.accessor.ServerConfigurationNetworkHandlerAccessor;
 
 @Mixin(JoinWorldConfigurationTask.class)
-public abstract class JoinWorldConfigurationTaskMixin implements ConfigurationTask, ServerConfigurationPacketHandlerKnowingTask {
-
+public abstract class JoinWorldConfigurationTaskMixin implements ConfigurationTask, ServerConfigurationNetworkHandlerKnowingTask {
 	@Unique
-	private ServerConfigurationPacketHandler handler;
+	private ServerConfigurationNetworkHandler handler;
 
 	@Inject(method = "start", at = @At("HEAD"), cancellable = true)
 	private void ensureNoTasksLeft(Consumer<Packet<?>> task, CallbackInfo ci) {
-		if (!((ServerConfigurationPacketHandlerAccessor) this.handler).getTasks().isEmpty()) {
+		if (!((ServerConfigurationNetworkHandlerAccessor) this.handler).getTasks().isEmpty()) {
 			// TODO: Throw this error?
 			// throw new RuntimeException("Not all tasks have been completed by the configuration handler!");
-			ServerNetworkingImpl.getAddon(handler).logger.error("Not all tasks have been completed by the configuration handler! Tasks remaining: {}", ((ServerConfigurationPacketHandlerAccessor) this.handler).getTasks());
+			ServerNetworkingImpl.getAddon(this.handler).logger.error("Not all tasks have been completed by the configuration handler! Tasks remaining: {}", ((ServerConfigurationNetworkHandlerAccessor) this.handler).getTasks());
 			((ServerConfigurationTaskManager) this.handler).addTask(this);
 			((ServerConfigurationTaskManager) this.handler).finishTask(JoinWorldConfigurationTask.TYPE);
 			ci.cancel();
@@ -54,7 +52,7 @@ public abstract class JoinWorldConfigurationTaskMixin implements ConfigurationTa
 	}
 
 	@Override
-	public void setServerConfigurationPacketHandler(ServerConfigurationPacketHandler handler) {
+	public void setServerConfigurationNetworkHandler(ServerConfigurationNetworkHandler handler) {
 		this.handler = handler;
 	}
 }

@@ -16,7 +16,7 @@
 
 package org.quiltmc.qsl.registry.impl.sync.server;
 
-import net.minecraft.network.ServerConfigurationPacketHandler;
+import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.registry.Registry;
 
 import org.quiltmc.qsl.registry.mixin.AbstractServerPacketHandlerAccessor;
@@ -30,7 +30,7 @@ public interface ExtendedConnectionClient {
 	void quilt$setModProtocol(String id, int version);
 	int quilt$getModProtocol(String id);
 
-	static ExtendedConnectionClient from(ServerConfigurationPacketHandler handler) {
+	static ExtendedConnectionClient from(ServerConfigurationNetworkHandler handler) {
 		return (ExtendedConnectionClient) ((AbstractServerPacketHandlerAccessor) handler).getConnection();
 	}
 }

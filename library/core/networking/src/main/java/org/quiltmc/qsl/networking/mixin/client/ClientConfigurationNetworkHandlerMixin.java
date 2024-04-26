@@ -25,9 +25,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientNetworkHandler;
 import net.minecraft.client.network.ClientConfigurationNetworkHandler;
+import net.minecraft.client.network.ClientConnectionState;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.s2c.configuration.FinishConfigurationS2CPacket;
-import net.minecraft.unmapped.C_qqflkeyp;
 
 import org.quiltmc.loader.api.minecraft.ClientOnly;
 import org.quiltmc.qsl.networking.impl.NetworkHandlerExtensions;
@@ -41,8 +41,8 @@ abstract class ClientConfigurationNetworkHandlerMixin extends AbstractClientNetw
 	@Unique
 	private ClientConfigurationNetworkAddon addon;
 
-	protected ClientConfigurationNetworkHandlerMixin(MinecraftClient client, ClientConnection connection, C_qqflkeyp c_qqflkeyp) {
-		super(client, connection, c_qqflkeyp);
+	protected ClientConfigurationNetworkHandlerMixin(MinecraftClient client, ClientConnection connection, ClientConnectionState clientConnectionState) {
+		super(client, connection, clientConnectionState);
 	}
 
 	@Inject(method = "<init>", at = @At("RETURN"))

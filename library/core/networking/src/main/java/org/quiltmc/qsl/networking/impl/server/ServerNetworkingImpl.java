@@ -20,7 +20,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import net.minecraft.network.NetworkState;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.ServerConfigurationPacketHandler;
+import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.network.listener.ClientCommonPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.payload.CustomPayload;
@@ -46,7 +46,7 @@ public final class ServerNetworkingImpl {
 		return (ServerPlayNetworkAddon) ((NetworkHandlerExtensions) handler).getAddon();
 	}
 
-	public static ServerConfigurationNetworkAddon getAddon(ServerConfigurationPacketHandler handler) {
+	public static ServerConfigurationNetworkAddon getAddon(ServerConfigurationNetworkHandler handler) {
 		return (ServerConfigurationNetworkAddon) ((NetworkHandlerExtensions) handler).getAddon();
 	}
 

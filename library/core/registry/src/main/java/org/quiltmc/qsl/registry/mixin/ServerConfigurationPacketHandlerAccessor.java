@@ -21,11 +21,11 @@ import java.util.Queue;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-import net.minecraft.network.ServerConfigurationPacketHandler;
+import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.network.configuration.ConfigurationTask;
 
-@Mixin(ServerConfigurationPacketHandler.class)
-public interface ServerConfigurationPacketHandlerAccessor {
+@Mixin(ServerConfigurationNetworkHandler.class)
+public interface ServerConfigurationNetworkHandlerAccessor {
 	@Accessor
 	Queue<ConfigurationTask> getTasks();
 }

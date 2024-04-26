@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
 import com.llamalad7.mixinextras.injector.ModifyReceiver;
-import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +36,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import net.minecraft.network.ClientConnection;
-import net.minecraft.network.ServerConfigurationPacketHandler;
+import net.minecraft.network.ConnectedClientData;
+import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.network.configuration.ConfigurationTask;
 import net.minecraft.network.configuration.JoinWorldConfigurationTask;
 import net.minecraft.network.listener.AbstractServerPacketHandler;
@@ -44,18 +45,17 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.common.DisconnectS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
-import net.minecraft.unmapped.C_eyqfalbd;
 
 import org.quiltmc.qsl.networking.api.ServerConfigurationTaskManager;
 import org.quiltmc.qsl.networking.impl.DisconnectPacketSource;
 import org.quiltmc.qsl.networking.impl.NetworkHandlerExtensions;
 import org.quiltmc.qsl.networking.impl.server.SendChannelsTask;
 import org.quiltmc.qsl.networking.impl.server.ServerConfigurationNetworkAddon;
-import org.quiltmc.qsl.networking.impl.server.ServerConfigurationPacketHandlerKnowingTask;
+import org.quiltmc.qsl.networking.impl.server.ServerConfigurationNetworkHandlerKnowingTask;
 
 // We want to apply a bit earlier than other mods which may not use us in order to prevent refCount issues
-@Mixin(value = ServerConfigurationPacketHandler.class, priority = 900)
-abstract class ServerConfigurationPacketHandlerMixin extends AbstractServerPacketHandler implements NetworkHandlerExtensions, DisconnectPacketSource, ServerConfigurationTaskManager {
+@Mixin(value = ServerConfigurationNetworkHandler.class, priority = 900)
+abstract class ServerConfigurationNetworkHandlerMixin extends AbstractServerPacketHandler implements NetworkHandlerExtensions, DisconnectPacketSource, ServerConfigurationTaskManager {
 	@Mutable
 	@Shadow
 	@Final
@@ -85,13 +85,13 @@ abstract class ServerConfigurationPacketHandlerMixin extends AbstractServerPacke
 	@Unique
 	private Queue<ConfigurationTask> priorityTasks = new ConcurrentLinkedQueue<>();
 
-	ServerConfigurationPacketHandlerMixin(MinecraftServer server, ClientConnection connection, C_eyqfalbd c_eyqfalbd) {
-		super(server, connection, c_eyqfalbd);
+	ServerConfigurationNetworkHandlerMixin(MinecraftServer server, ClientConnection connection, ConnectedClientData connectedClientData) {
+		super(server, connection, connectedClientData);
 	}
 
 	@Inject(method = "<init>", at = @At("RETURN"))
 	private void initAddon(CallbackInfo ci) {
-		this.addon = new ServerConfigurationNetworkAddon((ServerConfigurationPacketHandler) (Object) this, this.server);
+		this.addon = new ServerConfigurationNetworkAddon((ServerConfigurationNetworkHandler) (Object) this, this.server);
 		// A bit of a hack but it allows the field above to be set in case someone registers handlers during INIT event which refers to said field
 		this.addon.lateInit();
 	}
@@ -106,8 +106,8 @@ abstract class ServerConfigurationPacketHandlerMixin extends AbstractServerPacke
 
 				@Override
 				public void start(Consumer<Packet<?>> task) {
-					ServerConfigurationPacketHandlerMixin.this.startConfiguration();
-					ServerConfigurationPacketHandlerMixin.this.finishTask(TYPE);
+					ServerConfigurationNetworkHandlerMixin.this.startConfiguration();
+					ServerConfigurationNetworkHandlerMixin.this.finishTask(TYPE);
 				}
 
 				@Override
@@ -122,8 +122,8 @@ abstract class ServerConfigurationPacketHandlerMixin extends AbstractServerPacke
 		}
 	}
 
-	@WrapWithCondition(method = "startConfiguration", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/ServerConfigurationPacketHandler;startNextTask()V"))
-	private boolean doNotCallStart(ServerConfigurationPacketHandler handler) {
+	@WrapWithCondition(method = "startConfiguration", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerConfigurationNetworkHandler;startNextTask()V"))
+	private boolean doNotCallStart(ServerConfigurationNetworkHandler handler) {
 		return false;
 	}
 
@@ -146,14 +146,14 @@ abstract class ServerConfigurationPacketHandlerMixin extends AbstractServerPacke
 	@WrapOperation(method = "startConfiguration", at = @At(value = "NEW", target = "()Lnet/minecraft/network/configuration/JoinWorldConfigurationTask;"))
 	private JoinWorldConfigurationTask setHandlerStart(Operation<JoinWorldConfigurationTask> constructor) {
 		var task = constructor.call();
-		((ServerConfigurationPacketHandlerKnowingTask) task).setServerConfigurationPacketHandler((ServerConfigurationPacketHandler) (Object) this);
+		((ServerConfigurationNetworkHandlerKnowingTask) task).setServerConfigurationNetworkHandler((ServerConfigurationNetworkHandler) (Object) this);
 		return task;
 	}
 
 	@WrapOperation(method = "rejoinWorld", at = @At(value = "NEW", target = "()Lnet/minecraft/network/configuration/JoinWorldConfigurationTask;"))
 	private JoinWorldConfigurationTask setHandlerRejoin(Operation<JoinWorldConfigurationTask> constructor) {
 		var task = constructor.call();
-		((ServerConfigurationPacketHandlerKnowingTask) task).setServerConfigurationPacketHandler((ServerConfigurationPacketHandler) (Object) this);
+		((ServerConfigurationNetworkHandlerKnowingTask) task).setServerConfigurationNetworkHandler((ServerConfigurationNetworkHandler) (Object) this);
 		return task;
 	}
 
