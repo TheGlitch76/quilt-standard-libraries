@@ -74,7 +74,7 @@ public class QuiltSyncTask implements ConfigurationTask {
 	}
 
 	public void handleUnknownEntry(ClientPackets.UnknownEntry unknownEntry) {
-		var registry = Registries.REGISTRY.get(unknownEntry.registry());
+		var registry = Registries.ROOT.get(unknownEntry.registry());
 
 		unknownEntry.rawIds().forEach(id -> {
 			var object = registry.get(id);

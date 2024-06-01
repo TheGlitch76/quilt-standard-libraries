@@ -57,16 +57,16 @@ public final class ClientPlayNetworking {
 	 * A global receiver is registered to all connections, in the present and future.
 	 * <p>
 	 * If a handler is already registered to the {@code channel}, this method will return {@code false}, and no change will be made.
-	 * Use {@link #unregisterGlobalReceiver(Identifier)} to unregister the existing handler.
+	 * Use {@link #unregisterGlobalReceiver(CustomPayload.Id)} to unregister the existing handler.
 	 *
 	 * @param channelName    the identifier of the channel
 	 * @param channelHandler the handler
 	 * @return {@code false} if a handler is already registered to the channel, otherwise {@code true}
-	 * @see ClientPlayNetworking#registerGlobalReceiver(Identifier, ChannelReceiver)
-	 * @see ClientPlayNetworking#unregisterGlobalReceiver(Identifier)
-	 * @see ClientPlayNetworking#registerReceiver(Identifier, CustomChannelReceiver)
+	 * @see ClientPlayNetworking#registerGlobalReceiver(CustomPayload.Id, ChannelReceiver)
+	 * @see ClientPlayNetworking#unregisterGlobalReceiver(CustomPayload.Id)
+	 * @see ClientPlayNetworking#registerReceiver(CustomPayload.Id, CustomChannelReceiver)
 	 */
-	public static <T extends CustomPayload> boolean registerGlobalReceiver(Identifier channelName, CustomChannelReceiver<T> channelHandler) {
+	public static <T extends CustomPayload> boolean registerGlobalReceiver(CustomPayload.Id channelName, CustomChannelReceiver<T> channelHandler) {
 		return ClientNetworkingImpl.PLAY.registerGlobalReceiver(channelName, channelHandler);
 	}
 
@@ -75,18 +75,18 @@ public final class ClientPlayNetworking {
 	 * A global receiver is registered to all connections, in the present and future.
 	 * <p>
 	 * If a handler is already registered to the {@code channel}, this method will return {@code false}, and no change will be made.
-	 * Use {@link #unregisterGlobalReceiver(Identifier)} to unregister the existing handler.
+	 * Use {@link #unregisterGlobalReceiver(CustomPayload.Id)} to unregister the existing handler.
 	 *
 	 * @param channelName    the identifier of the channel
 	 * @param channelHandler the handler
 	 * @return {@code false} if a handler is already registered to the channel, otherwise {@code true}
-	 * @see ClientPlayNetworking#registerGlobalReceiver(Identifier, CustomChannelReceiver)
-	 * @see ClientPlayNetworking#unregisterGlobalReceiver(Identifier)
-	 * @see ClientPlayNetworking#registerReceiver(Identifier, ChannelReceiver)
-	 * @deprecated use {@link ClientPlayNetworking#registerGlobalReceiver(Identifier, CustomChannelReceiver)}
+	 * @see ClientPlayNetworking#registerGlobalReceiver(CustomPayload.Id, CustomChannelReceiver)
+	 * @see ClientPlayNetworking#unregisterGlobalReceiver(CustomPayload.Id)
+	 * @see ClientPlayNetworking#registerReceiver(CustomPayload.Id, ChannelReceiver)
+	 * @deprecated use {@link ClientPlayNetworking#registerGlobalReceiver(CustomPayload.Id, CustomChannelReceiver)}
 	 */
 	@Deprecated
-	public static boolean registerGlobalReceiver(Identifier channelName, ChannelReceiver channelHandler) {
+	public static boolean registerGlobalReceiver(CustomPayload.Id<?> channelName, ChannelReceiver channelHandler) {
 		return ClientNetworkingImpl.PLAY.registerGlobalReceiver(channelName, channelHandler);
 	}
 
@@ -98,10 +98,10 @@ public final class ClientPlayNetworking {
 	 *
 	 * @param channelName the identifier of the channel
 	 * @return the previous handler, or {@code null} if no handler was bound to the channel
-	 * @see ClientPlayNetworking#registerGlobalReceiver(Identifier, CustomChannelReceiver)
-	 * @see ClientPlayNetworking#unregisterReceiver(Identifier)
+	 * @see ClientPlayNetworking#registerGlobalReceiver(CustomPayload.Id, CustomChannelReceiver)
+	 * @see ClientPlayNetworking#unregisterReceiver(CustomPayload.Id)
 	 */
-	public static @Nullable CustomChannelReceiver<?> unregisterGlobalReceiver(Identifier channelName) {
+	public static @Nullable CustomChannelReceiver<?> unregisterGlobalReceiver(CustomPayload.Id<?> channelName) {
 		return ClientNetworkingImpl.PLAY.unregisterGlobalReceiver(channelName);
 	}
 
@@ -111,7 +111,7 @@ public final class ClientPlayNetworking {
 	 *
 	 * @return all channel names which global receivers are registered for
 	 */
-	public static Set<Identifier> getGlobalReceivers() {
+	public static Set<CustomPayload.Id<?>> getGlobalReceivers() {
 		return ClientNetworkingImpl.PLAY.getChannels();
 	}
 
@@ -119,7 +119,7 @@ public final class ClientPlayNetworking {
 	 * Registers a handler to a channel.
 	 * <p>
 	 * If a handler is already registered to the {@code channel}, this method will return {@code false}, and no change will be made.
-	 * Use {@link #unregisterReceiver(Identifier)} to unregister the existing handler.
+	 * Use {@link #unregisterReceiver(CustomPayload.Id)} to unregister the existing handler.
 	 * <p>
 	 * For example, if you only register a receiver using this method when a {@linkplain ClientLoginNetworking#registerGlobalReceiver(Identifier, ClientLoginNetworking.QueryRequestReceiver)}
 	 * login query has been received, you should use {@link ClientPlayConnectionEvents#INIT} to register the channel handler.
@@ -129,7 +129,7 @@ public final class ClientPlayNetworking {
 	 * @throws IllegalStateException if the client is not connected to a server
 	 * @see ClientPlayConnectionEvents#INIT
 	 */
-	public static boolean registerReceiver(Identifier channelName, CustomChannelReceiver<?> channelHandler) {
+	public static boolean registerReceiver(CustomPayload.Id<?> channelName, CustomChannelReceiver<?> channelHandler) {
 		final ClientPlayNetworkAddon addon = ClientNetworkingImpl.getClientPlayAddon();
 
 		if (addon != null) {
@@ -143,7 +143,7 @@ public final class ClientPlayNetworking {
 	 * Registers a handler to a channel.
 	 * <p>
 	 * If a handler is already registered to the {@code channel}, this method will return {@code false}, and no change will be made.
-	 * Use {@link #unregisterReceiver(Identifier)} to unregister the existing handler.
+	 * Use {@link #unregisterReceiver(CustomPayload.Id)} to unregister the existing handler.
 	 * <p>
 	 * For example, if you only register a receiver using this method when a {@linkplain ClientLoginNetworking#registerGlobalReceiver(Identifier, ClientLoginNetworking.QueryRequestReceiver)}
 	 * login query has been received, you should use {@link ClientPlayConnectionEvents#INIT} to register the channel handler.
@@ -152,10 +152,10 @@ public final class ClientPlayNetworking {
 	 * @return {@code false} if a handler is already registered to the channel, otherwise {@code true}
 	 * @throws IllegalStateException if the client is not connected to a server
 	 * @see ClientPlayConnectionEvents#INIT
-	 * @deprecated use {@link ClientPlayNetworking#registerReceiver(Identifier, CustomChannelReceiver)}
+	 * @deprecated use {@link ClientPlayNetworking#registerReceiver(CustomPayload.Id, CustomChannelReceiver)}
 	 */
 	@Deprecated
-	public static boolean registerReceiver(Identifier channelName, ChannelReceiver channelHandler) {
+	public static boolean registerReceiver(CustomPayload.Id<?> channelName, ChannelReceiver channelHandler) {
 		final ClientPlayNetworkAddon addon = ClientNetworkingImpl.getClientPlayAddon();
 
 		if (addon != null) {
@@ -174,7 +174,7 @@ public final class ClientPlayNetworking {
 	 * @return the previous handler, or {@code null} if no handler was bound to the channel
 	 * @throws IllegalStateException if the client is not connected to a server
 	 */
-	public static @Nullable CustomChannelReceiver<?> unregisterReceiver(Identifier channelName) throws IllegalStateException {
+	public static @Nullable CustomChannelReceiver<?> unregisterReceiver(CustomPayload.Id<?> channelName) throws IllegalStateException {
 		final ClientPlayNetworkAddon addon = ClientNetworkingImpl.getClientPlayAddon();
 
 		if (addon != null) {
@@ -190,7 +190,7 @@ public final class ClientPlayNetworking {
 	 * @return all the channel names that the client can receive packets on
 	 * @throws IllegalStateException if the client is not connected to a server
 	 */
-	public static Set<Identifier> getReceived() throws IllegalStateException {
+	public static Set<CustomPayload.Id<?>> getReceived() throws IllegalStateException {
 		final ClientPlayNetworkAddon addon = ClientNetworkingImpl.getClientPlayAddon();
 
 		if (addon != null) {
@@ -206,7 +206,7 @@ public final class ClientPlayNetworking {
 	 * @return all the channel names the connected server declared the ability to receive a packets on
 	 * @throws IllegalStateException if the client is not connected to a server
 	 */
-	public static Set<Identifier> getSendable() throws IllegalStateException {
+	public static Set<CustomPayload.Id<?>> getSendable() throws IllegalStateException {
 		final ClientPlayNetworkAddon addon = ClientNetworkingImpl.getClientPlayAddon();
 
 		if (addon != null) {
@@ -222,7 +222,7 @@ public final class ClientPlayNetworking {
 	 * @param channelName the channel name
 	 * @return {@code true} if the connected server has declared the ability to receive a packet on the specified channel, otherwise {@code false}
 	 */
-	public static boolean canSend(Identifier channelName) throws IllegalArgumentException {
+	public static boolean canSend(CustomPayload.Id<?> channelName) throws IllegalArgumentException {
 		// You cant send without a client player, so this is fine
 		if (MinecraftClient.getInstance().getNetworkHandler() != null) {
 			return ClientNetworkingImpl.getAddon(MinecraftClient.getInstance().getNetworkHandler()).getSendableChannels().contains(channelName);
@@ -239,7 +239,7 @@ public final class ClientPlayNetworking {
 	 * @return a new packet
 	 */
 	@Contract(value = "_, _ -> new", pure = true)
-	public static Packet<ServerCommonPacketListener> createC2SPacket(@NotNull Identifier channelName, @NotNull PacketByteBuf buf) {
+	public static Packet<ServerCommonPacketListener> createC2SPacket(@NotNull CustomPayload.Id<?> channelName, @NotNull PacketByteBuf buf) {
 		Objects.requireNonNull(channelName, "Channel name cannot be null");
 		Objects.requireNonNull(buf, "Buf cannot be null");
 
@@ -281,7 +281,7 @@ public final class ClientPlayNetworking {
 	 * @param buf         the payload of the packet
 	 * @throws IllegalStateException if the client is not connected to a server
 	 */
-	public static void send(Identifier channelName, PacketByteBuf buf) throws IllegalStateException {
+	public static void send(CustomPayload.Id<?> channelName, PacketByteBuf buf) throws IllegalStateException {
 		// You cant send without a client player, so this is fine
 		if (MinecraftClient.getInstance().getNetworkHandler() != null) {
 			MinecraftClient.getInstance().getNetworkHandler().getConnection().send(createC2SPacket(channelName, buf));

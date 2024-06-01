@@ -53,7 +53,7 @@ abstract class ClientConfigurationNetworkHandlerMixin extends AbstractClientNetw
 		this.addon.lateInit();
 	}
 
-	@Inject(method = "onFinishConfiguration", at = @At(value = "NEW", target = "(Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/network/ClientConnection;Lnet/minecraft/unmapped/C_qqflkeyp;)Lnet/minecraft/client/network/ClientPlayNetworkHandler;"))
+	@Inject(method = "onFinishConfiguration", at = @At(value = "NEW", target = "(Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/network/ClientConnection;Lnet/minecraft/client/network/ClientConnectionState;)Lnet/minecraft/client/network/ClientPlayNetworkHandler;"))
 	void onConfigured(FinishConfigurationS2CPacket packet, CallbackInfo ci) {
 		this.addon.onConfigured();
 	}

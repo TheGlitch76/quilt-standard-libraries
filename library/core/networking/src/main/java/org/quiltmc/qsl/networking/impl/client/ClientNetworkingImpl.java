@@ -38,7 +38,6 @@ import net.minecraft.network.listener.ServerCommonPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.payload.CustomPayload;
-import net.minecraft.util.Identifier;
 
 import org.quiltmc.loader.api.ModContainer;
 import org.quiltmc.loader.api.minecraft.ClientOnly;
@@ -83,8 +82,9 @@ public final class ClientNetworkingImpl {
 		return (ClientLoginNetworkAddon) ((NetworkHandlerExtensions) handler).getAddon();
 	}
 
-	public static Packet<ServerCommonPacketListener> createC2SPacket(Identifier channelName, PacketByteBuf buf) {
-		return createC2SPacket(new PacketByteBufPayload(channelName, buf));
+	public static Packet<ServerCommonPacketListener> createC2SPacket(CustomPayload.Id<?> channelName, PacketByteBuf buf) {
+		buf.writeIdentifier(channelName.id());
+		return createC2SPacket(PacketByteBufPayload.CODEC.decode(buf));
 	}
 
 	public static Packet<ServerCommonPacketListener> createC2SPacket(CustomPayload payload) {
@@ -155,8 +155,8 @@ public final class ClientNetworkingImpl {
 		ClientLoginNetworking.registerGlobalReceiver(NetworkingImpl.EARLY_REGISTRATION_CHANNEL, ClientNetworkingImpl::receiveEarlyRegistration);
 		ClientLoginNetworking.registerGlobalReceiver(NetworkingImpl.EARLY_REGISTRATION_CHANNEL_FABRIC, ClientNetworkingImpl::receiveEarlyRegistration);
 
-		CustomPayloads.registerS2CPayload(CommonVersionPayload.PACKET_ID, CommonVersionPayload::new);
-		CustomPayloads.registerS2CPayload(CommonRegisterPayload.PACKET_ID, CommonRegisterPayload::new);
+		CustomPayloads.registerS2CPayload(CommonVersionPayload.PACKET_ID, CommonVersionPayload.CODEC);
+		CustomPayloads.registerS2CPayload(CommonRegisterPayload.PACKET_ID, CommonRegisterPayload.CODEC);
 
 		ClientConfigurationNetworking.registerGlobalReceiver(CommonVersionPayload.PACKET_ID, ClientNetworkingImpl::handleCommonVersion);
 		ClientConfigurationNetworking.registerGlobalReceiver(CommonRegisterPayload.PACKET_ID, ClientNetworkingImpl::handleCommonRegister);
@@ -188,21 +188,21 @@ public final class ClientNetworkingImpl {
 			MinecraftClient client, ClientLoginNetworkHandler handler, PacketByteBuf buf, Consumer<PacketSendListener> listenerAdder
 	) {
 		int n = buf.readVarInt();
-		var ids = new ArrayList<Identifier>(n);
+		var ids = new ArrayList<CustomPayload.Id<?>>(n);
 
 		for (int i = 0; i < n; i++) {
-			ids.add(buf.readIdentifier());
+			ids.add(new CustomPayload.Id<>(buf.readIdentifier()));
 		}
 
 		((ChannelInfoHolder) ((ClientLoginNetworkHandlerAccessor) handler).getConnection()).getPendingChannelsNames(NetworkState.LOGIN).addAll(ids);
 		NetworkingImpl.LOGGER.debug("Received accepted channels from the server");
 
 		PacketByteBuf response = PacketByteBufs.create();
-		Collection<Identifier> channels = ClientPlayNetworking.getGlobalReceivers();
+		Collection<CustomPayload.Id<?>> channels = ClientPlayNetworking.getGlobalReceivers();
 		response.writeVarInt(channels.size());
 
-		for (Identifier id : channels) {
-			response.writeIdentifier(id);
+		for (CustomPayload.Id<?> id : channels) {
+			response.writeIdentifier(id.id());
 		}
 
 		NetworkingImpl.LOGGER.debug("Sent accepted channels to the server");

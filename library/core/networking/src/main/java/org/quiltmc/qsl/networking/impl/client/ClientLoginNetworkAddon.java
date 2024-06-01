@@ -28,8 +28,8 @@ import net.minecraft.client.network.ClientLoginNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.packet.c2s.login.LoginQueryResponseC2SPacket;
+import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.network.packet.s2c.login.LoginQueryRequestS2CPacket;
-import net.minecraft.util.Identifier;
 
 import org.quiltmc.loader.api.minecraft.ClientOnly;
 import org.quiltmc.qsl.networking.api.PacketByteBufs;
@@ -59,15 +59,15 @@ public final class ClientLoginNetworkAddon extends AbstractNetworkAddon<ClientLo
 
 	public boolean handlePacket(LoginQueryRequestS2CPacket packet) {
 		PacketByteBufLoginQueryRequestPayload payload = (PacketByteBufLoginQueryRequestPayload) packet.payload();
-		return this.handlePacket(packet.transactionId(), payload.id(), payload.data());
+		return this.handlePacket(packet.queryId(), new CustomPayload.Id<>(payload.id()), payload.data());
 	}
 
-	private boolean handlePacket(int queryId, Identifier channelName, PacketByteBuf originalBuf) {
+	private boolean handlePacket(int queryId, CustomPayload.Id<?> channelName, PacketByteBuf originalBuf) {
 		this.logger.debug("Handling inbound login response with id {} and channel with name {}", queryId, channelName);
 
 		if (this.firstResponse) {
 			// Register global handlers
-			for (Map.Entry<Identifier, ClientLoginNetworking.QueryRequestReceiver> entry : ClientNetworkingImpl.LOGIN.getReceivers().entrySet()) {
+			for (Map.Entry<CustomPayload.Id<?>, ClientLoginNetworking.QueryRequestReceiver> entry : ClientNetworkingImpl.LOGIN.getReceivers().entrySet()) {
 				ClientLoginNetworking.registerReceiver(entry.getKey(), entry.getValue());
 			}
 
@@ -105,11 +105,11 @@ public final class ClientLoginNetworkAddon extends AbstractNetworkAddon<ClientLo
 	}
 
 	@Override
-	protected void handleRegistration(Identifier channelName) {
+	protected void handleRegistration(CustomPayload.Id<?> channelName) {
 	}
 
 	@Override
-	protected void handleUnregistration(Identifier channelName) {
+	protected void handleUnregistration(CustomPayload.Id<?> channelName) {
 	}
 
 	@Override
@@ -123,7 +123,7 @@ public final class ClientLoginNetworkAddon extends AbstractNetworkAddon<ClientLo
 	}
 
 	@Override
-	protected boolean isReservedChannel(Identifier channelName) {
+	protected boolean isReservedChannel(CustomPayload.Id<?> channelName) {
 		return false;
 	}
 }

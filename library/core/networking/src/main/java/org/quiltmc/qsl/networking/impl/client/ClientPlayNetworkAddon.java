@@ -28,7 +28,6 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.payload.CustomPayload;
-import net.minecraft.util.Identifier;
 
 import org.quiltmc.loader.api.minecraft.ClientOnly;
 import org.quiltmc.qsl.networking.api.client.C2SPlayChannelEvents;
@@ -60,7 +59,7 @@ public final class ClientPlayNetworkAddon extends AbstractChanneledNetworkAddon<
 
 	@Override
 	public void lateInit() {
-		for (Map.Entry<Identifier, ClientPlayNetworking.CustomChannelReceiver<?>> entry : this.receiver.getReceivers().entrySet()) {
+		for (Map.Entry<CustomPayload.Id<?>, ClientPlayNetworking.CustomChannelReceiver<?>> entry : this.receiver.getReceivers().entrySet()) {
 			this.registerChannel(entry.getKey(), entry.getValue());
 		}
 
@@ -94,22 +93,22 @@ public final class ClientPlayNetworkAddon extends AbstractChanneledNetworkAddon<
 	}
 
 	@Override
-	public Packet<?> createPacket(Identifier channelName, PacketByteBuf buf) {
+	public Packet<?> createPacket(CustomPayload.Id<?> channelName, PacketByteBuf buf) {
 		return ClientPlayNetworking.createC2SPacket(channelName, buf);
 	}
 
 	@Override
-	protected void invokeRegisterEvent(List<Identifier> ids) {
+	protected void invokeRegisterEvent(List<CustomPayload.Id<?>> ids) {
 		C2SPlayChannelEvents.REGISTER.invoker().onChannelRegister(this.handler, this, this.client, ids);
 	}
 
 	@Override
-	protected void invokeUnregisterEvent(List<Identifier> ids) {
+	protected void invokeUnregisterEvent(List<CustomPayload.Id<?>> ids) {
 		C2SPlayChannelEvents.UNREGISTER.invoker().onChannelUnregister(this.handler, this, this.client, ids);
 	}
 
 	@Override
-	protected void handleRegistration(Identifier channelName) {
+	protected void handleRegistration(CustomPayload.Id<?> channelName) {
 		// If we can already send packets, immediately send the register packet for this channel
 		if (this.sentInitialRegisterPacket) {
 			final ChannelPayload payload = this.createRegistrationPacket(List.of(channelName), true);
@@ -121,7 +120,7 @@ public final class ClientPlayNetworkAddon extends AbstractChanneledNetworkAddon<
 	}
 
 	@Override
-	protected void handleUnregistration(Identifier channelName) {
+	protected void handleUnregistration(CustomPayload.Id<?> channelName) {
 		// If we can already send packets, immediately send the unregister packet for this channel
 		if (this.sentInitialRegisterPacket) {
 			final ChannelPayload payload = this.createRegistrationPacket(List.of(channelName), true);
@@ -139,7 +138,7 @@ public final class ClientPlayNetworkAddon extends AbstractChanneledNetworkAddon<
 	}
 
 	@Override
-	protected boolean isReservedChannel(Identifier channelName) {
+	protected boolean isReservedChannel(CustomPayload.Id<?> channelName) {
 		return NetworkingImpl.isReservedCommonChannel(channelName);
 	}
 }

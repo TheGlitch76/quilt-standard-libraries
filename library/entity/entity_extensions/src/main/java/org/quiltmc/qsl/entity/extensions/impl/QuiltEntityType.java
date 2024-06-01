@@ -32,8 +32,8 @@ import net.minecraft.feature_flags.FeatureFlagBitSet;
 public class QuiltEntityType<T extends Entity> extends EntityType<T> {
 	private final @Nullable Boolean alwaysUpdateVelocity;
 
-	public QuiltEntityType(EntityType.EntityFactory<T> factory, SpawnGroup spawnGroup, boolean saveable, boolean summonable, boolean fireImmune, boolean spawnableFarFromPlayer, ImmutableSet<Block> spawnBlocks, EntityDimensions entityDimensions, int maxTrackDistance, int trackTickInterval, @Nullable Boolean alwaysUpdateVelocity, FeatureFlagBitSet requiredFlags) {
-		super(factory, spawnGroup, saveable, summonable, fireImmune, spawnableFarFromPlayer, spawnBlocks, entityDimensions, maxTrackDistance, trackTickInterval, requiredFlags);
+	public QuiltEntityType(EntityType.EntityFactory<T> factory, SpawnGroup spawnGroup, boolean saveable, boolean summonable, boolean fireImmune, boolean spawnableFarFromPlayer, ImmutableSet<Block> spawnBlocks, EntityDimensions entityDimensions, float spawnDimensionsScale, int maxTrackDistance, int trackTickInterval, @Nullable Boolean alwaysUpdateVelocity, FeatureFlagBitSet requiredFlags) {
+		super(factory, spawnGroup, saveable, summonable, fireImmune, spawnableFarFromPlayer, spawnBlocks, entityDimensions, spawnDimensionsScale, maxTrackDistance, trackTickInterval, requiredFlags);
 		this.alwaysUpdateVelocity = alwaysUpdateVelocity;
 	}
 

@@ -20,6 +20,7 @@ import com.mojang.serialization.Lifecycle;
 import org.jetbrains.annotations.ApiStatus;
 
 import net.minecraft.entity.data.TrackedDataHandler;
+import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -32,7 +33,7 @@ import org.quiltmc.qsl.registry.api.sync.RegistrySynchronization;
 
 @ApiStatus.Internal
 public class QuiltEntityNetworkingInitializer implements ModInitializer {
-	public static final Identifier EXTENDED_SPAWN_PACKET_ID = new Identifier("quilt", "extended_entity_spawn_packet");
+	public static final CustomPayload.Id<?> EXTENDED_SPAWN_PACKET_ID = new CustomPayload.Id<>(new Identifier("quilt", "extended_entity_spawn_packet"));
 
 	public static final SimpleRegistry<TrackedDataHandler<?>> TRACKED_DATA_HANDLER_REGISTRY = new SimpleRegistry<>(
 			RegistryKey.ofRegistry(new Identifier("quilt", "tracked_data_handlers")), Lifecycle.stable(), false
@@ -54,6 +55,6 @@ public class QuiltEntityNetworkingInitializer implements ModInitializer {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onInitialize(ModContainer mod) {
-		Registry.register(((Registry<Registry<TrackedDataHandler<?>>>) Registries.REGISTRY), TRACKED_DATA_HANDLER_REGISTRY.getKey().getValue(), TRACKED_DATA_HANDLER_REGISTRY);
+		Registry.register(((Registry<Registry<TrackedDataHandler<?>>>) Registries.ROOT), TRACKED_DATA_HANDLER_REGISTRY.getKey().getValue(), TRACKED_DATA_HANDLER_REGISTRY);
 	}
 }

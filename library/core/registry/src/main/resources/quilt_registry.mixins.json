@@ -6,7 +6,7 @@
     "AbstractServerPacketHandlerAccessor",
     "BlocksMixin",
     "ClientConnectionMixin",
-    "compat.C_dfpyqaylMixin",
+    "compat.StatusEffectFixMixin",
     "DebugChunkGeneratorAccessor",
     "DynamicRegistrySyncAccessor",
     "DynamicRegistrySyncMixin",

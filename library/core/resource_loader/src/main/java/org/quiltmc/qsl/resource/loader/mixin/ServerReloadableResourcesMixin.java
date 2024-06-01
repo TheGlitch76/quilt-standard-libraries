@@ -28,7 +28,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.feature_flags.FeatureFlagBitSet;
-import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.LayeredRegistryManager;
+import net.minecraft.registry.ServerRegistryLayer;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceReloader;
 import net.minecraft.resource.ResourceType;
@@ -50,9 +51,13 @@ public class ServerReloadableResourcesMixin {
 	}
 
 	@Inject(method = "loadResources", at = @At("HEAD"))
-	private static void onLoadResources(ResourceManager resources, DynamicRegistryManager.Frozen registry, FeatureFlagBitSet featureFlagBitSet,
-			CommandManager.RegistrationEnvironment environment, int level, Executor prepareExecutor, Executor applyExecutor,
-			CallbackInfoReturnable<CompletableFuture<ServerReloadableResources>> cir) {
+	private static void onLoadResources(ResourceManager resources,
+										LayeredRegistryManager<ServerRegistryLayer> registryManager,
+										FeatureFlagBitSet featureFlags,
+										CommandManager.RegistrationEnvironment environment,
+										int level, Executor prepareExecutor,
+										Executor applyExecutor,
+										CallbackInfoReturnable<CompletableFuture<ServerReloadableResources>> cir) {
 		if (resources instanceof QuiltMultiPackResourceManagerHooks hooks) {
 			hooks.quilt$appendTopPacks();
 		}

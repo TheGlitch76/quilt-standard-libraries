@@ -18,6 +18,7 @@
 package org.quiltmc.qsl.screen.mixin.client;
 
 import org.joml.Matrix4f;
+import org.joml.Matrix4fStack;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -33,7 +34,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.util.math.MatrixStack;
 
 import org.quiltmc.loader.api.minecraft.ClientOnly;
 import org.quiltmc.qsl.screen.api.client.ScreenEvents;
@@ -55,7 +55,7 @@ abstract class GameRendererMixin {
 			locals = LocalCapture.CAPTURE_FAILHARD
 	)
 	private void onBeforeRenderScreen(float originalDelta, long startTime, boolean tick, CallbackInfo ci,
-									  float tickDelta, boolean bl, int mouseX, int mouseY, Window window, Matrix4f projectionMatrix, MatrixStack matrices, GuiGraphics graphics) {
+									  float tickDelta, boolean bl, int mouseX, int mouseY, Window window, Matrix4f projectionMatrix, Matrix4fStack matrices, GuiGraphics graphics) {
 		// Store the screen in a variable in case someone tries to change the screen during this before render event.
 		// If someone changes the screen, the after render event will likely have class cast exceptions or an NPE.
 		this.quilt$renderingScreen = this.client.currentScreen;
@@ -74,7 +74,7 @@ abstract class GameRendererMixin {
 			locals = LocalCapture.CAPTURE_FAILHARD
 	)
 	private void onAfterRenderScreen(float originalDelta, long startTime, boolean tick, CallbackInfo ci,
-									 float tickDelta, boolean bl, int mouseX, int mouseY, Window window, Matrix4f projectionMatrix, MatrixStack matrices, GuiGraphics graphics) {
+									 float tickDelta, boolean bl, int mouseX, int mouseY, Window window, Matrix4f projectionMatrix, Matrix4fStack matrices, GuiGraphics graphics) {
 		ScreenEvents.AFTER_RENDER.invoker().afterRender(this.quilt$renderingScreen, graphics, mouseX, mouseY, tickDelta);
 		// Finally set the currently rendering screen to null
 		this.quilt$renderingScreen = null;

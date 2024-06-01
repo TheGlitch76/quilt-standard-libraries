@@ -37,7 +37,7 @@ import org.quiltmc.qsl.registry.impl.sync.ProtocolVersions;
 import org.quiltmc.qsl.registry.impl.sync.server.ExtendedConnectionClient;
 
 @Mixin(ClientConnection.class)
-public class ClientConnectionMixin implements ExtendedConnectionClient {
+public abstract class ClientConnectionMixin implements ExtendedConnectionClient {
 	@Unique
 	private IdentityHashMap<Registry<?>, ObjectOpenCustomHashSet<Object>> quilt$unknownEntries = new IdentityHashMap<>();
 	@Unique

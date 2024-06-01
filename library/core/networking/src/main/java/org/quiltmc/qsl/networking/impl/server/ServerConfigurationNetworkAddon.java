@@ -29,7 +29,6 @@ import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.network.packet.s2c.common.PingS2CPacket;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.Identifier;
 
 import org.quiltmc.qsl.networking.api.S2CConfigurationChannelEvents;
 import org.quiltmc.qsl.networking.api.ServerConfigurationConnectionEvents;
@@ -62,7 +61,7 @@ public final class ServerConfigurationNetworkAddon extends AbstractChanneledNetw
 
 	@Override
 	public void lateInit() {
-		for (Map.Entry<Identifier, ServerConfigurationNetworking.CustomChannelReceiver<?>> entry : this.receiver.getReceivers().entrySet()) {
+		for (Map.Entry<CustomPayload.Id<?>, ServerConfigurationNetworking.CustomChannelReceiver<?>> entry : this.receiver.getReceivers().entrySet()) {
 			this.registerChannel(entry.getKey(), entry.getValue());
 		}
 
@@ -80,7 +79,7 @@ public final class ServerConfigurationNetworkAddon extends AbstractChanneledNetw
 	@Override
 	public <T extends CustomPayload> boolean handle(T payload) {
 		boolean handled = super.handle(payload);
-		if (handled && payload.id().equals(NetworkingImpl.REGISTER_CHANNEL)) {
+		if (handled && payload.getId().equals(NetworkingImpl.REGISTER_CHANNEL)) {
 			if (((ServerConfigurationTaskManager) this.handler).getCurrentTask() instanceof SendChannelsTask) {
 				ServerConfigurationConnectionEvents.ADD_TASKS.invoker().onAddTasks(this.handler, this.server);
 				((ServerConfigurationTaskManager) this.handler).finishTask(SendChannelsTask.TYPE);
@@ -109,22 +108,22 @@ public final class ServerConfigurationNetworkAddon extends AbstractChanneledNetw
 	}
 
 	@Override
-	public Packet<?> createPacket(Identifier channelName, PacketByteBuf buf) {
+	public Packet<?> createPacket(CustomPayload.Id<?> channelName, PacketByteBuf buf) {
 		return ServerConfigurationNetworking.createS2CPacket(channelName, buf);
 	}
 
 	@Override
-	protected void invokeRegisterEvent(List<Identifier> ids) {
+	protected void invokeRegisterEvent(List<CustomPayload.Id<?>> ids) {
 		S2CConfigurationChannelEvents.REGISTER.invoker().onChannelRegister(this.handler, this, this.server, ids);
 	}
 
 	@Override
-	protected void invokeUnregisterEvent(List<Identifier> ids) {
+	protected void invokeUnregisterEvent(List<CustomPayload.Id<?>> ids) {
 		S2CConfigurationChannelEvents.UNREGISTER.invoker().onChannelUnregister(this.handler, this, this.server, ids);
 	}
 
 	@Override
-	protected void handleRegistration(Identifier channelName) {
+	protected void handleRegistration(CustomPayload.Id<?> channelName) {
 		if (this.sentInitialRegisterPacket) {
 			final ChannelPayload payload = this.createRegistrationPacket(List.of(channelName), true);
 
@@ -135,7 +134,7 @@ public final class ServerConfigurationNetworkAddon extends AbstractChanneledNetw
 	}
 
 	@Override
-	protected void handleUnregistration(Identifier channelName) {
+	protected void handleUnregistration(CustomPayload.Id<?> channelName) {
 		if (this.sentInitialRegisterPacket) {
 			final ChannelPayload payload = this.createRegistrationPacket(List.of(channelName), false);
 
@@ -152,7 +151,7 @@ public final class ServerConfigurationNetworkAddon extends AbstractChanneledNetw
 	}
 
 	@Override
-	protected boolean isReservedChannel(Identifier channelName) {
+	protected boolean isReservedChannel(CustomPayload.Id<?> channelName) {
 		return NetworkingImpl.isReservedCommonChannel(channelName);
 	}
 

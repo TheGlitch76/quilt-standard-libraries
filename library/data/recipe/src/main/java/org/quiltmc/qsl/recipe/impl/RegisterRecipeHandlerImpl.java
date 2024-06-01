@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.gson.JsonElement;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,14 +34,14 @@ import org.quiltmc.qsl.recipe.api.RecipeLoadingEvents;
 
 final class RegisterRecipeHandlerImpl implements RecipeLoadingEvents.AddRecipesCallback.RecipeHandler {
 	private final Map<Identifier, JsonElement> resourceMap;
-	private final Map<RecipeType<?>, ImmutableMap.Builder<Identifier, RecipeHolder<?>>> builderMap;
+	private final ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>> builderMap;
 	private final ImmutableMap.Builder<Identifier, RecipeHolder<?>> globalRecipeMapBuilder;
 	private final DynamicRegistryManager registryManager;
 	int registered = 0;
 
 	RegisterRecipeHandlerImpl(
 			Map<Identifier, JsonElement> resourceMap,
-			Map<RecipeType<?>, ImmutableMap.Builder<Identifier, RecipeHolder<?>>> builderMap,
+			ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>> builderMap,
 			ImmutableMap.Builder<Identifier, RecipeHolder<?>> globalRecipeMapBuilder,
 			DynamicRegistryManager registryManager
 	) {
@@ -52,9 +53,7 @@ final class RegisterRecipeHandlerImpl implements RecipeLoadingEvents.AddRecipesC
 
 	private void register(RecipeHolder<?> recipeHolder) {
 		Recipe<?> recipe = recipeHolder.value();
-		ImmutableMap.Builder<Identifier, RecipeHolder<?>> recipeBuilder =
-				this.builderMap.computeIfAbsent(recipe.getType(), o -> ImmutableMap.builder());
-		recipeBuilder.put(recipeHolder.id(), recipeHolder);
+		this.builderMap.put(recipeHolder.value().getType(), recipeHolder);
 		this.globalRecipeMapBuilder.put(recipeHolder.id(), recipeHolder);
 		this.registered++;
 

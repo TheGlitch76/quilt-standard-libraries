@@ -25,6 +25,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.Streams;
@@ -32,6 +34,7 @@ import com.google.gson.stream.JsonWriter;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.RecordBuilder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -70,7 +73,7 @@ public final class RecipeManagerImpl implements RegistryEvents.DynamicRegistryLo
 	}
 
 	public static void apply(Map<Identifier, JsonElement> map,
-			Map<RecipeType<?>, ImmutableMap.Builder<Identifier, RecipeHolder<?>>> builderMap,
+			ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>> builderMap,
 			ImmutableMap.Builder<Identifier, RecipeHolder<?>> globalRecipeMapBuilder) {
 		var handler = new RegisterRecipeHandlerImpl(map, builderMap, globalRecipeMapBuilder, currentRegistryManager);
 		RecipeLoadingEvents.ADD.invoker().addRecipes(handler);
@@ -79,8 +82,8 @@ public final class RecipeManagerImpl implements RegistryEvents.DynamicRegistryLo
 	}
 
 	public static void applyModifications(RecipeManager recipeManager,
-			Map<RecipeType<?>, Map<Identifier, RecipeHolder<?>>> recipes,
-			Map<Identifier, RecipeHolder<?>> globalRecipes) {
+										  Multimap<RecipeType<?>, RecipeHolder<?>> recipes,
+										  Map<Identifier, RecipeHolder<?>> globalRecipes) {
 		var handler = new ModifyRecipeHandlerImpl(recipeManager, recipes, globalRecipes, currentRegistryManager);
 		RecipeLoadingEvents.MODIFY.invoker().modifyRecipes(handler);
 		LOGGER.info("Modified {} recipes.", handler.counter);
@@ -114,7 +117,7 @@ public final class RecipeManagerImpl implements RegistryEvents.DynamicRegistryLo
 			Recipe<?> recipe = recipeEntry.getValue().value();
 
 			var serializer = ((RecipeSerializer<Recipe<?>>) recipe.getSerializer());
-			DataResult<JsonElement> encoded = serializer.getCodec().encode(recipe, JsonOps.INSTANCE, new JsonObject());
+			DataResult<JsonElement> encoded = serializer.getCodec().encode(recipe, JsonOps.INSTANCE, JsonOps.INSTANCE.mapBuilder()).build(new JsonObject());
 			if (encoded.error().isPresent()) {
 				LOGGER.error("Failed to serialize recipe {} with reason {}.", id, encoded.error().get().message());
 			}

@@ -18,7 +18,7 @@ package org.quiltmc.qsl.block.content.registry.api.enchanting;
 
 import java.util.Optional;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 
 /**
  * A type to identify booster variations by.
@@ -26,4 +26,4 @@ import com.mojang.serialization.Codec;
  * @param codec         the codec for the booster
  * @param simpleVariant the default version of the booster when only identified by the type id
  */
-public record EnchantingBoosterType(Codec<? extends EnchantingBooster> codec, Optional<EnchantingBooster> simpleVariant) {}
+public record EnchantingBoosterType(MapCodec<? extends EnchantingBooster> codec, Optional<EnchantingBooster> simpleVariant) {}

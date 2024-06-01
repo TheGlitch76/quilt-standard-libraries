@@ -20,6 +20,8 @@ import java.util.Collections;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
 import com.google.gson.JsonElement;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -43,8 +45,8 @@ import org.quiltmc.qsl.recipe.impl.RecipeManagerImpl;
 
 @Mixin(RecipeManager.class)
 public class RecipeManagerMixin {
-	@Shadow
-	private Map<RecipeType<?>, Map<Identifier, RecipeHolder<?>>> recipes;
+	@Shadow(aliases = "field_51481")
+	private Multimap<RecipeType<?>, RecipeHolder<?>> recipes;
 
 	@Shadow
 	private Map<Identifier, RecipeHolder<?>> recipeFlatMap;
@@ -56,30 +58,39 @@ public class RecipeManagerMixin {
 	)
 	private void onReload(Map<Identifier, JsonElement> map, ResourceManager resourceManager, Profiler profiler,
 			CallbackInfo ci,
-			Map<RecipeType<?>, ImmutableMap.Builder<Identifier, RecipeHolder<?>>> builderMap,
+			ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>> builderMap,
 			ImmutableMap.Builder<Identifier, RecipeHolder<?>> globalRecipeMapBuilder) {
 		RecipeManagerImpl.apply(map, builderMap, globalRecipeMapBuilder);
 	}
 
-	/**
-	 * Synthetic method in {@link RecipeManager#apply(Map, ResourceManager, Profiler)} as an argument of {@code toImmutableMap}.
-	 *
-	 * @author The Quilt Project, LambdAurora
-	 * @reason Replaces immutable maps for mutable maps instead.
-	 */
-	@Overwrite
-	private static Map<Identifier, Recipe<?>> method_20703(Map.Entry<RecipeType<?>, ImmutableMap.Builder<Identifier, Recipe<?>>> entry) {
-		// This is cursed. Do not look.
-		return ImmutableMapBuilderUtil.specialBuild(entry.getValue());
+	@Inject(method = "apply(Ljava/util/Map;Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/util/profiler/Profiler;)V",
+	at = @At(value = "INVOKE", target = "Lcom/google/common/collect/ImmutableMap$Builder;build()Lcom/google/common/collect/ImmutableMap;",
+		shift = At.Shift.AFTER, remap = false),
+	locals = LocalCapture.CAPTURE_FAILEXCEPTION)
+	private void createMutableMultimap(Map<Identifier, JsonElement> map, ResourceManager resourceManager, Profiler profiler, CallbackInfo ci,
+									   ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>> recipeBuilder){
+		recipes = ImmutableMapBuilderUtil.specialBuild(recipeBuilder);
 	}
 
 	@Redirect(
 			method = "apply",
 			at = @At(
 					value = "INVOKE",
-					target = "Lcom/google/common/collect/ImmutableMap$Builder;build()Lcom/google/common/collect/ImmutableMap;",
+					target = "Lcom/google/common/collect/ImmutableMultimap$Builder;build()Lcom/google/common/collect/ImmutableMultimap;",
 					remap = false
 			)
+	)
+	private ImmutableMultimap<RecipeType<?>, RecipeHolder<?>> onCreateRecipeMap(ImmutableMultimap.Builder<Identifier, Recipe<?>> recipeMap) {
+		return null;
+	}
+
+	@Redirect(
+		method = "apply",
+		at = @At(
+			value = "INVOKE",
+			target = "Lcom/google/common/collect/ImmutableMap$Builder;build()Lcom/google/common/collect/ImmutableMap;",
+			remap = false
+		)
 	)
 	private ImmutableMap<Identifier, Recipe<?>> onCreateGlobalRecipeMap(ImmutableMap.Builder<Identifier, Recipe<?>> globalRecipeMapBuilder) {
 		return null; // The original method bounds us to return an immutable map, but we do not want that!
@@ -92,7 +103,7 @@ public class RecipeManagerMixin {
 	)
 	private void onReloadEnd(Map<Identifier, JsonElement> map, ResourceManager resourceManager, Profiler profiler,
 			CallbackInfo ci,
-			Map<RecipeType<?>, ImmutableMap.Builder<Identifier, RecipeHolder<?>>> builderMap,
+			ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>> builderMap,
 			ImmutableMap.Builder<Identifier, RecipeHolder<?>> globalRecipeMapBuilder) {
 		Map<Identifier, RecipeHolder<?>> globalRecipes = ImmutableMapBuilderUtil.specialBuild(globalRecipeMapBuilder);
 

@@ -1,3 +1,7 @@
 accessWidener   v2  named
 
 accessible method net/minecraft/registry/Holder$Reference setValue (Ljava/lang/Object;)V
+
+# Registry Loader - added for 1.20.5/6
+accessible class net/minecraft/registry/RegistryLoader$ContentLoader
+accessible class net/minecraft/registry/RegistryLoader$LoadingFunction

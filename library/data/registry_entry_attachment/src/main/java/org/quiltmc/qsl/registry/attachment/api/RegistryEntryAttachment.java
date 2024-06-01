@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -85,7 +86,7 @@ public interface RegistryEntryAttachment<R, V> extends Iterable<RegistryEntryAtt
 	 * @return a builder
 	 */
 	static <R, V extends DispatchedType> Builder<R, V> dispatchedBuilder(Registry<R> registry, Identifier id,
-			Class<V> valueClass, Function<Identifier, Codec<? extends V>> codec) {
+			Class<V> valueClass, Function<Identifier, MapCodec<? extends V>> codec) {
 		return builder(registry, id, valueClass, Identifier.CODEC.dispatch(V::getType, codec));
 	}
 

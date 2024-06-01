@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import net.minecraft.network.NetworkState;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.network.packet.s2c.login.payload.CustomQueryPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerLoginNetworkHandler;
@@ -48,23 +49,23 @@ public final class NetworkingImpl {
 	/**
 	 * Identifier of packet used to register supported channels.
 	 */
-	public static final Identifier REGISTER_CHANNEL = new Identifier("minecraft", "register");
+	public static final CustomPayload.Id<ChannelPayload.RegisterChannelPayload> REGISTER_CHANNEL = CustomPayload.create("register");
 	/**
 	 * Identifier of packet used to unregister supported channels.
 	 */
-	public static final Identifier UNREGISTER_CHANNEL = new Identifier("minecraft", "unregister");
+	public static final CustomPayload.Id<ChannelPayload.UnregisterChannelPayload> UNREGISTER_CHANNEL = CustomPayload.create("unregister");
 	/**
 	 * Identifier of the packet used to declare all currently supported channels.
 	 * Dynamic registration of supported channels is still allowed using {@link NetworkingImpl#REGISTER_CHANNEL} and {@link NetworkingImpl#UNREGISTER_CHANNEL}.
 	 */
-	public static final Identifier EARLY_REGISTRATION_CHANNEL = new Identifier(MOD_ID, "early_registration");
+	public static final CustomPayload.Id<?> EARLY_REGISTRATION_CHANNEL = new CustomPayload.Id<>(new Identifier(MOD_ID, "early_registration"));
 	/**
 	 * Identifier of the packet used to declare all currently supported channels.
 	 * Dynamic registration of supported channels is still allowed using {@link NetworkingImpl#REGISTER_CHANNEL} and {@link NetworkingImpl#UNREGISTER_CHANNEL}.
 	 *
 	 * <p>Since our early registration packet does not differ from fabric's, we can support both.
 	 */
-	public static final Identifier EARLY_REGISTRATION_CHANNEL_FABRIC = new Identifier("fabric-networking-api-v1", "early_registration");
+	public static final CustomPayload.Id<?> EARLY_REGISTRATION_CHANNEL_FABRIC = new CustomPayload.Id<>(new Identifier("fabric-networking-api-v1", "early_registration"));
 
 	/**
 	 * Forces reserialization of packets.
@@ -79,11 +80,11 @@ public final class NetworkingImpl {
 		ServerLoginConnectionEvents.QUERY_START.register((handler, server, sender, synchronizer) -> {
 			// Send early registration packet
 			PacketByteBuf buf = PacketByteBufs.create();
-			Collection<Identifier> channelsNames = ServerPlayNetworking.getGlobalReceivers();
+			Collection<CustomPayload.Id<?>> channelsNames = ServerPlayNetworking.getGlobalReceivers();
 			buf.writeVarInt(channelsNames.size());
 
-			for (Identifier id : channelsNames) {
-				buf.writeIdentifier(id);
+			for (CustomPayload.Id<?> id : channelsNames) {
+				buf.writeIdentifier(id.id());
 			}
 
 			sender.sendPacket(EARLY_REGISTRATION_CHANNEL, buf);
@@ -94,13 +95,13 @@ public final class NetworkingImpl {
 		ServerLoginNetworking.registerGlobalReceiver(EARLY_REGISTRATION_CHANNEL, NetworkingImpl::receiveEarlyRegistration);
 		ServerLoginNetworking.registerGlobalReceiver(EARLY_REGISTRATION_CHANNEL_FABRIC, NetworkingImpl::receiveEarlyRegistration);
 
-		CustomPayloads.registerS2CPayload(REGISTER_CHANNEL, ChannelPayload.RegisterChannelPayload::new);
-		CustomPayloads.registerS2CPayload(UNREGISTER_CHANNEL, ChannelPayload.UnregisterChannelPayload::new);
-		CustomPayloads.registerC2SPayload(REGISTER_CHANNEL, ChannelPayload.RegisterChannelPayload::new);
-		CustomPayloads.registerC2SPayload(UNREGISTER_CHANNEL, ChannelPayload.UnregisterChannelPayload::new);
+		CustomPayloads.registerS2CPayload(REGISTER_CHANNEL, ChannelPayload.RegisterChannelPayload.CODEC);
+		CustomPayloads.registerS2CPayload(UNREGISTER_CHANNEL, ChannelPayload.UnregisterChannelPayload.CODEC);
+		CustomPayloads.registerC2SPayload(REGISTER_CHANNEL, ChannelPayload.RegisterChannelPayload.CODEC);
+		CustomPayloads.registerC2SPayload(UNREGISTER_CHANNEL, ChannelPayload.UnregisterChannelPayload.CODEC);
 	}
 
-	public static boolean isReservedCommonChannel(Identifier channelName) {
+	public static boolean isReservedCommonChannel(CustomPayload.Id<?> channelName) {
 		return channelName.equals(REGISTER_CHANNEL) || channelName.equals(UNREGISTER_CHANNEL);
 	}
 
@@ -111,10 +112,10 @@ public final class NetworkingImpl {
 		}
 
 		int n = buf.readVarInt();
-		List<Identifier> ids = new ArrayList<>(n);
+		List<CustomPayload.Id<?>> ids = new ArrayList<>(n);
 
 		for (int i = 0; i < n; i++) {
-			ids.add(buf.readIdentifier());
+			ids.add(new CustomPayload.Id<>(buf.readIdentifier()));
 		}
 
 		((ChannelInfoHolder) ((ServerLoginNetworkHandlerAccessor) handler).getConnection()).getPendingChannelsNames(NetworkState.LOGIN).addAll(ids);

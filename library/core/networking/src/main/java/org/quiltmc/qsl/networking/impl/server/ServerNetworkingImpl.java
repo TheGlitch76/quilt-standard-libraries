@@ -27,7 +27,6 @@ import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerLoginNetworkHandler;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.util.Identifier;
 
 import org.quiltmc.qsl.networking.api.ServerConfigurationNetworking;
 import org.quiltmc.qsl.networking.api.ServerLoginNetworking;
@@ -54,8 +53,9 @@ public final class ServerNetworkingImpl {
 		return (ServerLoginNetworkAddon) ((NetworkHandlerExtensions) handler).getAddon();
 	}
 
-	public static Packet<ClientCommonPacketListener> createS2CPacket(Identifier channel, PacketByteBuf buf) {
-		return createS2CPacket(new PacketByteBufPayload(channel, buf));
+	public static Packet<ClientCommonPacketListener> createS2CPacket(CustomPayload.Id<?> channel, PacketByteBuf buf) {
+		buf.writeIdentifier(channel.id());
+		return createS2CPacket(PacketByteBufPayload.CODEC.decode(buf));
 	}
 
 	public static Packet<ClientCommonPacketListener> createS2CPacket(CustomPayload payload) {

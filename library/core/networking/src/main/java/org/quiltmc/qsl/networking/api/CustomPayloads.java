@@ -16,17 +16,19 @@
 
 package org.quiltmc.qsl.networking.api;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import net.minecraft.network.NetworkState;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.payload.CustomPayload;
-import net.minecraft.util.Identifier;
 
+import org.quiltmc.loader.api.ModInternal;
 import org.quiltmc.qsl.networking.api.client.ClientConfigurationNetworking;
 import org.quiltmc.qsl.networking.api.client.ClientPlayNetworking;
-import org.quiltmc.qsl.networking.mixin.accessor.CustomPayloadC2SPacketAccessor;
-import org.quiltmc.qsl.networking.mixin.accessor.CustomPayloadS2CPacketAccessor;
+import org.quiltmc.qsl.networking.impl.NetworkingImpl;
 
 /**
  * Allows for registering custom payloads for between the server and client.
@@ -34,20 +36,27 @@ import org.quiltmc.qsl.networking.mixin.accessor.CustomPayloadS2CPacketAccessor;
  * Note: Registering a payload does not register a receiver and vice versa.
  */
 public class CustomPayloads {
+
+	@ModInternal(exceptions = "minecraft")
+	public static final Map<CustomPayload.Id<?>, PacketCodec<PacketByteBuf, ? extends CustomPayload>> S2C_TYPES = new HashMap<>();
+	@ModInternal(exceptions = "minecraft")
+	public static final Map<CustomPayload.Id<?>, PacketCodec<PacketByteBuf, ? extends CustomPayload>> C2S_TYPES = new HashMap<>();
 	/**
 	 * Registers a common ({@link net.minecraft.network.NetworkState#CONFIGURATION} or {@link net.minecraft.network.NetworkState#PLAY}) payload that is sent from the client to the server.
 	 *
 	 * @param type   the type or id for the payload
 	 * @param reader the deserializer for the payload
 	 * @param <T>    the payload type
-	 * @see ClientConfigurationNetworking#registerGlobalReceiver(Identifier, ClientConfigurationNetworking.CustomChannelReceiver)
-	 * @see ClientPlayNetworking#registerGlobalReceiver(Identifier, ClientPlayNetworking.CustomChannelReceiver)
+	 * @see ClientConfigurationNetworking#registerGlobalReceiver(CustomPayload.Id, ClientConfigurationNetworking.CustomChannelReceiver)
+	 * @see ClientPlayNetworking#registerGlobalReceiver(CustomPayload.Id, ClientPlayNetworking.CustomChannelReceiver)
 	 */
-	public static <T extends CustomPayload> void registerC2SPayload(Identifier type, PacketByteBuf.Reader<T> reader) {
+	public static <T extends CustomPayload> void registerC2SPayload(CustomPayload.Id<T> type, PacketCodec<PacketByteBuf, T> reader) {
 		Objects.requireNonNull(type, "Type cannot be null");
 		Objects.requireNonNull(reader, "Reader cannot be null");
 
-		CustomPayloadC2SPacketAccessor.getKnownTypes().put(type, reader);
+		NetworkingImpl.LOGGER.info("Registering C2S payload: "+type);
+
+		C2S_TYPES.put(type, reader);
 	}
 
 	/**
@@ -56,13 +65,15 @@ public class CustomPayloads {
 	 * @param type   the type or id for the payload
 	 * @param reader the deserializer for the payload
 	 * @param <T>    the payload type
-	 * @see ServerConfigurationNetworking#registerGlobalReceiver(Identifier, ServerConfigurationNetworking.CustomChannelReceiver)
-	 * @see ServerPlayNetworking#registerGlobalReceiver(Identifier, ServerPlayNetworking.CustomChannelReceiver)
+	 * @see ServerConfigurationNetworking#registerGlobalReceiver(CustomPayload.Id, ServerConfigurationNetworking.CustomChannelReceiver)
+	 * @see ServerPlayNetworking#registerGlobalReceiver(CustomPayload.Id, ServerPlayNetworking.CustomChannelReceiver)
 	 */
-	public static <T extends CustomPayload> void registerS2CPayload(Identifier type, PacketByteBuf.Reader<T> reader) {
+	public static <T extends CustomPayload> void registerS2CPayload(CustomPayload.Id<T> type, PacketCodec<PacketByteBuf, T> reader) {
 		Objects.requireNonNull(type, "Type cannot be null");
 		Objects.requireNonNull(reader, "Reader cannot be null");
 
-		CustomPayloadS2CPacketAccessor.getKnownTypes().put(type, reader);
+		NetworkingImpl.LOGGER.info("Registering S2C payload: "+type);
+
+		S2C_TYPES.put(type, reader);
 	}
 }

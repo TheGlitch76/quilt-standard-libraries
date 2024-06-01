@@ -41,7 +41,7 @@ public final class QuiltTestCommand {
 	public static int executeExport(ServerCommandSource source) {
 		BlockPos currentPos = BlockPos.fromPosition(source.getPosition());
 		ServerWorld world = source.getWorld();
-		BlockPos nearestStructureBlockPos = StructureTestUtil.findNearestStructureBlock(currentPos, 15, world);
+		BlockPos nearestStructureBlockPos = StructureTestUtil.findNearestStructureBlock(currentPos, 15, world).orElse(null);
 
 		if (nearestStructureBlockPos == null) {
 			source.sendError(Text.literal("Couldn't find any structure block within 15 blocks radius."));

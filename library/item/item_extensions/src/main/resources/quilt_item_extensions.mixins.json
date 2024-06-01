@@ -8,6 +8,7 @@
     "bow.BowAttackGoalMixin",
     "bow.BowAttackMixin",
     "bow.BowItemMixin",
+    "bow.RangedWeaponItemMixin",
     "bow.EntityUseBowMixin",
     "crossbow.CrossbowItemAccessor",
     "crossbow.CrossbowItemMixin",

@@ -58,7 +58,7 @@ public final class S2CConfigurationChannelEvents {
 	 */
 	@FunctionalInterface
 	public interface Register extends EventAwareListener {
-		void onChannelRegister(ServerConfigurationNetworkHandler handler, PacketSender<CustomPayload> sender, MinecraftServer server, List<Identifier> channels);
+		void onChannelRegister(ServerConfigurationNetworkHandler handler, PacketSender<CustomPayload> sender, MinecraftServer server, List<CustomPayload.Id<?>> channels);
 	}
 
 	/**
@@ -66,6 +66,6 @@ public final class S2CConfigurationChannelEvents {
 	 */
 	@FunctionalInterface
 	public interface Unregister extends EventAwareListener {
-		void onChannelUnregister(ServerConfigurationNetworkHandler handler, PacketSender<CustomPayload> sender, MinecraftServer server, List<Identifier> channels);
+		void onChannelUnregister(ServerConfigurationNetworkHandler handler, PacketSender<CustomPayload> sender, MinecraftServer server, List<CustomPayload.Id<?>> channels);
 	}
 }

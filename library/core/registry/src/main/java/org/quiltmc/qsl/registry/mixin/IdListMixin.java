@@ -28,7 +28,7 @@ import net.minecraft.util.collection.IdList;
 import org.quiltmc.qsl.registry.impl.sync.registry.SynchronizedIdList;
 
 @Mixin(IdList.class)
-public class IdListMixin<T> implements SynchronizedIdList<T> {
+public abstract class IdListMixin<T> implements SynchronizedIdList<T> {
 	@Shadow
 	private int nextId;
 

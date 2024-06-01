@@ -63,21 +63,21 @@ public class RegistrySyncInitializer implements ModInitializer {
 		});
 
 		ServerRegistrySync.registerHandlers();
-		CustomPayloads.registerS2CPayload(ServerPackets.Handshake.ID, ServerPackets.Handshake::new);
-		CustomPayloads.registerS2CPayload(ServerPackets.End.ID, ServerPackets.End::new);
-		CustomPayloads.registerS2CPayload(ServerPackets.RegistryStart.ID, ServerPackets.RegistryStart::new);
-		CustomPayloads.registerS2CPayload(ServerPackets.RegistryData.ID, ServerPackets.RegistryData::new);
-		CustomPayloads.registerS2CPayload(ServerPackets.RegistryApply.ID, ServerPackets.RegistryApply::new);
-		CustomPayloads.registerS2CPayload(ServerPackets.ValidateStates.StateType.BLOCK.packetId(), ServerPackets.ValidateStates::newBlock);
-		CustomPayloads.registerS2CPayload(ServerPackets.ValidateStates.StateType.FLUID.packetId(), ServerPackets.ValidateStates::newFluid);
-		CustomPayloads.registerS2CPayload(ServerPackets.RegistryRestore.ID, ServerPackets.RegistryRestore::new);
-		CustomPayloads.registerS2CPayload(ServerPackets.ErrorStyle.ID, ServerPackets.ErrorStyle::new);
-		CustomPayloads.registerS2CPayload(ServerPackets.ModProtocol.ID, ServerPackets.ModProtocol::new);
+		CustomPayloads.registerS2CPayload(ServerPackets.Handshake.ID, ServerPackets.Handshake.CODEC);
+		CustomPayloads.registerS2CPayload(ServerPackets.End.ID, ServerPackets.End.CODEC);
+		CustomPayloads.registerS2CPayload(ServerPackets.RegistryStart.ID, ServerPackets.RegistryStart.CODEC);
+		CustomPayloads.registerS2CPayload(ServerPackets.RegistryData.ID, ServerPackets.RegistryData.CODEC);
+		CustomPayloads.registerS2CPayload(ServerPackets.RegistryApply.ID, ServerPackets.RegistryApply.CODEC);
+		CustomPayloads.registerS2CPayload(ServerPackets.ValidateStates.StateType.BLOCK.packetId(), ServerPackets.ValidateStates.CODEC_BLOCK);
+		CustomPayloads.registerS2CPayload(ServerPackets.ValidateStates.StateType.FLUID.packetId(), ServerPackets.ValidateStates.CODEC_FLUID);
+		CustomPayloads.registerS2CPayload(ServerPackets.RegistryRestore.ID, ServerPackets.RegistryRestore.CODEC);
+		CustomPayloads.registerS2CPayload(ServerPackets.ErrorStyle.ID, ServerPackets.ErrorStyle.CODEC);
+		CustomPayloads.registerS2CPayload(ServerPackets.ModProtocol.ID, ServerPackets.ModProtocol.CODEC);
 
-		CustomPayloads.registerC2SPayload(ClientPackets.Handshake.ID, ClientPackets.Handshake::new);
-		CustomPayloads.registerC2SPayload(ClientPackets.SyncFailed.ID, ClientPackets.SyncFailed::new);
-		CustomPayloads.registerC2SPayload(ClientPackets.UnknownEntry.ID, ClientPackets.UnknownEntry::new);
-		CustomPayloads.registerC2SPayload(ClientPackets.ModProtocol.ID, ClientPackets.ModProtocol::new);
-		CustomPayloads.registerC2SPayload(ClientPackets.End.ID, ClientPackets.End::new);
+		CustomPayloads.registerC2SPayload(ClientPackets.Handshake.ID, ClientPackets.Handshake.CODEC);
+		CustomPayloads.registerC2SPayload(ClientPackets.SyncFailed.ID, ClientPackets.SyncFailed.CODEC);
+		CustomPayloads.registerC2SPayload(ClientPackets.UnknownEntry.ID, ClientPackets.UnknownEntry.CODEC);
+		CustomPayloads.registerC2SPayload(ClientPackets.ModProtocol.ID, ClientPackets.ModProtocol.CODEC);
+		CustomPayloads.registerC2SPayload(ClientPackets.End.ID, ClientPackets.End.CODEC);
 	}
 }

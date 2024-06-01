@@ -16,8 +16,10 @@
 
 package org.quiltmc.qsl.recipe.impl;
 
+import java.util.Collection;
 import java.util.Map;
 
+import com.google.common.collect.Multimap;
 import org.jetbrains.annotations.ApiStatus;
 
 import net.minecraft.recipe.RecipeHolder;
@@ -32,20 +34,20 @@ import org.quiltmc.qsl.recipe.api.RecipeLoadingEvents;
 final class ModifyRecipeHandlerImpl extends BasicRecipeHandlerImpl implements RecipeLoadingEvents.ModifyRecipesCallback.RecipeHandler {
 	int counter = 0;
 
-	ModifyRecipeHandlerImpl(RecipeManager recipeManager, Map<RecipeType<?>, Map<Identifier, RecipeHolder<?>>> recipes,
-			Map<Identifier, RecipeHolder<?>> globalRecipes, DynamicRegistryManager registryManager) {
+	ModifyRecipeHandlerImpl(RecipeManager recipeManager, Multimap<RecipeType<?>, RecipeHolder<?>> recipes,
+							Map<Identifier, RecipeHolder<?>> globalRecipes, DynamicRegistryManager registryManager) {
 		super(recipeManager, recipes, globalRecipes, registryManager);
 	}
 
 	private void add(RecipeHolder<?> recipeHolder) {
-		Map<Identifier, RecipeHolder<?>> type = this.recipes.get(recipeHolder.value().getType());
+		Collection<RecipeHolder<?>> type = this.recipes.get(recipeHolder.value().getType());
 
-		if (type == null) {
+		if (type.isEmpty()) {
 			throw new IllegalStateException("The given recipe " + recipeHolder.id()
 					+ " does not have its recipe type " + type + " in the recipe manager.");
 		}
 
-		type.put(recipeHolder.id(), recipeHolder);
+		type.add(recipeHolder);
 		this.globalRecipes.put(recipeHolder.id(), recipeHolder);
 	}
 
@@ -64,14 +66,14 @@ final class ModifyRecipeHandlerImpl extends BasicRecipeHandlerImpl implements Re
 				RecipeManagerImpl.LOGGER.info("Replace recipe {} with same type {} in modify phase.", recipeHolder.id(), recipeHolder.value().getType());
 			}
 
-			this.recipes.get(oldType).put(recipeHolder.id(), recipeHolder);
+			this.recipes.get(oldType).add(recipeHolder);
 			this.globalRecipes.put(recipeHolder.id(), recipeHolder);
 		} else {
 			if (RecipeManagerImpl.DEBUG_MODE) {
 				RecipeManagerImpl.LOGGER.info("Replace new recipe {} with type {} (and old type {}) in modify phase.", recipeHolder.id(), recipeHolder.value().getType(), oldType);
 			}
 
-			this.recipes.get(oldType).remove(recipeHolder.id());
+			this.recipes.get(oldType).remove(recipeHolder);
 			this.add(recipeHolder);
 		}
 

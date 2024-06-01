@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,11 +36,11 @@ import org.quiltmc.qsl.recipe.api.BaseRecipeHandler;
 
 class BasicRecipeHandlerImpl implements BaseRecipeHandler {
 	final RecipeManager recipeManager;
-	final Map<RecipeType<?>, Map<Identifier, RecipeHolder<?>>> recipes;
+	final Multimap<RecipeType<?>, RecipeHolder<?>> recipes;
 	final Map<Identifier, RecipeHolder<?>> globalRecipes;
 	private final DynamicRegistryManager registryManager;
 
-	BasicRecipeHandlerImpl(RecipeManager recipeManager, Map<RecipeType<?>, Map<Identifier, RecipeHolder<?>>> recipes,
+	BasicRecipeHandlerImpl(RecipeManager recipeManager, Multimap<RecipeType<?>, RecipeHolder<?>> recipes,
 						   Map<Identifier, RecipeHolder<?>> globalRecipes, DynamicRegistryManager registryManager) {
 		this.recipeManager = recipeManager;
 		this.recipes = recipes;
@@ -48,11 +50,11 @@ class BasicRecipeHandlerImpl implements BaseRecipeHandler {
 
 	@Override
 	public @Nullable RecipeType<?> getTypeOf(Identifier id) {
-		return this.recipes.entrySet().stream()
-				.filter(entry -> entry.getValue().containsKey(id))
-				.findFirst()
-				.map(Map.Entry::getKey)
-				.orElse(null);
+		return recipes.entries().stream()
+			.filter(entry -> entry.getValue().id().equals(id))
+			.findFirst()
+			.map(Map.Entry::getKey)
+			.orElse(null);
 	}
 
 	@Override
@@ -62,11 +64,11 @@ class BasicRecipeHandlerImpl implements BaseRecipeHandler {
 
 	@Override
 	public boolean contains(Identifier id, RecipeType<?> type) {
-		Map<Identifier, RecipeHolder<?>> recipes = this.recipes.get(type);
+		Collection<RecipeHolder<?>> recipe = this.recipes.get(type);
 
-		if (recipes == null) return false;
+		if (recipe.isEmpty()) return false;
 
-		return recipes.containsKey(id);
+		return recipe.stream().anyMatch(holder -> holder.id().equals(id));
 	}
 
 	@Override
@@ -77,28 +79,28 @@ class BasicRecipeHandlerImpl implements BaseRecipeHandler {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends Recipe<?>> @Nullable RecipeHolder<T> getRecipe(Identifier id, RecipeType<T> type) {
-		Map<Identifier, RecipeHolder<?>> recipes = this.recipes.get(type);
+		Collection<RecipeHolder<?>> recipes = this.recipes.get(type);
 
-		if (recipes == null) return null;
+		if (recipes.isEmpty()) return null;
 
-		return (RecipeHolder<T>) recipes.get(id);
+		return (RecipeHolder<T>) recipes.stream().filter(holder -> holder.id().equals(id)).findFirst().orElse(null);
 	}
 
 	@Override
-	public Map<RecipeType<?>, Map<Identifier, RecipeHolder<?>>> getRecipes() {
-		return Collections.unmodifiableMap(this.recipes);
+	public ImmutableMultimap<RecipeType<?>, RecipeHolder<?>> getRecipes() {
+		return ImmutableMultimap.copyOf(this.recipes);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends Recipe<?>> Collection<RecipeHolder<T>> getRecipesOfType(RecipeType<T> type) {
-		Map<Identifier, RecipeHolder<?>> recipes = this.recipes.get(type);
+		Collection<RecipeHolder<?>> recipes = this.recipes.get(type);
 
-		if (recipes == null) {
+		if (recipes.isEmpty()) {
 			return Collections.emptyList();
 		}
 
-		return recipes.values().stream().map(recipeHolder -> (RecipeHolder<T>) recipeHolder).toList();
+		return recipes.stream().map(recipeHolder -> (RecipeHolder<T>) recipeHolder).toList();
 	}
 
 	@Override

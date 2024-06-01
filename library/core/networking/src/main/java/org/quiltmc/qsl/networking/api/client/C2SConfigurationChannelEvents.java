@@ -62,7 +62,7 @@ public final class C2SConfigurationChannelEvents {
 	@ClientOnly
 	@FunctionalInterface
 	public interface Register extends ClientEventAwareListener {
-		void onChannelRegister(ClientConfigurationNetworkHandler handler, PacketSender<CustomPayload> sender, MinecraftClient client, List<Identifier> channels);
+		void onChannelRegister(ClientConfigurationNetworkHandler handler, PacketSender<CustomPayload> sender, MinecraftClient client, List<CustomPayload.Id<?>> channels);
 	}
 
 	/**
@@ -71,6 +71,6 @@ public final class C2SConfigurationChannelEvents {
 	@ClientOnly
 	@FunctionalInterface
 	public interface Unregister extends ClientEventAwareListener {
-		void onChannelUnregister(ClientConfigurationNetworkHandler handler, PacketSender<CustomPayload> sender, MinecraftClient client, List<Identifier> channels);
+		void onChannelUnregister(ClientConfigurationNetworkHandler handler, PacketSender<CustomPayload> sender, MinecraftClient client, List<CustomPayload.Id<?>> channels);
 	}
 }

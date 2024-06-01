@@ -59,7 +59,7 @@ public final class ServerPlayNetworkAddon extends AbstractChanneledNetworkAddon<
 
 	@Override
 	public void lateInit() {
-		for (Map.Entry<Identifier, ServerPlayNetworking.CustomChannelReceiver<?>> entry : this.receiver.getReceivers().entrySet()) {
+		for (Map.Entry<CustomPayload.Id<?>, ServerPlayNetworking.CustomChannelReceiver<?>> entry : this.receiver.getReceivers().entrySet()) {
 			this.registerChannel(entry.getKey(), entry.getValue());
 		}
 
@@ -92,22 +92,22 @@ public final class ServerPlayNetworkAddon extends AbstractChanneledNetworkAddon<
 	}
 
 	@Override
-	public Packet<?> createPacket(Identifier channelName, PacketByteBuf buf) {
+	public Packet<?> createPacket(CustomPayload.Id<?> channelName, PacketByteBuf buf) {
 		return ServerPlayNetworking.createS2CPacket(channelName, buf);
 	}
 
 	@Override
-	protected void invokeRegisterEvent(List<Identifier> ids) {
+	protected void invokeRegisterEvent(List<CustomPayload.Id<?>> ids) {
 		S2CPlayChannelEvents.REGISTER.invoker().onChannelRegister(this.handler, this, this.server, ids);
 	}
 
 	@Override
-	protected void invokeUnregisterEvent(List<Identifier> ids) {
+	protected void invokeUnregisterEvent(List<CustomPayload.Id<?>> ids) {
 		S2CPlayChannelEvents.UNREGISTER.invoker().onChannelUnregister(this.handler, this, this.server, ids);
 	}
 
 	@Override
-	protected void handleRegistration(Identifier channelName) {
+	protected void handleRegistration(CustomPayload.Id<?> channelName) {
 		// If we can already send packets, immediately send the register packet for this channel
 		if (this.sentInitialRegisterPacket) {
 			final ChannelPayload payload = this.createRegistrationPacket(List.of(channelName), true);
@@ -119,7 +119,7 @@ public final class ServerPlayNetworkAddon extends AbstractChanneledNetworkAddon<
 	}
 
 	@Override
-	protected void handleUnregistration(Identifier channelName) {
+	protected void handleUnregistration(CustomPayload.Id<?> channelName) {
 		// If we can already send packets, immediately send the unregister packet for this channel
 		if (this.sentInitialRegisterPacket) {
 			final ChannelPayload payload = this.createRegistrationPacket(List.of(channelName), false);
@@ -137,7 +137,7 @@ public final class ServerPlayNetworkAddon extends AbstractChanneledNetworkAddon<
 	}
 
 	@Override
-	protected boolean isReservedChannel(Identifier channelName) {
+	protected boolean isReservedChannel(CustomPayload.Id<?> channelName) {
 		return NetworkingImpl.isReservedCommonChannel(channelName);
 	}
 }

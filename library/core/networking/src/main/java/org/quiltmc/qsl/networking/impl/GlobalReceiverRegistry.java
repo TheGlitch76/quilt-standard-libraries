@@ -29,6 +29,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.network.NetworkState;
+import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.util.Identifier;
 
 @ApiStatus.Internal
@@ -36,20 +37,20 @@ public final class GlobalReceiverRegistry<H> {
 	private final NetworkState state;
 
 	private final ReadWriteLock lock = new ReentrantReadWriteLock();
-	private final Map<Identifier, H> receivers;
+	private final Map<CustomPayload.Id<?>, H> receivers;
 	private final Set<AbstractNetworkAddon<H>> trackedAddons = new HashSet<>();
 
 	public GlobalReceiverRegistry(NetworkState state) {
 		this(state, new Object2ObjectOpenHashMap<>()); // sync map should be fine as there is little read write competitions
 	}
 
-	public GlobalReceiverRegistry(NetworkState state, Map<Identifier, H> map) {
+	public GlobalReceiverRegistry(NetworkState state, Map<CustomPayload.Id<?>, H> map) {
 		this.state = state;
 		this.receivers = map;
 	}
 
 	@Nullable
-	public H getReceiver(Identifier channelName) {
+	public H getReceiver(CustomPayload.Id<?> channelName) {
 		Lock lock = this.lock.readLock();
 		lock.lock();
 
@@ -60,7 +61,7 @@ public final class GlobalReceiverRegistry<H> {
 		}
 	}
 
-	public boolean registerGlobalReceiver(Identifier channelName, H handler) {
+	public boolean registerGlobalReceiver(CustomPayload.Id<?> channelName, H handler) {
 		Objects.requireNonNull(channelName, "Channel name cannot be null");
 		Objects.requireNonNull(handler, "Channel handler cannot be null");
 
@@ -84,7 +85,7 @@ public final class GlobalReceiverRegistry<H> {
 		}
 	}
 
-	public H unregisterGlobalReceiver(Identifier channelName) {
+	public H unregisterGlobalReceiver(CustomPayload.Id<?> channelName) {
 		Objects.requireNonNull(channelName, "Channel name cannot be null");
 
 		if (NetworkingImpl.isReservedCommonChannel(channelName)) {
@@ -107,7 +108,7 @@ public final class GlobalReceiverRegistry<H> {
 		}
 	}
 
-	public Map<Identifier, H> getReceivers() {
+	public Map<CustomPayload.Id<?>, H> getReceivers() {
 		Lock lock = this.lock.writeLock();
 		lock.lock();
 
@@ -118,7 +119,7 @@ public final class GlobalReceiverRegistry<H> {
 		}
 	}
 
-	public Set<Identifier> getChannels() {
+	public Set<CustomPayload.Id<?>> getChannels() {
 		Lock lock = this.lock.readLock();
 		lock.lock();
 
@@ -153,7 +154,7 @@ public final class GlobalReceiverRegistry<H> {
 		}
 	}
 
-	private void handleRegistration(Identifier channelName, H handler) {
+	private void handleRegistration(CustomPayload.Id<?> channelName, H handler) {
 		Lock lock = this.lock.writeLock();
 		lock.lock();
 
@@ -166,7 +167,7 @@ public final class GlobalReceiverRegistry<H> {
 		}
 	}
 
-	private void handleUnregistration(Identifier channelName) {
+	private void handleUnregistration(CustomPayload.Id<?> channelName) {
 		Lock lock = this.lock.writeLock();
 		lock.lock();
 

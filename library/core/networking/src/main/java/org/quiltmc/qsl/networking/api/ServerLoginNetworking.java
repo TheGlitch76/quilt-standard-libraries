@@ -23,10 +23,10 @@ import java.util.concurrent.Future;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.network.packet.s2c.login.payload.CustomQueryPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerLoginNetworkHandler;
-import net.minecraft.util.Identifier;
 
 import org.quiltmc.qsl.networking.api.client.ClientLoginNetworking;
 import org.quiltmc.qsl.networking.impl.server.ServerNetworkingImpl;
@@ -46,15 +46,15 @@ public final class ServerLoginNetworking {
 	 * A global receiver is registered to all connections, in the present and future.
 	 * <p>
 	 * If a handler is already registered to the {@code channel}, this method will return {@code false}, and no change will be made.
-	 * Use {@link #unregisterGlobalReceiver(Identifier)} to unregister the existing handler.
+	 * Use {@link #unregisterGlobalReceiver(CustomPayload.Id)} to unregister the existing handler.
 	 *
 	 * @param channelName    the identifier of the channel
 	 * @param channelHandler the handler
 	 * @return {@code false} if a handler is already registered to the channel, otherwise {@code true}
-	 * @see ServerLoginNetworking#unregisterGlobalReceiver(Identifier)
-	 * @see ServerLoginNetworking#registerReceiver(ServerLoginNetworkHandler, Identifier, QueryResponseReceiver)
+	 * @see ServerLoginNetworking#unregisterGlobalReceiver(CustomPayload.Id)
+	 * @see ServerLoginNetworking#registerReceiver(ServerLoginNetworkHandler, CustomPayload.Id, QueryResponseReceiver)
 	 */
-	public static boolean registerGlobalReceiver(Identifier channelName, QueryResponseReceiver channelHandler) {
+	public static boolean registerGlobalReceiver(CustomPayload.Id<?> channelName, QueryResponseReceiver channelHandler) {
 		return ServerNetworkingImpl.LOGIN.registerGlobalReceiver(channelName, channelHandler);
 	}
 
@@ -66,11 +66,11 @@ public final class ServerLoginNetworking {
 	 *
 	 * @param channelName the identifier of the channel
 	 * @return the previous handler, or {@code null} if no handler was bound to the channel
-	 * @see ServerLoginNetworking#registerGlobalReceiver(Identifier, QueryResponseReceiver)
-	 * @see ServerLoginNetworking#unregisterReceiver(ServerLoginNetworkHandler, Identifier)
+	 * @see ServerLoginNetworking#registerGlobalReceiver(CustomPayload.Id, QueryResponseReceiver)
+	 * @see ServerLoginNetworking#unregisterReceiver(ServerLoginNetworkHandler, CustomPayload.Id)
 	 */
 	@Nullable
-	public static ServerLoginNetworking.QueryResponseReceiver unregisterGlobalReceiver(Identifier channelName) {
+	public static ServerLoginNetworking.QueryResponseReceiver unregisterGlobalReceiver(CustomPayload.Id<?> channelName) {
 		return ServerNetworkingImpl.LOGIN.unregisterGlobalReceiver(channelName);
 	}
 
@@ -80,7 +80,7 @@ public final class ServerLoginNetworking {
 	 *
 	 * @return all channel names which global receivers are registered for
 	 */
-	public static Set<Identifier> getGlobalReceivers() {
+	public static Set<CustomPayload.Id<?>> getGlobalReceivers() {
 		return ServerNetworkingImpl.LOGIN.getChannels();
 	}
 
@@ -88,14 +88,14 @@ public final class ServerLoginNetworking {
 	 * Registers a handler to a query response channel.
 	 * <p>
 	 * If a handler is already registered to the {@code channelName}, this method will return {@code false}, and no change will be made.
-	 * Use {@link #unregisterReceiver(ServerLoginNetworkHandler, Identifier)} to unregister the existing handler.
+	 * Use {@link #unregisterReceiver(ServerLoginNetworkHandler, CustomPayload.Id)} to unregister the existing handler.
 	 *
 	 * @param networkHandler  the handler
 	 * @param channelName     the identifier of the channel
 	 * @param responseHandler the handler
 	 * @return {@code false} if a handler is already registered to the channel name, otherwise {@code true}
 	 */
-	public static boolean registerReceiver(ServerLoginNetworkHandler networkHandler, Identifier channelName, QueryResponseReceiver responseHandler) {
+	public static boolean registerReceiver(ServerLoginNetworkHandler networkHandler, CustomPayload.Id<?> channelName, QueryResponseReceiver responseHandler) {
 		Objects.requireNonNull(networkHandler, "Network handler cannot be null");
 
 		return ServerNetworkingImpl.getAddon(networkHandler).registerChannel(channelName, responseHandler);
@@ -110,7 +110,7 @@ public final class ServerLoginNetworking {
 	 * @return the previous handler, or {@code null} if no handler was bound to the channel name
 	 */
 	@Nullable
-	public static ServerLoginNetworking.QueryResponseReceiver unregisterReceiver(ServerLoginNetworkHandler networkHandler, Identifier channelName) {
+	public static ServerLoginNetworking.QueryResponseReceiver unregisterReceiver(ServerLoginNetworkHandler networkHandler, CustomPayload.Id<?> channelName) {
 		Objects.requireNonNull(networkHandler, "Network handler cannot be null");
 
 		return ServerNetworkingImpl.getAddon(networkHandler).unregisterChannel(channelName);

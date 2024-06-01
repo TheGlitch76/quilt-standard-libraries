@@ -15,8 +15,6 @@
     "ServerLoginNetworkHandlerMixin",
     "ServerPlayNetworkHandlerMixin",
     "accessor.AbstractServerPacketHandlerAccessor",
-    "accessor.CustomPayloadC2SPacketAccessor",
-    "accessor.CustomPayloadS2CPacketAccessor",
     "accessor.EntityTrackerAccessor",
     "accessor.ServerConfigurationNetworkHandlerAccessor",
     "accessor.ServerLoginNetworkHandlerAccessor",

@@ -23,6 +23,7 @@ import com.google.common.collect.HashBiMap;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.MapCodec;
 
 import net.minecraft.util.Identifier;
 
@@ -83,7 +84,7 @@ public class EnchantingBoosters {
 	 * @param codec the codec for the booster
 	 * @return the type for the booster
 	 */
-	public static EnchantingBoosterType register(Identifier id, Codec<? extends EnchantingBooster> codec) {
+	public static EnchantingBoosterType register(Identifier id, MapCodec<? extends EnchantingBooster> codec) {
 		var type = new EnchantingBoosterType(codec, Optional.empty());
 		return register(id, type);
 	}

@@ -24,12 +24,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.block.Block;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.entity.SpawnRestriction;
+import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.DefaultAttributeRegistry;
 import net.minecraft.entity.mob.MobEntity;
@@ -60,6 +55,7 @@ public class QuiltEntityTypeBuilder<T extends Entity> {
 	private FeatureFlagBitSet requiredFlags = FeatureFlags.DEFAULT_SET;
 	private Boolean alwaysUpdateVelocity = null;
 	private EntityDimensions dimensions = EntityDimensions.changing(0.6F, 1.8F);
+	private float spawnDimensionsScale = 1.0f;
 
 	protected QuiltEntityTypeBuilder(@NotNull SpawnGroup spawnGroup, @NotNull EntityType.EntityFactory<T> factory) {
 		this.spawnGroup = spawnGroup;
@@ -289,6 +285,15 @@ public class QuiltEntityTypeBuilder<T extends Entity> {
 	}
 
 	/**
+	 * Sets the dimensional scale of this entity when it is spawned.
+	 * This is currently (as of 1.20.6) only used for the Slime and Magma cube entities.
+	 */
+	public QuiltEntityTypeBuilder<T> spawnDimensionsScale(float scale){
+		this.spawnDimensionsScale = scale;
+		return this;
+	}
+
+	/**
 	 * Creates the entity type.
 	 *
 	 * @return a new {@link EntityType}
@@ -298,7 +303,7 @@ public class QuiltEntityTypeBuilder<T extends Entity> {
 			// TODO: Implement once DataFixer API is available.
 		}
 
-		return new QuiltEntityType<>(this.factory, this.spawnGroup, this.saveable, this.summonable, this.fireImmune, this.spawnableFarFromPlayer, this.canSpawnInside, this.dimensions, this.maxTrackingRange, this.trackingTickInterval, this.alwaysUpdateVelocity, this.requiredFlags);
+		return new QuiltEntityType<>(this.factory, this.spawnGroup, this.saveable, this.summonable, this.fireImmune, this.spawnableFarFromPlayer, this.canSpawnInside, this.dimensions, this.spawnDimensionsScale, this.maxTrackingRange, this.trackingTickInterval, this.alwaysUpdateVelocity, this.requiredFlags);
 	}
 
 	/**
@@ -438,7 +443,7 @@ public class QuiltEntityTypeBuilder<T extends Entity> {
 	 * @param <T> Entity class
 	 */
 	public static class Mob<T extends MobEntity> extends QuiltEntityTypeBuilder.Living<T> {
-		private SpawnRestriction.Location restrictionLocation;
+		private SpawnLocation restrictionLocation;
 		private Heightmap.Type restrictionHeightmap;
 		private SpawnRestriction.SpawnPredicate<T> spawnPredicate;
 
@@ -541,7 +546,7 @@ public class QuiltEntityTypeBuilder<T extends Entity> {
 		 * @param spawnPredicate the conditions for a successful entity spawn
 		 * @return this builder for chaining
 		 */
-		public QuiltEntityTypeBuilder.Mob<T> spawnRestriction(@NotNull SpawnRestriction.Location location, @NotNull Heightmap.Type heightmap, @NotNull SpawnRestriction.SpawnPredicate<T> spawnPredicate) {
+		public QuiltEntityTypeBuilder.Mob<T> spawnRestriction(@NotNull SpawnLocation location, @NotNull Heightmap.Type heightmap, @NotNull SpawnRestriction.SpawnPredicate<T> spawnPredicate) {
 			this.restrictionLocation = Objects.requireNonNull(location, "Location cannot be null.");
 			this.restrictionHeightmap = Objects.requireNonNull(heightmap, "Heightmap type cannot be null.");
 			this.spawnPredicate = Objects.requireNonNull(spawnPredicate, "Spawn predicate cannot be null.");

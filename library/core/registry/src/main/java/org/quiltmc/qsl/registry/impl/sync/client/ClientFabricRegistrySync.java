@@ -165,7 +165,7 @@ public class ClientFabricRegistrySync {
 		syncedRegistryMap = null;
 
 		for (var entry : map.entrySet()) {
-			var registry = Registries.REGISTRY.get(entry.getKey());
+			var registry = Registries.ROOT.get(entry.getKey());
 
 			if (registry instanceof SynchronizedRegistry<?> currentRegistry) {
 				var syncMap = new HashMap<String, Collection<SynchronizedRegistry.SyncEntry>>();

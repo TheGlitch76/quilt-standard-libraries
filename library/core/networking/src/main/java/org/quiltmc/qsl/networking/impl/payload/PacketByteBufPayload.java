@@ -17,12 +17,27 @@
 package org.quiltmc.qsl.networking.impl.payload;
 
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.payload.CustomPayload;
-import net.minecraft.util.Identifier;
 
-public record PacketByteBufPayload(Identifier id, PacketByteBuf data) implements CustomPayload {
-	@Override
-	public void write(PacketByteBuf byteBuf) {
+public record PacketByteBufPayload(PacketByteBuf data, Id<?> id) implements CustomPayload {
+	public static final PacketCodec<PacketByteBuf, PacketByteBufPayload> CODEC = CustomPayload.create(PacketByteBufPayload::write, PacketByteBufPayload::new);
+
+	public PacketByteBufPayload(PacketByteBuf data){
+		this(data, readId(data));
+	}
+
+	private static CustomPayload.Id<?> readId(PacketByteBuf data){
+		return new Id<>(data.readIdentifier());
+	}
+
+	private void write(PacketByteBuf byteBuf) {
 		byteBuf.writeBytes(this.data);
+		byteBuf.writeIdentifier(id.id());
+	}
+
+	@Override
+	public Id<? extends CustomPayload> getId() {
+		return id;
 	}
 }

@@ -109,6 +109,8 @@ public class TrackedDataHandlerRegistryMixin {
 			id = "tag_compound";
 		} else if (handler == TrackedDataHandlerRegistry.PARTICLE) {
 			id = "particle";
+		} else if (handler == TrackedDataHandlerRegistry.PARTICLES){
+			id = "particles";
 		} else if (handler == TrackedDataHandlerRegistry.VILLAGER_DATA) {
 			id = "villager_data";
 		} else if (handler == TrackedDataHandlerRegistry.FIREWORK_DATA) {
@@ -117,6 +119,8 @@ public class TrackedDataHandlerRegistryMixin {
 			id = "entity_pose";
 		} else if (handler == TrackedDataHandlerRegistry.CAT_VARIANT) {
 			id = "cat_variant";
+		} else if (handler == TrackedDataHandlerRegistry.WOLF_VARIANT){
+			id = "wolf_variant";
 		} else if (handler == TrackedDataHandlerRegistry.FROG_VARIANT) {
 			id = "frog_variant";
 		} else if (handler == TrackedDataHandlerRegistry.OPTIONAL_GLOBAL_POSITION) {
@@ -125,6 +129,8 @@ public class TrackedDataHandlerRegistryMixin {
 			id = "painting_variant";
 		} else if (handler == TrackedDataHandlerRegistry.SNIFFER_STATE) {
 			id = "sniffer_state";
+		} else if (handler == TrackedDataHandlerRegistry.ARMADILLO_STATE){
+			id = "armadillo_state";
 		} else if (handler == TrackedDataHandlerRegistry.VECTOR3F) {
 			id = "vector3f";
 		} else if (handler == TrackedDataHandlerRegistry.QUATERNIONF) {

@@ -66,9 +66,9 @@ public class CommonPacketTests {
 	private ServerConfigurationNetworkHandler serverNetworkHandler;
 	private ServerConfigurationNetworkAddon serverAddon;
 
-	private static final Identifier CLIENT_RECEIVE = new Identifier("quilt", "global_client");
-	private static final Identifier CLIENT_RECEIVE_CONFIGURATION = new Identifier("quilt", "global_configuration_client");
-	private static final Identifier SERVER_RECEIVE = new Identifier("quilt", "test");
+	private static final CustomPayload.Id<?> CLIENT_RECEIVE = new CustomPayload.Id<>(new Identifier("quilt", "global_client"));
+	private static final CustomPayload.Id<?> CLIENT_RECEIVE_CONFIGURATION = new CustomPayload.Id<>(new Identifier("quilt", "global_configuration_client"));
+	private static final CustomPayload.Id<?> SERVER_RECEIVE = new CustomPayload.Id<>(new Identifier("quilt", "test"));
 
 	@BeforeAll
 	static void beforeAll() {
@@ -306,10 +306,10 @@ public class CommonPacketTests {
 	}
 
 	private static class MockChannelInfoHolder implements ChannelInfoHolder {
-		private final Map<NetworkState, Collection<Identifier>> playChannels = new ConcurrentHashMap<>();
+		private final Map<NetworkState, Collection<CustomPayload.Id<?>>> playChannels = new ConcurrentHashMap<>();
 
 		@Override
-		public Collection<Identifier> getPendingChannelsNames(NetworkState state) {
+		public Collection<CustomPayload.Id<?>> getPendingChannelsNames(NetworkState state) {
 			return this.playChannels.computeIfAbsent(state, (key) -> Collections.newSetFromMap(new ConcurrentHashMap<>()));
 		}
 	}

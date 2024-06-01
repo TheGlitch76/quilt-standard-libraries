@@ -29,7 +29,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import net.minecraft.datafixer.fix.StatusEffectFix;
 
 @Mixin(StatusEffectFix.class)
-public abstract class C_dfpyqaylMixin {
+public abstract class StatusEffectFixMixin {
 	@Shadow
 	private static <T> Dynamic<T> method_53085(Dynamic<T> dynamic, String string, Dynamic<T> dynamic2, String string2) {
 		return null;

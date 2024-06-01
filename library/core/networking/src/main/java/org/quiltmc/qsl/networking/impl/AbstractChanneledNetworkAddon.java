@@ -33,7 +33,6 @@ import net.minecraft.network.NetworkState;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.payload.CustomPayload;
-import net.minecraft.util.Identifier;
 
 import org.quiltmc.qsl.networking.api.PacketSender;
 import org.quiltmc.qsl.networking.impl.common.CommonPacketHandler;
@@ -49,7 +48,7 @@ import org.quiltmc.qsl.networking.impl.payload.ChannelPayload;
 public abstract class AbstractChanneledNetworkAddon<H> extends AbstractNetworkAddon<H> implements PacketSender<CustomPayload>, CommonPacketHandler {
 	protected final ClientConnection connection;
 	protected final GlobalReceiverRegistry<H> receiver;
-	protected final Set<Identifier> sendableChannels;
+	protected final Set<CustomPayload.Id<?>> sendableChannels;
 
 	protected AbstractChanneledNetworkAddon(GlobalReceiverRegistry<H> receiver, ClientConnection connection, String description) {
 		super(receiver, description);
@@ -61,7 +60,7 @@ public abstract class AbstractChanneledNetworkAddon<H> extends AbstractNetworkAd
 	public abstract void lateInit();
 
 	protected void registerPendingChannels(ChannelInfoHolder holder, NetworkState state) {
-		final Collection<Identifier> pending = holder.getPendingChannelsNames(state);
+		final Collection<CustomPayload.Id<?>> pending = holder.getPendingChannelsNames(state);
 
 		if (!pending.isEmpty()) {
 			this.register(new ArrayList<>(pending));
@@ -71,20 +70,20 @@ public abstract class AbstractChanneledNetworkAddon<H> extends AbstractNetworkAd
 
 	// always supposed to handle async!
 	public <T extends CustomPayload> boolean handle(T payload) {
-		this.logger.debug("Handling inbound packet from channel with name \"{}\"", payload.id());
+		this.logger.debug("Handling inbound packet from channel with name \"{}\"", payload.getId().id());
 
 		// Handle reserved packets
-		if (NetworkingImpl.REGISTER_CHANNEL.equals(payload.id())) {
+		if (NetworkingImpl.REGISTER_CHANNEL.equals(payload.getId())) {
 			this.receiveRegistration(true, ((ChannelPayload) payload));
 			return true;
 		}
 
-		if (NetworkingImpl.UNREGISTER_CHANNEL.equals(payload.id())) {
+		if (NetworkingImpl.UNREGISTER_CHANNEL.equals(payload.getId())) {
 			this.receiveRegistration(false, ((ChannelPayload) payload));
 			return true;
 		}
 
-		@Nullable H handler = this.getHandler(payload.id());
+		@Nullable H handler = this.getHandler(payload.getId());
 
 		if (handler == null) {
 			return false;
@@ -93,7 +92,7 @@ public abstract class AbstractChanneledNetworkAddon<H> extends AbstractNetworkAd
 		try {
 			this.receive(handler, payload);
 		} catch (Throwable ex) {
-			this.logger.error("Encountered exception while handling in channel with name \"{}\"", payload.id(), ex);
+			this.logger.error("Encountered exception while handling in channel with name \"{}\"", payload.getId().id(), ex);
 			throw ex;
 		}
 
@@ -111,7 +110,7 @@ public abstract class AbstractChanneledNetworkAddon<H> extends AbstractNetworkAd
 	}
 
 	@Nullable
-	protected ChannelPayload createRegistrationPacket(List<Identifier> channels, boolean register) {
+	protected ChannelPayload createRegistrationPacket(List<CustomPayload.Id<?>> channels, boolean register) {
 		return register ? new ChannelPayload.RegisterChannelPayload(channels) : new ChannelPayload.UnregisterChannelPayload(channels);
 	}
 
@@ -124,13 +123,13 @@ public abstract class AbstractChanneledNetworkAddon<H> extends AbstractNetworkAd
 		}
 	}
 
-	void register(List<Identifier> ids) {
+	void register(List<CustomPayload.Id<?>> ids) {
 		this.sendableChannels.addAll(ids);
 		this.schedule(() -> this.invokeRegisterEvent(ids));
 	}
 
-	void unregister(List<Identifier> ids) {
-		this.sendableChannels.removeAll(ids);
+	void unregister(List<CustomPayload.Id<?>> ids) {
+		ids.forEach(this.sendableChannels::remove);
 		this.schedule(() -> this.invokeUnregisterEvent(ids));
 	}
 
@@ -153,11 +152,11 @@ public abstract class AbstractChanneledNetworkAddon<H> extends AbstractNetworkAd
 	 */
 	protected abstract void schedule(Runnable task);
 
-	protected abstract void invokeRegisterEvent(List<Identifier> ids);
+	protected abstract void invokeRegisterEvent(List<CustomPayload.Id<?>> ids);
 
-	protected abstract void invokeUnregisterEvent(List<Identifier> ids);
+	protected abstract void invokeUnregisterEvent(List<CustomPayload.Id<?>> ids);
 
-	public Set<Identifier> getSendableChannels() {
+	public Set<CustomPayload.Id<?>> getSendableChannels() {
 		return Collections.unmodifiableSet(this.sendableChannels);
 	}
 

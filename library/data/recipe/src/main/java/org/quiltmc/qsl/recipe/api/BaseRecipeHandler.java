@@ -19,6 +19,7 @@ package org.quiltmc.qsl.recipe.api;
 import java.util.Collection;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMultimap;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -83,7 +84,7 @@ public interface BaseRecipeHandler {
 	 *
 	 * @return a view of the registered recipes
 	 */
-	Map<RecipeType<?>, Map<Identifier, RecipeHolder<?>>> getRecipes();
+	ImmutableMultimap<RecipeType<?>, RecipeHolder<?>> getRecipes();
 
 	/**
 	 * Returns all registered recipes of the specified type.

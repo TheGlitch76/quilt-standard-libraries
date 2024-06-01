@@ -33,6 +33,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
@@ -49,8 +50,8 @@ import org.quiltmc.qsl.registry.impl.sync.registry.SynchronizedRegistry;
 @ApiStatus.Internal
 public class ServerFabricRegistrySync {
 	private static final int MAX_PAYLOAD_SIZE = 1048576;
-	public static final Identifier SYNC_COMPLETE_ID = new Identifier("fabric", "registry/sync/complete");
-	public static final Identifier ID = new Identifier("fabric", "registry/sync/direct");
+	public static final CustomPayload.Id<?> SYNC_COMPLETE_ID = new CustomPayload.Id<>(new Identifier("fabric", "registry/sync/complete"));
+	public static final CustomPayload.Id<?> ID = new CustomPayload.Id<>(new Identifier("fabric", "registry/sync/direct"));
 
 	public static void sendSyncPackets(Consumer<Packet<?>> sender) {
 		var registryMap = createRegistryMap();
@@ -96,7 +97,7 @@ public class ServerFabricRegistrySync {
 					while (idPairIter.hasNext()) {
 						currentPair = idPairIter.next();
 
-						if (currentBulk.get(currentBulk.size() - 1).getIntValue() + 1 != currentPair.getIntValue()) {
+						if (currentBulk.getLast().getIntValue() + 1 != currentPair.getIntValue()) {
 							bulks.add(currentBulk);
 							currentBulk = new ArrayList<>();
 						}
@@ -110,7 +111,7 @@ public class ServerFabricRegistrySync {
 					buf.writeVarInt(bulks.size());
 
 					for (List<Object2IntMap.Entry<Identifier>> bulk : bulks) {
-						int firstRawId = bulk.get(0).getIntValue();
+						int firstRawId = bulk.getFirst().getIntValue();
 						int bulkRawIdStartDiff = firstRawId - lastBulkLastRawId;
 
 						buf.writeVarInt(bulkRawIdStartDiff);
@@ -145,7 +146,7 @@ public class ServerFabricRegistrySync {
 	private static Map<Identifier, Object2IntMap<Identifier>> createRegistryMap() {
 		var map = new HashMap<Identifier, Object2IntMap<Identifier>>();
 
-		for (var registry : Registries.REGISTRY) {
+		for (var registry : Registries.ROOT) {
 			if (registry instanceof SynchronizedRegistry<?> synchronizedRegistry
 					&& synchronizedRegistry.quilt$requiresSyncing() && synchronizedRegistry.quilt$getContentStatus() != SynchronizedRegistry.Status.VANILLA) {
 				var idMap = new Object2IntOpenHashMap<Identifier>();

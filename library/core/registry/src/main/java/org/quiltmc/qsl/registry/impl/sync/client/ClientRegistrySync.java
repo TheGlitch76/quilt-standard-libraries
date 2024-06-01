@@ -43,7 +43,6 @@ import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.text.Text;
-import net.minecraft.text.component.StringComponent;
 import net.minecraft.text.component.StringComponent.LiteralTextComponent;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -210,7 +209,7 @@ public final class ClientRegistrySync {
 	}
 
 	private static void handleStartPacket(MinecraftClient client, ClientConfigurationNetworkHandler handler, ServerPackets.RegistryStart<?> start, PacketSender<CustomPayload> sender) {
-		var registry = Registries.REGISTRY.get(start.registry());
+		var registry = Registries.ROOT.get(start.registry());
 		if (registry instanceof SynchronizedRegistry<?> synchronizedRegistry) {
 			currentRegistry = synchronizedRegistry;
 			currentCount = start.size();
@@ -418,7 +417,7 @@ public final class ClientRegistrySync {
 	}
 
 	public static void createSnapshot() {
-		for (var reg : Registries.REGISTRY) {
+		for (var reg : Registries.ROOT) {
 			if (reg instanceof SynchronizedRegistry<?> registry && registry.quilt$requiresSyncing()) {
 				registry.quilt$createIdSnapshot();
 			}
@@ -426,7 +425,7 @@ public final class ClientRegistrySync {
 	}
 
 	public static void restoreSnapshot(MinecraftClient client) {
-		for (var reg : Registries.REGISTRY) {
+		for (var reg : Registries.ROOT) {
 			if (reg instanceof SynchronizedRegistry<?> registry && registry.quilt$requiresSyncing()) {
 				registry.quilt$restoreIdSnapshot();
 			}

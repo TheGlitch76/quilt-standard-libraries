@@ -82,7 +82,7 @@ public final class DumpBuiltinAttachmentsCommand {
 
 	private static int execute(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
 		var registryId = IdentifierArgumentType.getIdentifier(ctx, "registry");
-		var registry = Registries.REGISTRY.get(registryId);
+		var registry = Registries.ROOT.get(registryId);
 		if (registry == null) {
 			throw UNKNOWN_REGISTRY_EXCEPTION.create(registryId);
 		}

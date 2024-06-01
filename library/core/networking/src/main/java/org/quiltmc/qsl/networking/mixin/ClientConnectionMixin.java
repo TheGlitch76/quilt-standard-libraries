@@ -37,8 +37,8 @@ import net.minecraft.network.NetworkState;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.listener.PacketListener;
 import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 
 import org.quiltmc.qsl.networking.impl.ChannelInfoHolder;
 import org.quiltmc.qsl.networking.impl.DisconnectPacketSource;
@@ -57,7 +57,7 @@ abstract class ClientConnectionMixin implements ChannelInfoHolder {
 	public abstract void disconnect(Text disconnectReason);
 
 	@Unique
-	private Map<NetworkState, Collection<Identifier>> playChannels;
+	private Map<NetworkState, Collection<CustomPayload.Id<?>>> playChannels;
 
 	@Inject(method = "<init>", at = @At("RETURN"))
 	private void initAddedFields(NetworkSide side, CallbackInfo ci) {
@@ -102,7 +102,7 @@ abstract class ClientConnectionMixin implements ChannelInfoHolder {
 	}
 
 	@Override
-	public Collection<Identifier> getPendingChannelsNames(NetworkState state) {
+	public Collection<CustomPayload.Id<?>> getPendingChannelsNames(NetworkState state) {
 		return this.playChannels.computeIfAbsent(state, (s) -> Collections.newSetFromMap(new ConcurrentHashMap<>()));
 	}
 }

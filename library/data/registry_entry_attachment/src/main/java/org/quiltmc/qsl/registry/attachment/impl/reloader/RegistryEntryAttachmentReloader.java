@@ -85,7 +85,7 @@ public final class RegistryEntryAttachmentReloader implements SimpleResourceRelo
 		return CompletableFuture.supplyAsync(() -> {
 			var attachDicts = new HashMap<RegistryEntryAttachment<?, ?>, AttachmentDictionary<?, ?>>();
 
-			for (var entry : Registries.REGISTRY.getEntries()) {
+			for (var entry : Registries.ROOT.getEntries()) {
 				Identifier registryId = entry.getKey().getValue();
 				String path = registryId.getNamespace() + "/" + registryId.getPath();
 				profiler.push(this.id + "/finding_resources/" + path);
@@ -170,7 +170,7 @@ public final class RegistryEntryAttachmentReloader implements SimpleResourceRelo
 		public void apply(Profiler profiler) {
 			profiler.push(RegistryEntryAttachmentReloader.this.id + "/prepare_attachments");
 
-			for (var entry : Registries.REGISTRY.getEntries()) {
+			for (var entry : Registries.ROOT.getEntries()) {
 				RegistryEntryAttachmentHolder.getData(entry.getValue())
 						.prepareReloadSource(RegistryEntryAttachmentReloader.this.source);
 			}

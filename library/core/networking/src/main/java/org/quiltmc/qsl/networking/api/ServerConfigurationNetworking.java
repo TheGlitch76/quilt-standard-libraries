@@ -54,15 +54,15 @@ public final class ServerConfigurationNetworking {
 	 * A global receiver is registered to all connections, in the present and future.
 	 * <p>
 	 * If a handler is already registered to the {@code channel}, this method will return {@code false}, and no change will be made.
-	 * Use {@link #unregisterReceiver(ServerConfigurationNetworkHandler, Identifier)} to unregister the existing handler.
+	 * Use {@link #unregisterReceiver(ServerConfigurationNetworkHandler, CustomPayload.Id)} to unregister the existing handler.
 	 *
 	 * @param channelName    the identifier of the channel
 	 * @param channelHandler the handler
 	 * @return {@code false} if a handler is already registered to the channel, otherwise {@code true}
-	 * @see ServerConfigurationNetworking#unregisterGlobalReceiver(Identifier)
-	 * @see ServerConfigurationNetworking#registerReceiver(ServerConfigurationNetworkHandler, Identifier, CustomChannelReceiver)
+	 * @see ServerConfigurationNetworking#unregisterGlobalReceiver(CustomPayload.Id)
+	 * @see ServerConfigurationNetworking#registerReceiver(ServerConfigurationNetworkHandler, CustomPayload.Id, CustomChannelReceiver)
 	 */
-	public static <T extends CustomPayload> boolean registerGlobalReceiver(Identifier channelName, CustomChannelReceiver<T> channelHandler) {
+	public static <T extends CustomPayload> boolean registerGlobalReceiver(CustomPayload.Id<T> channelName, CustomChannelReceiver<T> channelHandler) {
 		return ServerNetworkingImpl.CONFIGURATION.registerGlobalReceiver(channelName, channelHandler);
 	}
 
@@ -71,18 +71,18 @@ public final class ServerConfigurationNetworking {
 	 * A global receiver is registered to all connections, in the present and future.
 	 * <p>
 	 * If a handler is already registered to the {@code channel}, this method will return {@code false}, and no change will be made.
-	 * Use {@link #unregisterReceiver(ServerConfigurationNetworkHandler, Identifier)} to unregister the existing handler.
+	 * Use {@link #unregisterReceiver(ServerConfigurationNetworkHandler, CustomPayload.Id)} to unregister the existing handler.
 	 *
 	 * @param channelName    the identifier of the channel
 	 * @param channelHandler the handler
 	 * @return {@code false} if a handler is already registered to the channel, otherwise {@code true}
-	 * @see ServerConfigurationNetworking#unregisterGlobalReceiver(Identifier)
+	 * @see ServerConfigurationNetworking#unregisterGlobalReceiver(CustomPayload.Id)
 	 * @see ServerConfigurationNetworking#registerReceiver(ServerConfigurationNetworkHandler, Identifier, ChannelReceiver)
-	 * @deprecated use {@link ServerConfigurationNetworking#registerGlobalReceiver(Identifier, CustomChannelReceiver)}
+	 * @deprecated use {@link ServerConfigurationNetworking#registerGlobalReceiver(CustomPayload.Id, CustomChannelReceiver)}
 	 */
 	@Deprecated
 	public static boolean registerGlobalReceiver(Identifier channelName, ChannelReceiver channelHandler) {
-		return ServerNetworkingImpl.CONFIGURATION.registerGlobalReceiver(channelName, channelHandler);
+		return ServerNetworkingImpl.CONFIGURATION.registerGlobalReceiver(new CustomPayload.Id<>(channelName), channelHandler);
 	}
 
 	/**
@@ -93,11 +93,11 @@ public final class ServerConfigurationNetworking {
 	 *
 	 * @param channelName the identifier of the channel
 	 * @return the previous handler, or {@code null} if no handler was bound to the channel
-	 * @see ServerConfigurationNetworking#registerGlobalReceiver(Identifier, CustomChannelReceiver)
-	 * @see ServerConfigurationNetworking#unregisterReceiver(ServerConfigurationNetworkHandler, Identifier)
+	 * @see ServerConfigurationNetworking#registerGlobalReceiver(CustomPayload.Id, CustomChannelReceiver)
+	 * @see ServerConfigurationNetworking#unregisterReceiver(ServerConfigurationNetworkHandler, CustomPayload.Id)
 	 */
 	@Nullable
-	public static ServerConfigurationNetworking.CustomChannelReceiver<?> unregisterGlobalReceiver(Identifier channelName) {
+	public static ServerConfigurationNetworking.CustomChannelReceiver<?> unregisterGlobalReceiver(CustomPayload.Id<?> channelName) {
 		return ServerNetworkingImpl.CONFIGURATION.unregisterGlobalReceiver(channelName);
 	}
 
@@ -107,20 +107,20 @@ public final class ServerConfigurationNetworking {
 	 *
 	 * @return all channel names which global receivers are registered for
 	 */
-	public static Set<Identifier> getGlobalReceivers() {
+	public static Set<CustomPayload.Id<?>> getGlobalReceivers() {
 		return ServerNetworkingImpl.CONFIGURATION.getChannels();
 	}
 
 	/**
 	 * Registers a handler to a channel.
-	 * This method differs from {@link ServerConfigurationNetworking#registerGlobalReceiver(Identifier, CustomChannelReceiver)} since
+	 * This method differs from {@link ServerConfigurationNetworking#registerGlobalReceiver(CustomPayload.Id, CustomChannelReceiver)} since
 	 * the channel handler will only be applied to the client represented by the {@link ServerConfigurationNetworkHandler}.
 	 * <p>
-	 * For example, if you only register a receiver using this method when a {@linkplain ServerLoginNetworking#registerGlobalReceiver(Identifier, ServerLoginNetworking.QueryResponseReceiver)}
+	 * For example, if you only register a receiver using this method when a {@linkplain ServerLoginNetworking#registerGlobalReceiver(CustomPayload.Id, ServerLoginNetworking.QueryResponseReceiver)}
 	 * login response has been received, you should use {@link ServerConfigurationConnectionEvents#INIT} to register the channel handler.
 	 * <p>
 	 * If a handler is already registered to the {@code channelName}, this method will return {@code false}, and no change will be made.
-	 * Use {@link #unregisterReceiver(ServerConfigurationNetworkHandler, Identifier)} to unregister the existing handler.
+	 * Use {@link #unregisterReceiver(ServerConfigurationNetworkHandler, CustomPayload.Id)} to unregister the existing handler.
 	 *
 	 * @param networkHandler the handler
 	 * @param channelName    the identifier of the channel
@@ -128,7 +128,7 @@ public final class ServerConfigurationNetworking {
 	 * @return {@code false} if a handler is already registered to the channel name, otherwise {@code true}
 	 * @see ServerConfigurationConnectionEvents#INIT
 	 */
-	public static <T extends CustomPayload> boolean registerReceiver(ServerConfigurationNetworkHandler networkHandler, Identifier channelName, CustomChannelReceiver<T> channelHandler) {
+	public static <T extends CustomPayload> boolean registerReceiver(ServerConfigurationNetworkHandler networkHandler, CustomPayload.Id<T> channelName, CustomChannelReceiver<T> channelHandler) {
 		Objects.requireNonNull(networkHandler, "Network handler cannot be null");
 
 		return ServerNetworkingImpl.getAddon(networkHandler).registerChannel(channelName, channelHandler);
@@ -139,24 +139,24 @@ public final class ServerConfigurationNetworking {
 	 * This method differs from {@link ServerConfigurationNetworking#registerGlobalReceiver(Identifier, ChannelReceiver)} since
 	 * the channel handler will only be applied to the client represented by the {@link ServerConfigurationNetworkHandler}.
 	 * <p>
-	 * For example, if you only register a receiver using this method when a {@linkplain ServerLoginNetworking#registerGlobalReceiver(Identifier, ServerLoginNetworking.QueryResponseReceiver)}
+	 * For example, if you only register a receiver using this method when a {@linkplain ServerLoginNetworking#registerGlobalReceiver(CustomPayload.Id, ServerLoginNetworking.QueryResponseReceiver)}
 	 * login response has been received, you should use {@link ServerConfigurationConnectionEvents#INIT} to register the channel handler.
 	 * <p>
 	 * If a handler is already registered to the {@code channelName}, this method will return {@code false}, and no change will be made.
-	 * Use {@link #unregisterReceiver(ServerConfigurationNetworkHandler, Identifier)} to unregister the existing handler.
+	 * Use {@link #unregisterReceiver(ServerConfigurationNetworkHandler, CustomPayload.Id)} to unregister the existing handler.
 	 *
 	 * @param networkHandler the handler
 	 * @param channelName    the identifier of the channel
 	 * @param channelHandler the handler
 	 * @return {@code false} if a handler is already registered to the channel name, otherwise {@code true}
 	 * @see ServerConfigurationConnectionEvents#INIT
-	 * @deprecated use {@link ServerConfigurationNetworking#registerReceiver(ServerConfigurationNetworkHandler, Identifier, CustomChannelReceiver)}
+	 * @deprecated use {@link ServerConfigurationNetworking#registerReceiver(ServerConfigurationNetworkHandler, CustomPayload.Id, CustomChannelReceiver)}
 	 */
 	@Deprecated
 	public static boolean registerReceiver(ServerConfigurationNetworkHandler networkHandler, Identifier channelName, ChannelReceiver channelHandler) {
 		Objects.requireNonNull(networkHandler, "Network handler cannot be null");
 
-		return ServerNetworkingImpl.getAddon(networkHandler).registerChannel(channelName, channelHandler);
+		return ServerNetworkingImpl.getAddon(networkHandler).registerChannel(new CustomPayload.Id<>(channelName), channelHandler);
 	}
 
 	/**
@@ -168,7 +168,7 @@ public final class ServerConfigurationNetworking {
 	 * @return the previous handler, or {@code null} if no handler was bound to the channel name
 	 */
 	@Nullable
-	public static ServerConfigurationNetworking.CustomChannelReceiver<?> unregisterReceiver(ServerConfigurationNetworkHandler networkHandler, Identifier channelName) {
+	public static ServerConfigurationNetworking.CustomChannelReceiver<?> unregisterReceiver(ServerConfigurationNetworkHandler networkHandler, CustomPayload.Id<?> channelName) {
 		Objects.requireNonNull(networkHandler, "Network handler cannot be null");
 
 		return ServerNetworkingImpl.getAddon(networkHandler).unregisterChannel(channelName);
@@ -180,7 +180,7 @@ public final class ServerConfigurationNetworking {
 	 * @param handler the network handler
 	 * @return all the channel names that the server can receive packets on
 	 */
-	public static Set<Identifier> getReceived(ServerConfigurationNetworkHandler handler) {
+	public static Set<CustomPayload.Id<?>> getReceived(ServerConfigurationNetworkHandler handler) {
 		Objects.requireNonNull(handler, "Server configuration packet handler cannot be null");
 
 		return ServerNetworkingImpl.getAddon(handler).getReceivableChannels();
@@ -192,7 +192,7 @@ public final class ServerConfigurationNetworking {
 	 * @param handler the network handler
 	 * @return {@code true} if the connected client has declared the ability to receive a packet on the specified channel, otherwise {@code false}
 	 */
-	public static Set<Identifier> getSendable(ServerConfigurationNetworkHandler handler) {
+	public static Set<CustomPayload.Id<?>> getSendable(ServerConfigurationNetworkHandler handler) {
 		Objects.requireNonNull(handler, "Server configuration packet handler cannot be null");
 
 		return ServerNetworkingImpl.getAddon(handler).getSendableChannels();
@@ -205,7 +205,7 @@ public final class ServerConfigurationNetworking {
 	 * @param channelName the channel name
 	 * @return {@code true} if the connected client has declared the ability to receive a packet on the specified channel, otherwise {@code false}
 	 */
-	public static boolean canSend(ServerConfigurationNetworkHandler handler, Identifier channelName) {
+	public static boolean canSend(ServerConfigurationNetworkHandler handler, CustomPayload.Id<?> channelName) {
 		Objects.requireNonNull(handler, "Server configuration packet handler cannot be null");
 		Objects.requireNonNull(channelName, "Channel name cannot be null");
 
@@ -220,7 +220,7 @@ public final class ServerConfigurationNetworking {
 	 * @return a new packet
 	 */
 	@Contract(value = "_, _ -> new", pure = true)
-	public static Packet<ClientCommonPacketListener> createS2CPacket(@NotNull Identifier channelName, @NotNull PacketByteBuf buf) {
+	public static Packet<ClientCommonPacketListener> createS2CPacket(@NotNull CustomPayload.Id<?> channelName, @NotNull PacketByteBuf buf) {
 		Objects.requireNonNull(channelName, "Channel cannot be null");
 		Objects.requireNonNull(buf, "Buf cannot be null");
 
@@ -259,7 +259,7 @@ public final class ServerConfigurationNetworking {
 	 * @param channelName    the channel of the packet
 	 * @param buf            the payload of the packet
 	 */
-	public static void send(ServerConfigurationNetworkHandler networkHandler, Identifier channelName, PacketByteBuf buf) {
+	public static void send(ServerConfigurationNetworkHandler networkHandler, CustomPayload.Id<?> channelName, PacketByteBuf buf) {
 		Objects.requireNonNull(networkHandler, "Server configuration handler cannot be null");
 		Objects.requireNonNull(channelName, "Channel name cannot be null");
 		Objects.requireNonNull(buf, "Packet byte data cannot be null");

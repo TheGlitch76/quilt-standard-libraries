@@ -35,12 +35,12 @@ import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.login.LoginQueryResponseC2SPacket;
 import net.minecraft.network.packet.c2s.login.payload.DiscardedLoginQueryResponsePayload;
+import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.network.packet.s2c.login.LoginCompressionS2CPacket;
 import net.minecraft.network.packet.s2c.login.LoginQueryRequestS2CPacket;
 import net.minecraft.network.packet.s2c.login.payload.CustomQueryPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerLoginNetworkHandler;
-import net.minecraft.util.Identifier;
 
 import org.quiltmc.qsl.networking.api.PacketByteBufs;
 import org.quiltmc.qsl.networking.api.PacketSender;
@@ -58,7 +58,7 @@ public final class ServerLoginNetworkAddon extends AbstractNetworkAddon<ServerLo
 	private final MinecraftServer server;
 	private final QueryIdFactory queryIdFactory;
 	private final Collection<Future<?>> waits = new ConcurrentLinkedQueue<>();
-	private final Map<Integer, Identifier> channels = new ConcurrentHashMap<>();
+	private final Map<Integer, CustomPayload.Id<?>> channels = new ConcurrentHashMap<>();
 	private boolean firstQueryTick = true;
 
 	public ServerLoginNetworkAddon(ServerLoginNetworkHandler handler) {
@@ -79,7 +79,7 @@ public final class ServerLoginNetworkAddon extends AbstractNetworkAddon<ServerLo
 			this.sendCompressionPacket();
 
 			// Register global receivers.
-			for (Map.Entry<Identifier, ServerLoginNetworking.QueryResponseReceiver> entry : ServerNetworkingImpl.LOGIN.getReceivers().entrySet()) {
+			for (Map.Entry<CustomPayload.Id<?>, ServerLoginNetworking.QueryResponseReceiver> entry : ServerNetworkingImpl.LOGIN.getReceivers().entrySet()) {
 				ServerLoginNetworking.registerReceiver(this.handler, entry.getKey(), entry.getValue());
 			}
 
@@ -134,7 +134,7 @@ public final class ServerLoginNetworkAddon extends AbstractNetworkAddon<ServerLo
 		if (packet.payload() instanceof PacketByteBufLoginQueryResponsePayload payload) {
 			return this.handle(packet.transactionId(), payload.data());
 		} else if (packet.payload() instanceof DiscardedLoginQueryResponsePayload) {
-			Identifier channel = this.channels.remove(packet.transactionId());
+			CustomPayload.Id<?> channel = this.channels.remove(packet.transactionId());
 			if (channel == null) {
 				this.logger.warn("Query ID {} was received but no query has been associated in {}!", packet.transactionId(), this.connection);
 				return false;
@@ -149,7 +149,7 @@ public final class ServerLoginNetworkAddon extends AbstractNetworkAddon<ServerLo
 
 	private boolean handle(int queryId, @Nullable PacketByteBuf originalBuf) {
 		this.logger.debug("Handling inbound login query with id {}", queryId);
-		Identifier channel = this.channels.remove(queryId);
+		CustomPayload.Id<?> channel = this.channels.remove(queryId);
 
 		if (channel == null) {
 			this.logger.warn("Query ID {} was received but no query has been associated in {}!", queryId, this.connection);
@@ -183,8 +183,8 @@ public final class ServerLoginNetworkAddon extends AbstractNetworkAddon<ServerLo
 	}
 
 	@Override
-	public Packet<?> createPacket(Identifier channelName, PacketByteBuf buf) {
-		return this.createPacket(new PacketByteBufLoginQueryRequestPayload(channelName, buf));
+	public Packet<?> createPacket(CustomPayload.Id<?> channelName, PacketByteBuf buf) {
+		return this.createPacket(new PacketByteBufLoginQueryRequestPayload(channelName.id(), buf));
 	}
 
 	@Override
@@ -202,15 +202,15 @@ public final class ServerLoginNetworkAddon extends AbstractNetworkAddon<ServerLo
 	}
 
 	public void registerOutgoingPacket(LoginQueryRequestS2CPacket packet) {
-		this.channels.put(packet.transactionId(), packet.payload().id());
+		this.channels.put(packet.queryId(), new CustomPayload.Id<>(packet.payload().id()));
 	}
 
 	@Override
-	protected void handleRegistration(Identifier channelName) {
+	protected void handleRegistration(CustomPayload.Id<?> channelName) {
 	}
 
 	@Override
-	protected void handleUnregistration(Identifier channelName) {
+	protected void handleUnregistration(CustomPayload.Id<?> channelName) {
 	}
 
 	@Override
@@ -224,7 +224,7 @@ public final class ServerLoginNetworkAddon extends AbstractNetworkAddon<ServerLo
 	}
 
 	@Override
-	protected boolean isReservedChannel(Identifier channelName) {
+	protected boolean isReservedChannel(CustomPayload.Id<?> channelName) {
 		return false;
 	}
 }

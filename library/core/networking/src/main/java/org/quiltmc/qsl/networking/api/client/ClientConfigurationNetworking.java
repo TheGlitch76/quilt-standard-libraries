@@ -57,16 +57,16 @@ public final class ClientConfigurationNetworking {
 	 * A global receiver is registered to all connections, in the present and future.
 	 * <p>
 	 * If a handler is already registered to the {@code channel}, this method will return {@code false}, and no change will be made.
-	 * Use {@link #unregisterGlobalReceiver(Identifier)} to unregister the existing handler.
+	 * Use {@link #unregisterGlobalReceiver(CustomPayload.Id)} to unregister the existing handler.
 	 *
 	 * @param channelName    the identifier of the channel
 	 * @param channelHandler the handler
 	 * @return {@code false} if a handler is already registered to the channel, otherwise {@code true}
-	 * @see ClientConfigurationNetworking#registerGlobalReceiver(Identifier, ChannelReceiver)
-	 * @see ClientConfigurationNetworking#unregisterGlobalReceiver(Identifier)
-	 * @see ClientConfigurationNetworking#registerReceiver(Identifier, CustomChannelReceiver)
+	 * @see ClientConfigurationNetworking#registerGlobalReceiver(CustomPayload.Id, ChannelReceiver)
+	 * @see ClientConfigurationNetworking#unregisterGlobalReceiver(CustomPayload.Id)
+	 * @see ClientConfigurationNetworking#registerReceiver(CustomPayload.Id, CustomChannelReceiver)
 	 */
-	public static <T extends CustomPayload> boolean registerGlobalReceiver(Identifier channelName, CustomChannelReceiver<T> channelHandler) {
+	public static <T extends CustomPayload> boolean registerGlobalReceiver(CustomPayload.Id<T> channelName, CustomChannelReceiver<T> channelHandler) {
 		return ClientNetworkingImpl.CONFIGURATION.registerGlobalReceiver(channelName, channelHandler);
 	}
 
@@ -75,18 +75,18 @@ public final class ClientConfigurationNetworking {
 	 * A global receiver is registered to all connections, in the present and future.
 	 * <p>
 	 * If a handler is already registered to the {@code channel}, this method will return {@code false}, and no change will be made.
-	 * Use {@link #unregisterGlobalReceiver(Identifier)} to unregister the existing handler.
+	 * Use {@link #unregisterGlobalReceiver(CustomPayload.Id)} to unregister the existing handler.
 	 *
 	 * @param channelName    the identifier of the channel
 	 * @param channelHandler the handler
 	 * @return {@code false} if a handler is already registered to the channel, otherwise {@code true}
-	 * @see ClientConfigurationNetworking#registerGlobalReceiver(Identifier, CustomChannelReceiver)
-	 * @see ClientConfigurationNetworking#unregisterGlobalReceiver(Identifier)
-	 * @see ClientConfigurationNetworking#registerReceiver(Identifier, ChannelReceiver)
-	 * @deprecated use {@link ClientConfigurationNetworking#registerGlobalReceiver(Identifier, CustomChannelReceiver)}
+	 * @see ClientConfigurationNetworking#registerGlobalReceiver(CustomPayload.Id, CustomChannelReceiver)
+	 * @see ClientConfigurationNetworking#unregisterGlobalReceiver(CustomPayload.Id)
+	 * @see ClientConfigurationNetworking#registerReceiver(CustomPayload.Id, ChannelReceiver)
+	 * @deprecated use {@link ClientConfigurationNetworking#registerGlobalReceiver(CustomPayload.Id, CustomChannelReceiver)}
 	 */
 	@Deprecated
-	public static boolean registerGlobalReceiver(Identifier channelName, ChannelReceiver channelHandler) {
+	public static boolean registerGlobalReceiver(CustomPayload.Id<?> channelName, ChannelReceiver channelHandler) {
 		return ClientNetworkingImpl.CONFIGURATION.registerGlobalReceiver(channelName, channelHandler);
 	}
 
@@ -98,10 +98,10 @@ public final class ClientConfigurationNetworking {
 	 *
 	 * @param channelName the identifier of the channel
 	 * @return the previous handler, or {@code null} if no handler was bound to the channel
-	 * @see ClientConfigurationNetworking#registerGlobalReceiver(Identifier, CustomChannelReceiver)
-	 * @see ClientConfigurationNetworking#unregisterReceiver(Identifier)
+	 * @see ClientConfigurationNetworking#registerGlobalReceiver(CustomPayload.Id, CustomChannelReceiver)
+	 * @see ClientConfigurationNetworking#unregisterReceiver(CustomPayload.Id)
 	 */
-	public static @Nullable ClientConfigurationNetworking.CustomChannelReceiver<?> unregisterGlobalReceiver(Identifier channelName) {
+	public static @Nullable ClientConfigurationNetworking.CustomChannelReceiver<?> unregisterGlobalReceiver(CustomPayload.Id<?> channelName) {
 		return ClientNetworkingImpl.CONFIGURATION.unregisterGlobalReceiver(channelName);
 	}
 
@@ -111,7 +111,7 @@ public final class ClientConfigurationNetworking {
 	 *
 	 * @return all channel names which global receivers are registered for
 	 */
-	public static Set<Identifier> getGlobalReceivers() {
+	public static Set<CustomPayload.Id<?>> getGlobalReceivers() {
 		return ClientNetworkingImpl.CONFIGURATION.getChannels();
 	}
 
@@ -119,9 +119,9 @@ public final class ClientConfigurationNetworking {
 	 * Registers a handler to a channel.
 	 * <p>
 	 * If a handler is already registered to the {@code channel}, this method will return {@code false}, and no change will be made.
-	 * Use {@link #unregisterReceiver(Identifier)} to unregister the existing handler.
+	 * Use {@link #unregisterReceiver(CustomPayload.Id)} to unregister the existing handler.
 	 * <p>
-	 * For example, if you only register a receiver using this method when a {@linkplain ClientLoginNetworking#registerGlobalReceiver(Identifier, ClientLoginNetworking.QueryRequestReceiver)}
+	 * For example, if you only register a receiver using this method when a {@linkplain ClientLoginNetworking#registerGlobalReceiver(CustomPayload.Id, ClientLoginNetworking.QueryRequestReceiver)}
 	 * login query has been received, you should use {@link ClientConfigurationConnectionEvents#INIT} to register the channel handler.
 	 *
 	 * @param channelName the identifier of the channel
@@ -129,7 +129,7 @@ public final class ClientConfigurationNetworking {
 	 * @throws IllegalStateException if the client is not connected to a server
 	 * @see ClientConfigurationConnectionEvents#INIT
 	 */
-	public static boolean registerReceiver(Identifier channelName, CustomChannelReceiver<?> channelHandler) {
+	public static boolean registerReceiver(CustomPayload.Id<?> channelName, CustomChannelReceiver<?> channelHandler) {
 		final ClientConfigurationNetworkAddon addon = ClientNetworkingImpl.getClientConfigurationAddon();
 
 		if (addon != null) {
@@ -143,19 +143,19 @@ public final class ClientConfigurationNetworking {
 	 * Registers a handler to a channel.
 	 * <p>
 	 * If a handler is already registered to the {@code channel}, this method will return {@code false}, and no change will be made.
-	 * Use {@link #unregisterReceiver(Identifier)} to unregister the existing handler.
+	 * Use {@link #unregisterReceiver(CustomPayload.Id)} to unregister the existing handler.
 	 * <p>
-	 * For example, if you only register a receiver using this method when a {@linkplain ClientLoginNetworking#registerGlobalReceiver(Identifier, ClientLoginNetworking.QueryRequestReceiver)}
+	 * For example, if you only register a receiver using this method when a {@linkplain ClientLoginNetworking#registerGlobalReceiver(CustomPayload.Id, ClientLoginNetworking.QueryRequestReceiver)}
 	 * login query has been received, you should use {@link ClientConfigurationConnectionEvents#INIT} to register the channel handler.
 	 *
 	 * @param channelName the identifier of the channel
 	 * @return {@code false} if a handler is already registered to the channel, otherwise {@code true}
 	 * @throws IllegalStateException if the client is not connected to a server
 	 * @see ClientConfigurationConnectionEvents#INIT
-	 * @deprecated use {@link ClientConfigurationNetworking#registerReceiver(Identifier, CustomChannelReceiver)}
+	 * @deprecated use {@link ClientConfigurationNetworking#registerReceiver(CustomPayload.Id, CustomChannelReceiver)}
 	 */
 	@Deprecated
-	public static boolean registerReceiver(Identifier channelName, ChannelReceiver channelHandler) {
+	public static boolean registerReceiver(CustomPayload.Id<?> channelName, ChannelReceiver channelHandler) {
 		final ClientConfigurationNetworkAddon addon = ClientNetworkingImpl.getClientConfigurationAddon();
 
 		if (addon != null) {
@@ -174,7 +174,7 @@ public final class ClientConfigurationNetworking {
 	 * @return the previous handler, or {@code null} if no handler was bound to the channel
 	 * @throws IllegalStateException if the client is not connected to a server
 	 */
-	public static @Nullable ClientConfigurationNetworking.CustomChannelReceiver<?> unregisterReceiver(Identifier channelName) throws IllegalStateException {
+	public static @Nullable ClientConfigurationNetworking.CustomChannelReceiver<?> unregisterReceiver(CustomPayload.Id<?> channelName) throws IllegalStateException {
 		final ClientConfigurationNetworkAddon addon = ClientNetworkingImpl.getClientConfigurationAddon();
 
 		if (addon != null) {
@@ -190,7 +190,7 @@ public final class ClientConfigurationNetworking {
 	 * @return all the channel names that the client can receive packets on
 	 * @throws IllegalStateException if the client is not connected to a server
 	 */
-	public static Set<Identifier> getReceived() throws IllegalStateException {
+	public static Set<CustomPayload.Id<?>> getReceived() throws IllegalStateException {
 		final ClientConfigurationNetworkAddon addon = ClientNetworkingImpl.getClientConfigurationAddon();
 
 		if (addon != null) {
@@ -206,7 +206,7 @@ public final class ClientConfigurationNetworking {
 	 * @return all the channel names the connected server declared the ability to receive a packets on
 	 * @throws IllegalStateException if the client is not connected to a server
 	 */
-	public static Set<Identifier> getSendable() throws IllegalStateException {
+	public static Set<CustomPayload.Id<?>> getSendable() throws IllegalStateException {
 		final ClientConfigurationNetworkAddon addon = ClientNetworkingImpl.getClientConfigurationAddon();
 
 		if (addon != null) {
@@ -222,7 +222,7 @@ public final class ClientConfigurationNetworking {
 	 * @param channelName the channel name
 	 * @return {@code true} if the connected server has declared the ability to receive a packet on the specified channel, otherwise {@code false}
 	 */
-	public static boolean canSend(Identifier channelName) throws IllegalArgumentException {
+	public static boolean canSend(CustomPayload.Id<?> channelName) throws IllegalArgumentException {
 		final ClientConfigurationNetworkAddon addon = ClientNetworkingImpl.getClientConfigurationAddon();
 
 		if (addon != null) {
@@ -240,7 +240,7 @@ public final class ClientConfigurationNetworking {
 	 * @return a new packet
 	 */
 	@Contract(value = "_, _ -> new", pure = true)
-	public static Packet<ServerCommonPacketListener> createC2SPacket(@NotNull Identifier channelName, @NotNull PacketByteBuf buf) {
+	public static Packet<ServerCommonPacketListener> createC2SPacket(@NotNull CustomPayload.Id<?> channelName, @NotNull PacketByteBuf buf) {
 		Objects.requireNonNull(channelName, "Channel name cannot be null");
 		Objects.requireNonNull(buf, "Buf cannot be null");
 
@@ -283,7 +283,7 @@ public final class ClientConfigurationNetworking {
 	 * @param buf         the payload of the packet
 	 * @throws IllegalStateException if the client is not connected to a server
 	 */
-	public static void send(Identifier channelName, PacketByteBuf buf) throws IllegalStateException {
+	public static void send(CustomPayload.Id<?> channelName, PacketByteBuf buf) throws IllegalStateException {
 		final ClientConfigurationNetworkAddon addon = ClientNetworkingImpl.getClientConfigurationAddon();
 
 		if (addon != null) {

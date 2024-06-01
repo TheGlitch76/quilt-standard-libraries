@@ -34,6 +34,7 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.NbtTagSizeTracker;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.registry.Registries;
@@ -65,7 +66,7 @@ public final class RegistryEntryAttachmentSync {
 	private RegistryEntryAttachmentSync() {
 	}
 
-	public static final Identifier PACKET_ID = id("sync");
+	public static final CustomPayload.Id<?> PACKET_ID = new CustomPayload.Id<>(id("sync"));
 
 	private record NamespaceValuePair(String namespace, Set<AttachmentEntry> entries) {
 	}
@@ -86,7 +87,7 @@ public final class RegistryEntryAttachmentSync {
 		public static AttachmentEntry read(PacketByteBuf buf) {
 			String path = buf.readString();
 			boolean isTag = buf.readBoolean();
-			NbtElement value = buf.readNbt().get("value");
+			NbtElement value = ((NbtCompound)buf.readNbt(NbtTagSizeTracker.create(PacketByteBuf.MAX_READ_NBT_SIZE))).get("value");
 
 			return new AttachmentEntry(path, isTag, value);
 		}
@@ -160,7 +161,7 @@ public final class RegistryEntryAttachmentSync {
 			return;
 		}
 
-		for (var registryEntry : Registries.REGISTRY.getEntries()) {
+		for (var registryEntry : Registries.ROOT.getEntries()) {
 			var registry = (Registry<Object>) registryEntry.getValue();
 			var dataHolder = RegistryEntryAttachmentHolder.getData(registry);
 
@@ -184,7 +185,7 @@ public final class RegistryEntryAttachmentSync {
 						encoded.computeIfAbsent(entryId.getNamespace(), id -> new HashSet<>()).add(
 								new AttachmentEntry(entryId.getPath(), false, attachment.codec()
 										.encodeStart(NbtOps.INSTANCE, valueEntry.getValue())
-										.getOrThrow(false, msg -> {
+										.getOrThrow(msg -> {
 											throw new IllegalStateException("Failed to encode value for attachment %s of registry entry %s: %s"
 													.formatted(attachment.id(), entryId, msg));
 										})
@@ -199,7 +200,7 @@ public final class RegistryEntryAttachmentSync {
 						encoded.computeIfAbsent(valueEntry.getKey().id().getNamespace(), id -> new HashSet<>()).add(
 								new AttachmentEntry(valueEntry.getKey().id().getPath(), true, attachment.codec()
 										.encodeStart(NbtOps.INSTANCE, valueEntry.getValue())
-										.getOrThrow(false, msg -> {
+										.getOrThrow(msg -> {
 											throw new IllegalStateException("Failed to encode value for attachment tag %s of registry %s: %s"
 													.formatted(attachment.id(), valueEntry.getKey().id(), msg));
 										})));
@@ -245,7 +246,7 @@ public final class RegistryEntryAttachmentSync {
 		}
 
 		client.execute(() -> {
-			var registry = (Registry<Object>) Registries.REGISTRY.get(registryId);
+			var registry = (Registry<Object>) Registries.ROOT.get(registryId);
 			if (registry == null) {
 				throw new IllegalStateException("Unknown registry %s".formatted(registryId));
 			}
@@ -269,7 +270,7 @@ public final class RegistryEntryAttachmentSync {
 
 				var parsedValue = attachment.codec()
 						.parse(NbtOps.INSTANCE, attachmentEntry.value)
-						.getOrThrow(false, msg -> {
+						.getOrThrow(msg -> {
 							throw new IllegalStateException("Failed to decode value for attachment %s of registry entry %s: %s"
 									.formatted(attachment.id(), entryId, msg));
 						});

@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.packet.Packet;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.packet.payload.CustomPayload;
 
 /**
  * Represents something that supports sending packets to channels.
@@ -37,7 +37,7 @@ public interface PacketSender<C> {
 	 * @param channelName the identifier of the channel
 	 * @param buf         the content of the packet
 	 */
-	Packet<?> createPacket(Identifier channelName, PacketByteBuf buf);
+	Packet<?> createPacket(CustomPayload.Id<?> channelName, PacketByteBuf buf);
 
 	/**
 	 * Makes a packet for a channel.
@@ -67,7 +67,7 @@ public interface PacketSender<C> {
 	 * @param channel the identifier of the channel
 	 * @param buf     the content of the packet
 	 */
-	default void sendPacket(Identifier channel, PacketByteBuf buf) {
+	default void sendPacket(CustomPayload.Id<?> channel, PacketByteBuf buf) {
 		Objects.requireNonNull(channel, "Channel cannot be null");
 		Objects.requireNonNull(buf, "Payload cannot be null");
 
@@ -81,7 +81,7 @@ public interface PacketSender<C> {
 	 * @param buf      the content of the packet
 	 * @param listener an optional listener containing callbacks to execute after the packet is sent, may be {@code null}
 	 */
-	default void sendPacket(Identifier channel, PacketByteBuf buf, @Nullable PacketSendListener listener) {
+	default void sendPacket(CustomPayload.Id<?> channel, PacketByteBuf buf, @Nullable PacketSendListener listener) {
 		Objects.requireNonNull(channel, "Channel cannot be null");
 		Objects.requireNonNull(buf, "Payload cannot be null");
 

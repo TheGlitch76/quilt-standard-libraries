@@ -40,10 +40,7 @@ import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import net.minecraft.registry.Holder;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.SimpleRegistry;
+import net.minecraft.registry.*;
 import net.minecraft.util.Identifier;
 
 import org.quiltmc.qsl.base.api.event.Event;
@@ -74,10 +71,6 @@ public abstract class SimpleRegistryMixin<V> implements Registry<V>, Synchronize
 	@Shadow
 	@Final
 	private Map<Identifier, Holder.Reference<V>> byId;
-
-	@Shadow
-	@Nullable
-	private List<Holder.Reference<V>> holdersInOrder;
 
 	@Unique
 	private boolean quilt$shouldSync = false;
@@ -128,7 +121,7 @@ public abstract class SimpleRegistryMixin<V> implements Registry<V>, Synchronize
 
 	@SuppressWarnings("InvalidInjectorMethodSignature")
 	@ModifyVariable(
-			method = "method_46744(ILnet/minecraft/registry/RegistryKey;Ljava/lang/Object;Lcom/mojang/serialization/Lifecycle;)Lnet/minecraft/registry/Holder$Reference;",
+			method = "register",
 			slice = @Slice(
 					from = @At(
 							value = "INVOKE",
@@ -141,7 +134,7 @@ public abstract class SimpleRegistryMixin<V> implements Registry<V>, Synchronize
 					ordinal = 0
 			)
 	)
-	private Holder.Reference<V> quilt$eagerFillReference(Holder.Reference<V> reference, int rawId, RegistryKey<V> key, V entry, Lifecycle lifecycle) {
+	private Holder.Reference<V> quilt$eagerFillReference(Holder.Reference<V> reference, RegistryKey<V> key, V entry, RegistrationInfo lifecycle) {
 		reference.setValue(entry);
 		return reference;
 	}
@@ -151,11 +144,11 @@ public abstract class SimpleRegistryMixin<V> implements Registry<V>, Synchronize
 	 */
 	@SuppressWarnings({"ConstantConditions", "unchecked"})
 	@Inject(
-			method = "method_46744(ILnet/minecraft/registry/RegistryKey;Ljava/lang/Object;Lcom/mojang/serialization/Lifecycle;)Lnet/minecraft/registry/Holder$Reference;",
+			method = "register",
 			at = @At("RETURN")
 	)
-	private void quilt$invokeEntryAddEvent(int rawId, RegistryKey<V> key, V entry, Lifecycle lifecycle, CallbackInfoReturnable<Holder<V>> cir) {
-		this.quilt$entryContext.set(key.getValue(), entry, rawId);
+	private void quilt$invokeEntryAddEvent(RegistryKey<V> key, V entry, RegistrationInfo info, CallbackInfoReturnable<Holder<V>> cir) {
+		this.quilt$entryContext.set(key.getValue(), entry, getRawId(entry));
 		RegistryEventStorage.as((SimpleRegistry<V>) (Object) this).quilt$getEntryAddedEvent().invoker().onAdded(this.quilt$entryContext);
 
 		this.quilt$markDirty();
@@ -272,8 +265,6 @@ public abstract class SimpleRegistryMixin<V> implements Registry<V>, Synchronize
 			this.entryToRawId.put(holder.value(), id);
 			this.rawIdToEntry.set(id, holder);
 		}
-
-		this.holdersInOrder = null;
 
 		return missingEntries;
 	}

@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
@@ -60,9 +61,13 @@ public class DynamicMetaRegistryImpl {
 
 	public static <E> void registerSynced(RegistryKey<? extends Registry<E>> ref, Codec<E> entryCodec, Codec<E> syncCodec, DynamicRegistryFlag... flags) {
 		register(ref, entryCodec, flags);
-		var builder = ImmutableMap.<RegistryKey<? extends Registry<?>>, Object>builder().putAll(DynamicRegistrySyncAccessor.quilt$getSyncedCodecs());
+
+		RegistryLoader.SYNCED_REGISTRIES.add(new RegistryLoader.DecodingData<>(ref, entryCodec));
+		DynamicRegistrySyncAccessor.quilt$getSyncedCodecs().add(ref);
+		// TODO figure out whether the above works at all and whether the syncCodec arg is still needed
+		/*var builder = ImmutableSet.<RegistryKey<? extends Registry<?>>>builder().addAll(DynamicRegistrySyncAccessor.quilt$getSyncedCodecs());
 		DynamicRegistrySyncAccessor.quilt$invokeAddSyncedRegistry(builder, ref, syncCodec);
-		DynamicRegistrySyncAccessor.quilt$setSyncedCodecs(builder.build());
+		DynamicRegistrySyncAccessor.quilt$setSyncedCodecs(builder.build());*/
 	}
 
 	public static void freeze() {

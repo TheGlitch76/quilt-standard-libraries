@@ -47,29 +47,15 @@ public final class TradeOfferInternals {
 	private TradeOfferInternals() {
 	}
 
-	/**
-	 * Make the rebalanced profession map modifiable, then copy all vanilla
-	 * professions' trades to prevent modifications from propagating to the rebalanced one.
+	/*
+	removed: making the rebalanced map mutable as the rebalanced trades are no longer separated.
 	 */
-	private static void initVillagerTrades() {
-		if (!(TradeOffers.field_45128 instanceof HashMap)) {
-			Map<VillagerProfession, Int2ObjectMap<TradeOffers.Factory[]>> map = new HashMap<>(TradeOffers.field_45128);
-
-			for (Map.Entry<VillagerProfession, Int2ObjectMap<TradeOffers.Factory[]>> trade : TradeOffers.PROFESSION_TO_LEVELED_TRADE.entrySet()) {
-				if (!map.containsKey(trade.getKey())) map.put(trade.getKey(), trade.getValue());
-			}
-
-			TradeOffers.field_45128 = map;
-		}
-	}
 
 	// synchronized guards against concurrent modifications - Vanilla does not mutate the underlying arrays (as of 1.16),
 	// so reads will be fine without locking.
 	public static synchronized void registerVillagerOffers(VillagerProfession profession, int level, TradeOfferHelper.VillagerOffersAdder factory) {
 		Objects.requireNonNull(profession, "VillagerProfession may not be null.");
-		initVillagerTrades();
 		registerOffers(TradeOffers.PROFESSION_TO_LEVELED_TRADE.computeIfAbsent(profession, key -> new Int2ObjectOpenHashMap<>()), level, trades -> factory.onRegister(trades, false));
-		registerOffers(TradeOffers.field_45128.computeIfAbsent(profession, key -> new Int2ObjectOpenHashMap<>()), level, trades -> factory.onRegister(trades, true));
 	}
 
 	public static synchronized void registerWanderingTraderOffers(int level, Consumer<List<TradeOffers.Factory>> factory) {
@@ -105,11 +91,11 @@ public final class TradeOfferInternals {
 		/**
 		 * Make the trade list modifiable.
 		 */
-		static void initWanderingTraderTrades() {
-			if (!(TradeOffers.field_45129 instanceof ArrayList)) {
-				TradeOffers.field_45129 = new ArrayList<>(TradeOffers.field_45129);
+		/*static void initWanderingTraderTrades() {
+			if (!(TradeOffers.WANDERING_TRADER_TRADES instanceof ArrayList)) {
+				TradeOffers.WANDERING_TRADER_TRADES = new ArrayList<>(TradeOffers.WANDERING_TRADER_TRADES);
 			}
-		}
+		}*/
 
 		@Override
 		public TradeOfferHelper.WanderingTraderOffersBuilder pool(Identifier id, int count, TradeOffers.Factory... factories) {
@@ -120,10 +106,9 @@ public final class TradeOfferInternals {
 
 			if (ID_TO_INDEX.containsKey(id)) throw new IllegalArgumentException("pool id %s is already registered".formatted(id));
 
-			Pair<TradeOffers.Factory[], Integer> pool = Pair.of(factories, count);
-			initWanderingTraderTrades();
-			ID_TO_INDEX.put(id, TradeOffers.field_45129.size());
-			TradeOffers.field_45129.add(pool);
+			//initWanderingTraderTrades();
+			ID_TO_INDEX.put(id, count);
+			TradeOffers.WANDERING_TRADER_TRADES.put(count, factories);
 			TradeOffers.Factory[] delayedModifications = DELAYED_MODIFICATIONS.remove(id);
 
 			if (delayedModifications != null) addOffersToPool(id, delayedModifications);
@@ -143,10 +128,10 @@ public final class TradeOfferInternals {
 			}
 
 			int poolIndex = ID_TO_INDEX.getInt(pool);
-			initWanderingTraderTrades();
-			Pair<TradeOffers.Factory[], Integer> poolPair = TradeOffers.field_45129.get(poolIndex);
-			TradeOffers.Factory[] modified = ArrayUtils.addAll(poolPair.getLeft(), factories);
-			TradeOffers.field_45129.set(poolIndex, Pair.of(modified, poolPair.getRight()));
+			//initWanderingTraderTrades();
+			TradeOffers.Factory[] poolPair = TradeOffers.WANDERING_TRADER_TRADES.get(poolIndex);
+			TradeOffers.Factory[] modified = ArrayUtils.addAll(poolPair, factories);
+			TradeOffers.WANDERING_TRADER_TRADES.replace(poolIndex, modified);
 			return this;
 		}
 	}
