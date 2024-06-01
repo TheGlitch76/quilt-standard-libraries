@@ -29,6 +29,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.network.packet.s2c.PacketBundleS2CPacket;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -43,11 +44,11 @@ import org.quiltmc.qsl.networking.api.ServerPlayNetworking;
 import org.quiltmc.qsl.networking.test.NetworkingTestMods;
 
 public final class NetworkingPlayPacketTest implements ModInitializer {
-	public static final Identifier TEST_CHANNEL = NetworkingTestMods.id("test_channel");
+	public static final CustomPayload.Id<?> TEST_CHANNEL = NetworkingTestMods.id("test_channel");
 
 	public static void sendToTestChannel(ServerPlayerEntity player, String stuff) {
 		PacketByteBuf buf = PacketByteBufs.create();
-		buf.writeText(Text.of(stuff));
+		buf.writeString(stuff);
 		ServerPlayNetworking.send(player, TEST_CHANNEL, buf);
 		NetworkingTestMods.LOGGER.info("Sent custom payload packet in {}", TEST_CHANNEL);
 	}
@@ -63,9 +64,9 @@ public final class NetworkingPlayPacketTest implements ModInitializer {
 				}))
 				.then(literal("bundled").executes(ctx -> {
 					PacketByteBuf bufA = PacketByteBufs.create();
-					bufA.writeText(Text.literal("Bundled #1"));
+					bufA.writeString("Bundled #1");
 					PacketByteBuf bufB = PacketByteBufs.create();
-					bufB.writeText(Text.literal("Bundled #2"));
+					bufB.writeString("Bundled #2");
 
 					var packet = new PacketBundleS2CPacket(List.of(
 							(Packet<ClientPlayPacketListener>) (Object) ServerPlayNetworking.createS2CPacket(TEST_CHANNEL, bufA),

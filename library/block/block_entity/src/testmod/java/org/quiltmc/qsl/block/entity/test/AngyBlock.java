@@ -36,7 +36,7 @@ import net.minecraft.world.World;
 
 public class AngyBlock extends BlockWithEntity {
 	public AngyBlock(MapColor mapColor) {
-		super(AbstractBlock.Settings.method_9630(Blocks.STONE).mapColor(mapColor));
+		super(AbstractBlock.Settings.copy(Blocks.STONE).mapColor(mapColor));
 	}
 
 	@Override

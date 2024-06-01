@@ -8,7 +8,6 @@
     "ClientConnectionMixin",
     "compat.StatusEffectFixMixin",
     "DebugChunkGeneratorAccessor",
-    "DynamicRegistrySyncAccessor",
     "DynamicRegistrySyncMixin",
     "FluidsMixin",
     "IdListMixin",

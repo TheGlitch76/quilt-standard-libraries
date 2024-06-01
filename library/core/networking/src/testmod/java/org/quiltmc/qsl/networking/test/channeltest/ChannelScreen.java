@@ -20,6 +20,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.button.ButtonWidget;
+import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -53,7 +54,7 @@ final class ChannelScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-		this.renderBackgroundTexture(graphics);
+		this.renderBackground(graphics, mouseX, mouseY, delta);
 		this.channelList.render(graphics, mouseX, mouseY, delta);
 		super.render(graphics, mouseX, mouseY, delta);
 
@@ -84,8 +85,8 @@ final class ChannelScreen extends Screen {
 		button.active = false;
 		this.channelList.clear();
 
-		for (Identifier receiver : ClientPlayNetworking.getSendable()) {
-			this.channelList.addEntry(this.channelList.new Entry(receiver));
+		for (CustomPayload.Id<?> receiver : ClientPlayNetworking.getSendable()) {
+			this.channelList.addEntry(this.channelList.new Entry(receiver.id()));
 		}
 	}
 
@@ -94,8 +95,8 @@ final class ChannelScreen extends Screen {
 		button.active = false;
 		this.channelList.clear();
 
-		for (Identifier receiver : ClientPlayNetworking.getReceived()) {
-			this.channelList.addEntry(this.channelList.new Entry(receiver));
+		for (CustomPayload.Id<?> receiver : ClientPlayNetworking.getReceived()) {
+			this.channelList.addEntry(this.channelList.new Entry(receiver.id()));
 		}
 	}
 }

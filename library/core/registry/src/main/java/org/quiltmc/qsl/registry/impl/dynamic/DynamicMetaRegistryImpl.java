@@ -16,12 +16,14 @@
 
 package org.quiltmc.qsl.registry.impl.dynamic;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
+import net.minecraft.registry.DynamicRegistrySync;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +34,6 @@ import net.minecraft.registry.RegistryLoader;
 import net.minecraft.util.Identifier;
 
 import org.quiltmc.qsl.registry.api.dynamic.DynamicRegistryFlag;
-import org.quiltmc.qsl.registry.mixin.DynamicRegistrySyncAccessor;
 
 @ApiStatus.Internal
 public class DynamicMetaRegistryImpl {
@@ -62,12 +63,17 @@ public class DynamicMetaRegistryImpl {
 	public static <E> void registerSynced(RegistryKey<? extends Registry<E>> ref, Codec<E> entryCodec, Codec<E> syncCodec, DynamicRegistryFlag... flags) {
 		register(ref, entryCodec, flags);
 
-		RegistryLoader.SYNCED_REGISTRIES.add(new RegistryLoader.DecodingData<>(ref, entryCodec));
-		DynamicRegistrySyncAccessor.quilt$getSyncedCodecs().add(ref);
-		// TODO figure out whether the above works at all and whether the syncCodec arg is still needed
-		/*var builder = ImmutableSet.<RegistryKey<? extends Registry<?>>>builder().addAll(DynamicRegistrySyncAccessor.quilt$getSyncedCodecs());
-		DynamicRegistrySyncAccessor.quilt$invokeAddSyncedRegistry(builder, ref, syncCodec);
-		DynamicRegistrySyncAccessor.quilt$setSyncedCodecs(builder.build());*/
+		if (!(RegistryLoader.SYNCED_REGISTRIES instanceof ArrayList<RegistryLoader.DecodingData<?>>)) {
+			RegistryLoader.SYNCED_REGISTRIES = new ArrayList<>(RegistryLoader.SYNCED_REGISTRIES);
+		}
+
+		RegistryLoader.SYNCED_REGISTRIES.add(new RegistryLoader.DecodingData<>(ref, syncCodec));
+
+		if (!(DynamicRegistrySync.SYNCED_CODECS instanceof HashSet<RegistryKey<? extends Registry<?>>>)) {
+			DynamicRegistrySync.SYNCED_CODECS = new HashSet<>(DynamicRegistrySync.SYNCED_CODECS);
+		}
+
+		DynamicRegistrySync.SYNCED_CODECS.add(ref);
 	}
 
 	public static void freeze() {

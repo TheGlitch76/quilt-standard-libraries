@@ -44,10 +44,10 @@ public final class NetworkingPlayPacketClientTest implements ClientModInitialize
 	}
 
 	private void receive(ClientPlayNetworkHandler handler, PacketSender<CustomPayload> sender, MinecraftClient client, PacketByteBuf buf) {
-		Text text = buf.readText();
+		String text = buf.readString();
 		client.execute(() -> {
 			LOGGER.info("Received text from {} which says {}.", NetworkingPlayPacketTest.TEST_CHANNEL, text);
-			client.inGameHud.setOverlayMessage(text, true);
+			client.inGameHud.setOverlayMessage(Text.literal(text), true);
 		});
 	}
 }

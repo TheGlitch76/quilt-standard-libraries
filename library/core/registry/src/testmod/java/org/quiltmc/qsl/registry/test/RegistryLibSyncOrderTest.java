@@ -18,10 +18,12 @@ package org.quiltmc.qsl.registry.test;
 
 import java.util.function.Consumer;
 
+import com.mojang.serialization.Codec;
 import net.fabricmc.api.EnvType;
 
 import net.minecraft.item.Item;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.network.configuration.ConfigurationTask;
 import net.minecraft.network.packet.Packet;
@@ -46,7 +48,8 @@ import org.quiltmc.qsl.networking.api.client.ClientConfigurationNetworking;
  * Makes sure that the registry sync is done soon enough in the configuration system.
  */
 public class RegistryLibSyncOrderTest implements ModInitializer, DedicatedServerModInitializer, ClientModInitializer {
-	private static final Identifier PACKET_ID = new Identifier("quilt", "reg_sync_order_packet");
+	private static final CustomPayload.Id<TestPayload> PACKET_ID = new CustomPayload.Id<>(new Identifier("quilt", "reg_sync_order_packet"));
+	private static final PacketCodec<PacketByteBuf, TestPayload> PACKET_CODEC = CustomPayload.create(TestPayload::write, TestPayload::new);
 	public static Item ITEM_A = new Item(new Item.Settings());
 	public static Item ITEM_B = new Item(new Item.Settings());
 	private static final Identifier EARLY_PHASE = new Identifier("quilt", "reg_sync_order_early");
@@ -56,15 +59,14 @@ public class RegistryLibSyncOrderTest implements ModInitializer, DedicatedServer
 			this(buf.readBoolean(), buf.readInt(), buf.readInt());
 		}
 
-		@Override
-		public void write(PacketByteBuf buf) {
+		private void write(PacketByteBuf buf) {
 			buf.writeBoolean(this.early);
 			buf.writeInt(this.a);
 			buf.writeInt(this.b);
 		}
 
 		@Override
-		public Identifier id() {
+		public CustomPayload.Id<TestPayload> getId() {
 			return PACKET_ID;
 		}
 	}
@@ -79,7 +81,7 @@ public class RegistryLibSyncOrderTest implements ModInitializer, DedicatedServer
 			Registry.register(Registries.ITEM, new Identifier("quilt", "reg_sync_order_a"), ITEM_A);
 		}
 
-		CustomPayloads.registerS2CPayload(PACKET_ID, TestPayload::new);
+		CustomPayloads.registerS2CPayload(PACKET_ID, PACKET_CODEC);
 	}
 
 	@Override

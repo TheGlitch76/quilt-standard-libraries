@@ -19,6 +19,7 @@ package org.quiltmc.qsl.networking.test.payload;
 import java.util.List;
 
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -40,7 +41,7 @@ public class C2SPayloadTest implements ClientModInitializer {
 	private static boolean received = false;
 	@Override
 	public void onInitializeClient(ModContainer mod) {
-		CustomPayloads.registerC2SPayload(TestC2SPayload.ID, TestC2SPayload::new);
+		CustomPayloads.registerC2SPayload(TestC2SPayload.ID, TestC2SPayload.CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(TestC2SPayload.ID, this::handleTestPayload);
 
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
@@ -74,21 +75,21 @@ public class C2SPayloadTest implements ClientModInitializer {
 	}
 
 	public record TestC2SPayload(List<String> strings, int a, double b) implements CustomPayload {
-		public static final Identifier ID = new Identifier("quilt_networking_testmod", "test_c2s_payload");
+		public static final Id<TestC2SPayload> ID = new Id<>(new Identifier("quilt_networking_testmod", "test_c2s_payload"));
+		public static final PacketCodec<PacketByteBuf, TestC2SPayload> CODEC = CustomPayload.create(TestC2SPayload::write, TestC2SPayload::new);
 
 		TestC2SPayload(PacketByteBuf buf) {
 			this(buf.readList(PacketByteBuf::readString), buf.readInt(), buf.readDouble());
 		}
 
-		@Override
-		public void write(PacketByteBuf buf) {
+		private void write(PacketByteBuf buf) {
 			buf.writeCollection(this.strings, PacketByteBuf::writeString);
 			buf.writeInt(this.a);
 			buf.writeDouble(this.b);
 		}
 
 		@Override
-		public Identifier id() {
+		public Id<? extends CustomPayload> getId() {
 			return ID;
 		}
 	}
