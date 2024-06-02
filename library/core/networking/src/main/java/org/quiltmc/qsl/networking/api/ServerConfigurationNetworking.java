@@ -32,7 +32,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 
 import org.quiltmc.qsl.networking.api.client.ClientConfigurationNetworking;
-import org.quiltmc.qsl.networking.impl.payload.PacketByteBufPayload;
 import org.quiltmc.qsl.networking.impl.server.ServerNetworkingImpl;
 import org.quiltmc.qsl.networking.mixin.accessor.AbstractServerPacketHandlerAccessor;
 
@@ -64,25 +63,6 @@ public final class ServerConfigurationNetworking {
 	 */
 	public static <T extends CustomPayload> boolean registerGlobalReceiver(CustomPayload.Id<T> channelName, CustomChannelReceiver<T> channelHandler) {
 		return ServerNetworkingImpl.CONFIGURATION.registerGlobalReceiver(channelName, channelHandler);
-	}
-
-	/**
-	 * Registers a handler to a channel.
-	 * A global receiver is registered to all connections, in the present and future.
-	 * <p>
-	 * If a handler is already registered to the {@code channel}, this method will return {@code false}, and no change will be made.
-	 * Use {@link #unregisterReceiver(ServerConfigurationNetworkHandler, CustomPayload.Id)} to unregister the existing handler.
-	 *
-	 * @param channelName    the identifier of the channel
-	 * @param channelHandler the handler
-	 * @return {@code false} if a handler is already registered to the channel, otherwise {@code true}
-	 * @see ServerConfigurationNetworking#unregisterGlobalReceiver(CustomPayload.Id)
-	 * @see ServerConfigurationNetworking#registerReceiver(ServerConfigurationNetworkHandler, Identifier, ChannelReceiver)
-	 * @deprecated use {@link ServerConfigurationNetworking#registerGlobalReceiver(CustomPayload.Id, CustomChannelReceiver)}
-	 */
-	@Deprecated
-	public static boolean registerGlobalReceiver(Identifier channelName, ChannelReceiver channelHandler) {
-		return ServerNetworkingImpl.CONFIGURATION.registerGlobalReceiver(new CustomPayload.Id<>(channelName), channelHandler);
 	}
 
 	/**
@@ -132,31 +112,6 @@ public final class ServerConfigurationNetworking {
 		Objects.requireNonNull(networkHandler, "Network handler cannot be null");
 
 		return ServerNetworkingImpl.getAddon(networkHandler).registerChannel(channelName, channelHandler);
-	}
-
-	/**
-	 * Registers a handler to a channel.
-	 * This method differs from {@link ServerConfigurationNetworking#registerGlobalReceiver(Identifier, ChannelReceiver)} since
-	 * the channel handler will only be applied to the client represented by the {@link ServerConfigurationNetworkHandler}.
-	 * <p>
-	 * For example, if you only register a receiver using this method when a {@linkplain ServerLoginNetworking#registerGlobalReceiver(CustomPayload.Id, ServerLoginNetworking.QueryResponseReceiver)}
-	 * login response has been received, you should use {@link ServerConfigurationConnectionEvents#INIT} to register the channel handler.
-	 * <p>
-	 * If a handler is already registered to the {@code channelName}, this method will return {@code false}, and no change will be made.
-	 * Use {@link #unregisterReceiver(ServerConfigurationNetworkHandler, CustomPayload.Id)} to unregister the existing handler.
-	 *
-	 * @param networkHandler the handler
-	 * @param channelName    the identifier of the channel
-	 * @param channelHandler the handler
-	 * @return {@code false} if a handler is already registered to the channel name, otherwise {@code true}
-	 * @see ServerConfigurationConnectionEvents#INIT
-	 * @deprecated use {@link ServerConfigurationNetworking#registerReceiver(ServerConfigurationNetworkHandler, CustomPayload.Id, CustomChannelReceiver)}
-	 */
-	@Deprecated
-	public static boolean registerReceiver(ServerConfigurationNetworkHandler networkHandler, Identifier channelName, ChannelReceiver channelHandler) {
-		Objects.requireNonNull(networkHandler, "Network handler cannot be null");
-
-		return ServerNetworkingImpl.getAddon(networkHandler).registerChannel(new CustomPayload.Id<>(channelName), channelHandler);
 	}
 
 	/**
@@ -212,20 +167,6 @@ public final class ServerConfigurationNetworking {
 		return ServerNetworkingImpl.getAddon(handler).getSendableChannels().contains(channelName);
 	}
 
-	/**
-	 * Creates a packet which may be sent to a connected client.
-	 *
-	 * @param channelName the channel name
-	 * @param buf         the packet byte data which represents the payload of the packet
-	 * @return a new packet
-	 */
-	@Contract(value = "_, _ -> new", pure = true)
-	public static Packet<ClientCommonPacketListener> createS2CPacket(@NotNull CustomPayload.Id<?> channelName, @NotNull PacketByteBuf buf) {
-		Objects.requireNonNull(channelName, "Channel cannot be null");
-		Objects.requireNonNull(buf, "Buf cannot be null");
-
-		return ServerNetworkingImpl.createS2CPacket(channelName, buf);
-	}
 
 	/**
 	 * Creates a packet from a payload which may be sent to a connected client.
@@ -256,26 +197,23 @@ public final class ServerConfigurationNetworking {
 	 * Sends a packet to a client.
 	 *
 	 * @param networkHandler the handler to send the packet to
-	 * @param channelName    the channel of the packet
-	 * @param buf            the payload of the packet
+	 * @param payload to be sent
 	 */
-	public static void send(ServerConfigurationNetworkHandler networkHandler, CustomPayload.Id<?> channelName, PacketByteBuf buf) {
+	public static void send(ServerConfigurationNetworkHandler networkHandler, CustomPayload payload) {
 		Objects.requireNonNull(networkHandler, "Server configuration handler cannot be null");
-		Objects.requireNonNull(channelName, "Channel name cannot be null");
-		Objects.requireNonNull(buf, "Packet byte data cannot be null");
+		Objects.requireNonNull(payload, "Payload cannot be null");
 
-		networkHandler.send(createS2CPacket(channelName, buf));
+		networkHandler.send(createS2CPacket(payload));
 	}
 
 	// Helper methods
-
-	// TODO: Possible future CHASM extension method.
 
 	/**
 	 * Returns the <i>Minecraft</i> Server of a server configuration packet handler.
 	 *
 	 * @param handler the server configuration packet handler
 	 */
+	// TODO: Possible future CHASM extension method.
 	public static MinecraftServer getServer(ServerConfigurationNetworkHandler handler) {
 		Objects.requireNonNull(handler, "Network handler cannot be null");
 
@@ -309,41 +247,5 @@ public final class ServerConfigurationNetworking {
 		 * @param responseSender the packet sender
 		 */
 		void receive(MinecraftServer server, ServerConfigurationNetworkHandler handler, T payload, PacketSender<CustomPayload> responseSender);
-	}
-
-	/**
-	 * This functional interface should only be used when sending a raw {@link PacketByteBuf} is necessary.
-	 * <p>
-	 * @deprecated use {@link CustomChannelReceiver}
-	 */
-	@Deprecated
-	@FunctionalInterface
-	public interface ChannelReceiver extends CustomChannelReceiver<PacketByteBufPayload> {
-		default void receive(MinecraftServer server, ServerConfigurationNetworkHandler handler, PacketByteBufPayload payload, PacketSender<CustomPayload> responseSender) {
-			this.receive(server, handler, payload.data(), responseSender);
-		}
-
-		/**
-		 * Receives an incoming packet.
-		 * <p>
-		 * This method is executed on {@linkplain io.netty.channel.EventLoop netty's event loops}.
-		 * Modification to the game should be {@linkplain net.minecraft.util.thread.ThreadExecutor#submit(Runnable) scheduled} using the provided Minecraft server instance.
-		 * <pre>{@code
-		 * ServerConfigurationNetworking.registerReceiver(new Identifier("mymod", "boom"), (server, handler, data, responseSender) -> {
-		 * 	boolean fire = data.readBoolean();
-		 *
-		 * 	// All operations on the server or world must be executed on the server thread
-		 * 	server.execute(() -> {
-		 *
-		 *    });
-		 * });
-		 * }</pre>
-		 *
-		 * @param server         the server
-		 * @param handler        the network handler that received this packet, representing the client who sent the packet
-		 * @param buf            the payload of the packet
-		 * @param responseSender the packet sender
-		 */
-		void receive(MinecraftServer server, ServerConfigurationNetworkHandler handler, PacketByteBuf buf, PacketSender<CustomPayload> responseSender);
 	}
 }

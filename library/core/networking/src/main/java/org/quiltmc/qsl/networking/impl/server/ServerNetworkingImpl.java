@@ -33,7 +33,6 @@ import org.quiltmc.qsl.networking.api.ServerLoginNetworking;
 import org.quiltmc.qsl.networking.api.ServerPlayNetworking;
 import org.quiltmc.qsl.networking.impl.GlobalReceiverRegistry;
 import org.quiltmc.qsl.networking.impl.NetworkHandlerExtensions;
-import org.quiltmc.qsl.networking.impl.payload.PacketByteBufPayload;
 
 @ApiStatus.Internal
 public final class ServerNetworkingImpl {
@@ -51,11 +50,6 @@ public final class ServerNetworkingImpl {
 
 	public static ServerLoginNetworkAddon getAddon(ServerLoginNetworkHandler handler) {
 		return (ServerLoginNetworkAddon) ((NetworkHandlerExtensions) handler).getAddon();
-	}
-
-	public static Packet<ClientCommonPacketListener> createS2CPacket(CustomPayload.Id<?> channel, PacketByteBuf buf) {
-		buf.writeIdentifier(channel.id());
-		return createS2CPacket(PacketByteBufPayload.CODEC.decode(buf));
 	}
 
 	public static Packet<ClientCommonPacketListener> createS2CPacket(CustomPayload payload) {

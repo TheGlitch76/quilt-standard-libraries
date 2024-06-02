@@ -107,10 +107,6 @@ public final class ServerConfigurationNetworkAddon extends AbstractChanneledNetw
 		return ServerConfigurationNetworking.createS2CPacket(payload);
 	}
 
-	@Override
-	public Packet<?> createPacket(CustomPayload.Id<?> channelName, PacketByteBuf buf) {
-		return ServerConfigurationNetworking.createS2CPacket(channelName, buf);
-	}
 
 	@Override
 	protected void invokeRegisterEvent(List<CustomPayload.Id<?>> ids) {

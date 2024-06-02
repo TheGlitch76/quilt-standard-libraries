@@ -101,7 +101,7 @@ public final class RegistryEntryAttachmentSync {
 
 	@ClientOnly
 	public static void registerClient() {
-		ClientPlayNetworking.registerGlobalReceiver(PACKET_ID, RegistryEntryAttachmentSync::receiveSyncPacket);
+		ClientPlayNetworking.registerGlobalReciever(PACKET_ID, RegistryEntryAttachmentSync::receiveSyncPacket);
 	}
 
 	public static List<PacketByteBuf> createSyncPackets() {

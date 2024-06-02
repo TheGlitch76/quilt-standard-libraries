@@ -17,11 +17,6 @@
 
 package org.quiltmc.qsl.networking.impl.client;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
-
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,8 +27,6 @@ import net.minecraft.client.network.ClientLoginNetworkHandler;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkState;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.listener.ServerCommonPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
@@ -42,22 +35,18 @@ import net.minecraft.network.packet.payload.CustomPayload;
 import org.quiltmc.loader.api.ModContainer;
 import org.quiltmc.loader.api.minecraft.ClientOnly;
 import org.quiltmc.qsl.networking.api.CustomPayloads;
-import org.quiltmc.qsl.networking.api.PacketByteBufs;
 import org.quiltmc.qsl.networking.api.PacketSender;
 import org.quiltmc.qsl.networking.api.client.ClientConfigurationConnectionEvents;
 import org.quiltmc.qsl.networking.api.client.ClientConfigurationNetworking;
 import org.quiltmc.qsl.networking.api.client.ClientLoginNetworking;
 import org.quiltmc.qsl.networking.api.client.ClientPlayConnectionEvents;
 import org.quiltmc.qsl.networking.api.client.ClientPlayNetworking;
-import org.quiltmc.qsl.networking.impl.ChannelInfoHolder;
 import org.quiltmc.qsl.networking.impl.GlobalReceiverRegistry;
 import org.quiltmc.qsl.networking.impl.NetworkHandlerExtensions;
 import org.quiltmc.qsl.networking.impl.NetworkingImpl;
 import org.quiltmc.qsl.networking.impl.common.CommonPacketsImpl;
 import org.quiltmc.qsl.networking.impl.common.CommonRegisterPayload;
 import org.quiltmc.qsl.networking.impl.common.CommonVersionPayload;
-import org.quiltmc.qsl.networking.impl.payload.PacketByteBufPayload;
-import org.quiltmc.qsl.networking.mixin.accessor.ClientLoginNetworkHandlerAccessor;
 import org.quiltmc.qsl.networking.mixin.accessor.ConnectScreenAccessor;
 import org.quiltmc.qsl.networking.mixin.accessor.MinecraftClientAccessor;
 
@@ -80,11 +69,6 @@ public final class ClientNetworkingImpl {
 
 	public static ClientLoginNetworkAddon getAddon(ClientLoginNetworkHandler handler) {
 		return (ClientLoginNetworkAddon) ((NetworkHandlerExtensions) handler).getAddon();
-	}
-
-	public static Packet<ServerCommonPacketListener> createC2SPacket(CustomPayload.Id<?> channelName, PacketByteBuf buf) {
-		buf.writeIdentifier(channelName.id());
-		return createC2SPacket(PacketByteBufPayload.CODEC.decode(buf));
 	}
 
 	public static Packet<ServerCommonPacketListener> createC2SPacket(CustomPayload payload) {
@@ -151,10 +135,6 @@ public final class ClientNetworkingImpl {
 			currentConfigurationAddon = null;
 		});
 
-		// Register a login query handler for early channel registration.
-		ClientLoginNetworking.registerGlobalReceiver(NetworkingImpl.EARLY_REGISTRATION_CHANNEL, ClientNetworkingImpl::receiveEarlyRegistration);
-		ClientLoginNetworking.registerGlobalReceiver(NetworkingImpl.EARLY_REGISTRATION_CHANNEL_FABRIC, ClientNetworkingImpl::receiveEarlyRegistration);
-
 		CustomPayloads.registerS2CPayload(CommonVersionPayload.PACKET_ID, CommonVersionPayload.CODEC);
 		CustomPayloads.registerS2CPayload(CommonRegisterPayload.PACKET_ID, CommonRegisterPayload.CODEC);
 
@@ -184,30 +164,6 @@ public final class ClientNetworkingImpl {
 		}
 	}
 
-	private static CompletableFuture<PacketByteBuf> receiveEarlyRegistration(
-			MinecraftClient client, ClientLoginNetworkHandler handler, PacketByteBuf buf, Consumer<PacketSendListener> listenerAdder
-	) {
-		int n = buf.readVarInt();
-		var ids = new ArrayList<CustomPayload.Id<?>>(n);
-
-		for (int i = 0; i < n; i++) {
-			ids.add(new CustomPayload.Id<>(buf.readIdentifier()));
-		}
-
-		((ChannelInfoHolder) ((ClientLoginNetworkHandlerAccessor) handler).getConnection()).getPendingChannelsNames(NetworkState.LOGIN).addAll(ids);
-		NetworkingImpl.LOGGER.debug("Received accepted channels from the server");
-
-		PacketByteBuf response = PacketByteBufs.create();
-		Collection<CustomPayload.Id<?>> channels = ClientPlayNetworking.getGlobalReceivers();
-		response.writeVarInt(channels.size());
-
-		for (CustomPayload.Id<?> id : channels) {
-			response.writeIdentifier(id.id());
-		}
-
-		NetworkingImpl.LOGGER.debug("Sent accepted channels to the server");
-		return CompletableFuture.completedFuture(response);
-	}
 
 	// Disconnect if there are no commonly supported versions.
 	// Client responds with the intersection of supported versions.

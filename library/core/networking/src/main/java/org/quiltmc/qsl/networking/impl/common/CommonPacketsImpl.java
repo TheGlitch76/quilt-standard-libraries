@@ -28,8 +28,8 @@ import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.server.MinecraftServer;
 
 import org.quiltmc.loader.api.ModContainer;
-import org.quiltmc.qsl.networking.api.CustomPayloads;
 import org.quiltmc.qsl.networking.api.PacketSender;
+import org.quiltmc.qsl.networking.api.PayloadTypeRegistry;
 import org.quiltmc.qsl.networking.api.ServerConfigurationConnectionEvents;
 import org.quiltmc.qsl.networking.api.ServerConfigurationNetworking;
 import org.quiltmc.qsl.networking.api.ServerConfigurationTaskManager;

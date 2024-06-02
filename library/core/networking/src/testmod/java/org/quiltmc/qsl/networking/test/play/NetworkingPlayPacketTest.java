@@ -27,6 +27,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.payload.CustomPayload;
@@ -39,17 +40,18 @@ import net.minecraft.util.Identifier;
 import org.quiltmc.loader.api.ModContainer;
 import org.quiltmc.qsl.base.api.entrypoint.ModInitializer;
 import org.quiltmc.qsl.command.api.CommandRegistrationCallback;
+import org.quiltmc.qsl.networking.api.CustomPayloads;
 import org.quiltmc.qsl.networking.api.PacketByteBufs;
 import org.quiltmc.qsl.networking.api.ServerPlayNetworking;
 import org.quiltmc.qsl.networking.test.NetworkingTestMods;
 
 public final class NetworkingPlayPacketTest implements ModInitializer {
 	public static final CustomPayload.Id<?> TEST_CHANNEL = NetworkingTestMods.id("test_channel");
+	public static final PacketCodec<PacketByteBuf, TestPacket> TEST_CODEC = CustomPayload.create(TestPacket::write, TestPacket::new);
 
 	public static void sendToTestChannel(ServerPlayerEntity player, String stuff) {
-		PacketByteBuf buf = PacketByteBufs.create();
-		buf.writeString(stuff);
-		ServerPlayNetworking.send(player, TEST_CHANNEL, buf);
+		CustomPayloads.registerC2SPayload();
+		ServerPlayNetworking.send(player, new TestPacket(stuff));
 		NetworkingTestMods.LOGGER.info("Sent custom payload packet in {}", TEST_CHANNEL);
 	}
 
@@ -84,5 +86,20 @@ public final class NetworkingPlayPacketTest implements ModInitializer {
 		CommandRegistrationCallback.EVENT.register((dispatcher, buildContext, environment) -> {
 			NetworkingPlayPacketTest.registerCommand(dispatcher);
 		});
+	}
+
+	public record TestPacket(String text) implements CustomPayload {
+		public TestPacket(PacketByteBuf buf) {
+			this(buf.readString());
+		}
+
+		private void write(PacketByteBuf buf) {
+			buf.writeString(text);
+		}
+
+		@Override
+		public Id<? extends CustomPayload> getId() {
+			return TEST_CHANNEL;
+		}
 	}
 }

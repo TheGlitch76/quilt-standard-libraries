@@ -47,14 +47,6 @@ public class C2SPayloadTest implements ClientModInitializer {
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
 			sender.sendPayload(new TestC2SPayload(List.of("String"), 1, 1.0));
 
-			if (NetworkingImpl.RESERIALIZE_CUSTOM_PAYLOADS) {
-				var buf = PacketByteBufs.create();
-				buf.writeCollection(List.of("a", "b"), PacketByteBuf::writeString);
-				buf.writeInt(2);
-				buf.writeDouble(2.0);
-				sender.sendPacket(TestC2SPayload.ID, buf);
-			}
-
 			client.execute(() -> {
 				try {
 					Thread.sleep(10000);

@@ -16,18 +16,16 @@
 
 package org.quiltmc.qsl.networking.mixin;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.minecraft.network.RegistryByteBuf;
+import org.quiltmc.qsl.networking.impl.FabricCustomPayloadPacketCodec;
+import org.quiltmc.qsl.networking.impl.PayloadTypeRegistryImpl;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;
@@ -36,52 +34,27 @@ import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.network.packet.payload.DiscardedCustomPayload;
 import net.minecraft.util.Identifier;
 
-import org.quiltmc.qsl.networking.api.CustomPayloads;
-import org.quiltmc.qsl.networking.api.PacketByteBufs;
-import org.quiltmc.qsl.networking.impl.NetworkingImpl;
-import org.quiltmc.qsl.networking.impl.payload.PacketByteBufPayload;
-
 // TODO cleanup. What's still needed?
 @Mixin(CustomPayloadC2SPacket.class)
 public class CustomPayloadC2SPacketMixin {
+	@WrapOperation(
+		method = "<clinit>",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/network/packet/payload/CustomPayload;create(Lnet/minecraft/network/packet/payload/CustomPayload$CodecFactory;Ljava/util/List;)Lnet/minecraft/network/codec/PacketCodec;"
+		)
+	)
+	private static PacketCodec<PacketByteBuf, CustomPayload> wrapCodec(CustomPayload.CodecFactory<PacketByteBuf> unknownCodecFactory, List<CustomPayload.Type<PacketByteBuf, ?>> types, Operation<PacketCodec<PacketByteBuf, CustomPayload>> original) {
+		PacketCodec<PacketByteBuf, CustomPayload> codec = original.call(unknownCodecFactory, types);
+		FabricCustomPayloadPacketCodec<PacketByteBuf> fabricCodec = (FabricCustomPayloadPacketCodec<PacketByteBuf>) codec;
+		fabricCodec.fabric_setPacketCodecProvider((packetByteBuf, identifier) -> {
+			// CustomPayloadC2SPacket does not have a separate codec for play/configuration. We know if the packetByteBuf is a PacketByteBuf we are in the play phase.
+			if (packetByteBuf instanceof RegistryByteBuf) {
+				return (CustomPayload.Type<PacketByteBuf, ? extends CustomPayload>) (Object) PayloadTypeRegistryImpl.PLAY_C2S.get(identifier);
+			}
 
-	@Dynamic("method_56475: CustomPayload.create in <clinit>")
-	@WrapOperation(method = "method_56475", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/payload/DiscardedCustomPayload;createCodec(Lnet/minecraft/util/Identifier;I)Lnet/minecraft/network/codec/PacketCodec;"))
-	private static PacketCodec<PacketByteBuf, ? extends CustomPayload> addCustomTypes(Identifier identifier, int sizeLimit, Operation<PacketCodec<PacketByteBuf, DiscardedCustomPayload>> original) {
-		Optional<PacketCodec<PacketByteBuf, ? extends CustomPayload>> optional = CustomPayloads.C2S_TYPES.keySet()
-			.stream().filter(id -> id.id().equals(identifier))
-			.findAny().map(CustomPayloads.C2S_TYPES::get);
-		if (optional.isPresent()){
-			return optional.get();
-		}
-		return original.call(identifier, sizeLimit);
+			return PayloadTypeRegistryImpl.CONFIGURATION_C2S.get(identifier);
+		});
+		return codec;
 	}
-
-	/*@Shadow
-	@Final
-	@Mutable
-	private static Map<Identifier, PacketByteBuf.Reader<? extends CustomPayload>> KNOWN_TYPES;
-
-	@Inject(method = "<clinit>", at = @At("TAIL"))
-	private static void makeMutable(CallbackInfo ci) {
-		KNOWN_TYPES = new HashMap<>(KNOWN_TYPES);
-	}
-
-	@Inject(method = "readPayload", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/c2s/common/CustomPayloadC2SPacket;readUnknownPayload(Lnet/minecraft/util/Identifier;Lnet/minecraft/network/PacketByteBuf;)Lnet/minecraft/network/packet/payload/DiscardedCustomPayload;"), cancellable = true)
-	private static void inject(Identifier id, PacketByteBuf buf, CallbackInfoReturnable<PacketByteBufPayload> cir) {
-		PacketByteBuf copied = PacketByteBufs.copy(buf);
-		cir.setReturnValue(new PacketByteBufPayload(id, copied));
-		buf.skipBytes(buf.readableBytes());
-	}
-
-	@ModifyArg(method = "apply(Lnet/minecraft/network/listener/ServerCommonPacketListener;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/listener/ServerCommonPacketListener;onCustomPayload(Lnet/minecraft/network/packet/c2s/common/CustomPayloadC2SPacket;)V"))
-	public CustomPayloadC2SPacket reserialize(CustomPayloadC2SPacket packet) {
-		if (NetworkingImpl.RESERIALIZE_CUSTOM_PAYLOADS) {
-			PacketByteBuf buf = PacketByteBufs.create();
-			packet.write(buf);
-			return new CustomPayloadC2SPacket(buf);
-		}
-
-		return packet;
-	}*/
 }

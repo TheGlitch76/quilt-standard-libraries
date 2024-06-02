@@ -6,6 +6,7 @@
     "AbstractServerPacketHandlerMixin",
     "ClientConnectionMixin",
     "CustomPayloadC2SPacketMixin",
+    "CustomPayloadPacketCodecMixin",
     "CustomPayloadS2CPacketMixin",
     "EntityTrackerEntryMixin",
     "JoinWorldConfigurationTaskMixin",

@@ -93,11 +93,6 @@ public final class ClientPlayNetworkAddon extends AbstractChanneledNetworkAddon<
 	}
 
 	@Override
-	public Packet<?> createPacket(CustomPayload.Id<?> channelName, PacketByteBuf buf) {
-		return ClientPlayNetworking.createC2SPacket(channelName, buf);
-	}
-
-	@Override
 	protected void invokeRegisterEvent(List<CustomPayload.Id<?>> ids) {
 		C2SPlayChannelEvents.REGISTER.invoker().onChannelRegister(this.handler, this, this.client, ids);
 	}

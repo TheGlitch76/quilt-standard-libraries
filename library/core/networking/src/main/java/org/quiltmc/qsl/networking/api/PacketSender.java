@@ -34,14 +34,6 @@ public interface PacketSender<C> {
 	/**
 	 * Makes a packet for a channel.
 	 *
-	 * @param channelName the identifier of the channel
-	 * @param buf         the content of the packet
-	 */
-	Packet<?> createPacket(CustomPayload.Id<?> channelName, PacketByteBuf buf);
-
-	/**
-	 * Makes a packet for a channel.
-	 *
 	 * @param payload the payload
 	 */
 	Packet<?> createPacket(C payload);
@@ -60,33 +52,6 @@ public interface PacketSender<C> {
 	 * @param listener an optional listener containing callbacks to execute after the packet is sent, may be {@code null}
 	 */
 	void sendPacket(Packet<?> packet, @Nullable PacketSendListener listener);
-
-	/**
-	 * Sends a packet to a channel.
-	 *
-	 * @param channel the identifier of the channel
-	 * @param buf     the content of the packet
-	 */
-	default void sendPacket(CustomPayload.Id<?> channel, PacketByteBuf buf) {
-		Objects.requireNonNull(channel, "Channel cannot be null");
-		Objects.requireNonNull(buf, "Payload cannot be null");
-
-		this.sendPacket(this.createPacket(channel, buf));
-	}
-
-	/**
-	 * Sends a packet to a channel.
-	 *
-	 * @param channel  the identifier of the channel
-	 * @param buf      the content of the packet
-	 * @param listener an optional listener containing callbacks to execute after the packet is sent, may be {@code null}
-	 */
-	default void sendPacket(CustomPayload.Id<?> channel, PacketByteBuf buf, @Nullable PacketSendListener listener) {
-		Objects.requireNonNull(channel, "Channel cannot be null");
-		Objects.requireNonNull(buf, "Payload cannot be null");
-
-		this.sendPacket(this.createPacket(channel, buf), listener);
-	}
 
 	/**
 	 * Sends a packet to a channel.

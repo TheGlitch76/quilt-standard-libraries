@@ -93,11 +93,6 @@ public final class ClientConfigurationNetworkAddon extends AbstractChanneledNetw
 	}
 
 	@Override
-	public Packet<?> createPacket(CustomPayload.Id<?> channelName, PacketByteBuf buf) {
-		return ClientConfigurationNetworking.createC2SPacket(channelName, buf);
-	}
-
-	@Override
 	protected void invokeRegisterEvent(List<CustomPayload.Id<?>> ids) {
 		C2SConfigurationChannelEvents.REGISTER.invoker().onChannelRegister(this.handler, this, this.client, ids);
 	}

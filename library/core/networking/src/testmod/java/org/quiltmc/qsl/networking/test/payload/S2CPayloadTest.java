@@ -48,14 +48,6 @@ public class S2CPayloadTest implements ClientModInitializer {
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			sender.sendPayload(new TestS2CPayload(List.of("String"), 1, 1.0));
 
-			if (NetworkingImpl.RESERIALIZE_CUSTOM_PAYLOADS) {
-				var buf = PacketByteBufs.create();
-				buf.writeCollection(List.of("a", "b"), PacketByteBuf::writeString);
-				buf.writeInt(2);
-				buf.writeDouble(2.0);
-				sender.sendPacket(TestS2CPayload.ID, buf);
-			}
-
 			server.execute(() -> {
 				try {
 					Thread.sleep(10000);

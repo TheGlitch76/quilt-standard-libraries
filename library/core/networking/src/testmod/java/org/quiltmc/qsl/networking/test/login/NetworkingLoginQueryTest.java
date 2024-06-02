@@ -19,6 +19,7 @@ package org.quiltmc.qsl.networking.test.login;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.FutureTask;
 
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.network.packet.s2c.login.payload.CustomQueryPayload;
 import net.minecraft.server.MinecraftServer;
@@ -96,7 +97,14 @@ public final class NetworkingLoginQueryTest implements ModInitializer {
 		});
 
 		// Send a dummy query when the client starts accepting queries.
-		sender.sendPacket(TEST_CHANNEL_GLOBAL, PacketByteBufs.empty()); // dummy packet
-		sender.sendPacket(TEST_CHANNEL, PacketByteBufs.empty()); // dummy packet
+		sender.sendPayload(new EmptyQuery(TEST_CHANNEL.id())); // dummy packet
+		sender.sendPayload(new EmptyQuery(TEST_CHANNEL_GLOBAL.id())); // dummy packet
+	}
+
+	record EmptyQuery(Identifier id) implements CustomQueryPayload {
+		@Override
+		public void write(PacketByteBuf buf) {
+
+		}
 	}
 }

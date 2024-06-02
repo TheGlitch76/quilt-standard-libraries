@@ -76,7 +76,7 @@ public class CommonPacketTests {
 		ClientNetworkingImpl.clientInit(null);
 
 		// Register a receiver to send in the play registry response
-		ClientPlayNetworking.registerGlobalReceiver(CLIENT_RECEIVE, (client, handler, buf, responseSender) -> {
+		ClientPlayNetworking.registerGlobalReciever(CLIENT_RECEIVE, (client, handler, buf, responseSender) -> {
 		});
 	}
 
