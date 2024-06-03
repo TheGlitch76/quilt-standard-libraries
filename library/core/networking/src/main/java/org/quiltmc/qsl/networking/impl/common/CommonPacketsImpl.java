@@ -43,8 +43,8 @@ public class CommonPacketsImpl {
 	public static final int[] SUPPORTED_COMMON_PACKET_VERSIONS = new int[]{PACKET_VERSION_1};
 
 	public static void init(ModContainer mod) {
-		CustomPayloads.registerC2SPayload(CommonVersionPayload.PACKET_ID, CommonVersionPayload.CODEC);
-		CustomPayloads.registerC2SPayload(CommonRegisterPayload.PACKET_ID, CommonRegisterPayload.CODEC);
+		PayloadTypeRegistry.playC2S().register(CommonVersionPayload.PACKET_ID, CommonVersionPayload.CODEC);
+		PayloadTypeRegistry.playC2S().register(CommonRegisterPayload.PACKET_ID, CommonRegisterPayload.CODEC);
 
 		ServerConfigurationNetworking.registerGlobalReceiver(CommonVersionPayload.PACKET_ID, CommonPacketsImpl::handleCommonVersion);
 		ServerConfigurationNetworking.registerGlobalReceiver(CommonRegisterPayload.PACKET_ID, CommonPacketsImpl::handleCommonRegister);

@@ -22,7 +22,6 @@ import net.minecraft.registry.Registries;
 
 import org.quiltmc.loader.api.ModContainer;
 import org.quiltmc.qsl.base.api.entrypoint.ModInitializer;
-import org.quiltmc.qsl.networking.api.CustomPayloads;
 import org.quiltmc.qsl.networking.api.ServerConfigurationConnectionEvents;
 import org.quiltmc.qsl.networking.api.ServerConfigurationTaskManager;
 import org.quiltmc.qsl.registry.impl.sync.mod_protocol.ModProtocolImpl;

@@ -34,23 +34,21 @@ import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.network.packet.s2c.PacketBundleS2CPacket;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 
 import org.quiltmc.loader.api.ModContainer;
 import org.quiltmc.qsl.base.api.entrypoint.ModInitializer;
 import org.quiltmc.qsl.command.api.CommandRegistrationCallback;
-import org.quiltmc.qsl.networking.api.CustomPayloads;
 import org.quiltmc.qsl.networking.api.PacketByteBufs;
+import org.quiltmc.qsl.networking.api.PayloadTypeRegistry;
 import org.quiltmc.qsl.networking.api.ServerPlayNetworking;
 import org.quiltmc.qsl.networking.test.NetworkingTestMods;
 
 public final class NetworkingPlayPacketTest implements ModInitializer {
-	public static final CustomPayload.Id<?> TEST_CHANNEL = NetworkingTestMods.id("test_channel");
+	public static final CustomPayload.Id<TestPacket> TEST_CHANNEL = NetworkingTestMods.id("test_channel");
 	public static final PacketCodec<PacketByteBuf, TestPacket> TEST_CODEC = CustomPayload.create(TestPacket::write, TestPacket::new);
 
 	public static void sendToTestChannel(ServerPlayerEntity player, String stuff) {
-		CustomPayloads.registerC2SPayload();
+		PayloadTypeRegistry.playS2C().register(TEST_CHANNEL, TEST_CODEC);
 		ServerPlayNetworking.send(player, new TestPacket(stuff));
 		NetworkingTestMods.LOGGER.info("Sent custom payload packet in {}", TEST_CHANNEL);
 	}
@@ -71,8 +69,8 @@ public final class NetworkingPlayPacketTest implements ModInitializer {
 					bufB.writeString("Bundled #2");
 
 					var packet = new PacketBundleS2CPacket(List.of(
-							(Packet<ClientPlayPacketListener>) (Object) ServerPlayNetworking.createS2CPacket(TEST_CHANNEL, bufA),
-							(Packet<ClientPlayPacketListener>) (Object) ServerPlayNetworking.createS2CPacket(TEST_CHANNEL, bufB)
+							(Packet<ClientPlayPacketListener>) (Object) ServerPlayNetworking.createS2CPacket(new TestPacket("Bundled #1")),
+							(Packet<ClientPlayPacketListener>) (Object) ServerPlayNetworking.createS2CPacket(new TestPacket("Bundled #2"))
 					));
 					ctx.getSource().getPlayer().networkHandler.send(packet);
 					return Command.SINGLE_SUCCESS;

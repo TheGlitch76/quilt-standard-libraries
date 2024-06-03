@@ -33,7 +33,7 @@ public final class QuiltEntityNetworkingClientInitializer implements ClientModIn
 
 	@Override
 	public void onInitializeClient(ModContainer mod) {
-		ClientPlayNetworking.registerGlobalReciever(
+		ClientPlayNetworking.registerGlobalReceiver(
 				QuiltEntityNetworkingInitializer.EXTENDED_SPAWN_PACKET_ID,
 				(client, handler, buf, sender) -> {
 					int entityId = buf.readVarInt();

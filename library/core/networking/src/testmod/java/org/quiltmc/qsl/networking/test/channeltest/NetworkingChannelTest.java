@@ -39,18 +39,13 @@ import net.minecraft.command.CommandBuildContext;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.EntitySelector;
 import net.minecraft.network.packet.payload.CustomPayload;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 
 import org.quiltmc.qsl.command.api.CommandRegistrationCallback;
-import org.quiltmc.qsl.networking.api.PacketSender;
 import org.quiltmc.qsl.networking.api.ServerPlayNetworking;
-import org.quiltmc.qsl.networking.impl.payload.PacketByteBufPayload;
 
 public final class NetworkingChannelTest implements CommandRegistrationCallback {
 	@Override
@@ -107,11 +102,9 @@ public final class NetworkingChannelTest implements CommandRegistrationCallback 
 			throw new SimpleCommandExceptionType(Text.of(String.format("Cannot register channel %s twice for server player", channel))).create();
 		}
 
-		// TODO
-		if (true) throw new UnsupportedOperationException();
-//		ServerPlayNetworking.registerReceiver(executor.networkHandler, channel, (server, player, handler, buf, sender) -> {
-//			System.out.printf("Received packet on channel %s%n", channel);
-//		});
+		ServerPlayNetworking.registerReceiver(executor.networkHandler, channel, (server, player, handler, buf, sender) -> {
+			System.out.printf("Received packet on channel %s%n", channel);
+		});
 
 		context.getSource().sendSystemMessage(Text.of(String.format("Registered channel %s for %s", channel, executor.getDisplayName())));
 

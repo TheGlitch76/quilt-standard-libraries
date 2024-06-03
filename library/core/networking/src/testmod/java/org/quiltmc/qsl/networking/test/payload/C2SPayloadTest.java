@@ -28,12 +28,10 @@ import net.minecraft.util.Identifier;
 
 import org.quiltmc.loader.api.ModContainer;
 import org.quiltmc.qsl.base.api.entrypoint.client.ClientModInitializer;
-import org.quiltmc.qsl.networking.api.CustomPayloads;
-import org.quiltmc.qsl.networking.api.PacketByteBufs;
 import org.quiltmc.qsl.networking.api.PacketSender;
+import org.quiltmc.qsl.networking.api.PayloadTypeRegistry;
 import org.quiltmc.qsl.networking.api.ServerPlayNetworking;
 import org.quiltmc.qsl.networking.api.client.ClientPlayConnectionEvents;
-import org.quiltmc.qsl.networking.impl.NetworkingImpl;
 import org.quiltmc.qsl.networking.test.NetworkingTestMods;
 
 // Test cannot run on a server, so only run with a client
@@ -41,7 +39,7 @@ public class C2SPayloadTest implements ClientModInitializer {
 	private static boolean received = false;
 	@Override
 	public void onInitializeClient(ModContainer mod) {
-		CustomPayloads.registerC2SPayload(TestC2SPayload.ID, TestC2SPayload.CODEC);
+		PayloadTypeRegistry.playC2S().register(TestC2SPayload.ID, TestC2SPayload.CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(TestC2SPayload.ID, this::handleTestPayload);
 
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {

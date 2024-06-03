@@ -183,11 +183,6 @@ public final class ServerLoginNetworkAddon extends AbstractNetworkAddon<ServerLo
 	}
 
 	@Override
-	public Packet<?> createPacket(CustomPayload.Id<?> channelName, PacketByteBuf buf) {
-		return this.createPacket(new PacketByteBufLoginQueryRequestPayload(channelName.id(), buf));
-	}
-
-	@Override
 	public void sendPacket(Packet<?> packet) {
 		Objects.requireNonNull(packet, "Packet cannot be null");
 

@@ -17,6 +17,7 @@
 
 package org.quiltmc.qsl.networking.impl.client;
 
+import net.minecraft.network.NetworkSide;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,8 +35,8 @@ import net.minecraft.network.packet.payload.CustomPayload;
 
 import org.quiltmc.loader.api.ModContainer;
 import org.quiltmc.loader.api.minecraft.ClientOnly;
-import org.quiltmc.qsl.networking.api.CustomPayloads;
 import org.quiltmc.qsl.networking.api.PacketSender;
+import org.quiltmc.qsl.networking.api.PayloadTypeRegistry;
 import org.quiltmc.qsl.networking.api.client.ClientConfigurationConnectionEvents;
 import org.quiltmc.qsl.networking.api.client.ClientConfigurationNetworking;
 import org.quiltmc.qsl.networking.api.client.ClientLoginNetworking;
@@ -44,6 +45,7 @@ import org.quiltmc.qsl.networking.api.client.ClientPlayNetworking;
 import org.quiltmc.qsl.networking.impl.GlobalReceiverRegistry;
 import org.quiltmc.qsl.networking.impl.NetworkHandlerExtensions;
 import org.quiltmc.qsl.networking.impl.NetworkingImpl;
+import org.quiltmc.qsl.networking.impl.PayloadTypeRegistryImpl;
 import org.quiltmc.qsl.networking.impl.common.CommonPacketsImpl;
 import org.quiltmc.qsl.networking.impl.common.CommonRegisterPayload;
 import org.quiltmc.qsl.networking.impl.common.CommonVersionPayload;
@@ -53,9 +55,9 @@ import org.quiltmc.qsl.networking.mixin.accessor.MinecraftClientAccessor;
 @ApiStatus.Internal
 @ClientOnly
 public final class ClientNetworkingImpl {
-	public static final GlobalReceiverRegistry<ClientLoginNetworking.QueryRequestReceiver> LOGIN = new GlobalReceiverRegistry<>(NetworkState.LOGIN);
-	public static final GlobalReceiverRegistry<ClientConfigurationNetworking.CustomChannelReceiver<?>> CONFIGURATION = new GlobalReceiverRegistry<>(NetworkState.CONFIGURATION);
-	public static final GlobalReceiverRegistry<ClientPlayNetworking.CustomChannelReceiver<?>> PLAY = new GlobalReceiverRegistry<>(NetworkState.PLAY);
+	public static final GlobalReceiverRegistry<ClientLoginNetworking.QueryRequestReceiver> LOGIN = new GlobalReceiverRegistry<>(NetworkSide.S2C, NetworkState.LOGIN, null);
+	public static final GlobalReceiverRegistry<ClientConfigurationNetworking.CustomChannelReceiver<?>> CONFIGURATION = new GlobalReceiverRegistry<>(NetworkSide.S2C, NetworkState.CONFIGURATION, PayloadTypeRegistryImpl.CONFIGURATION_S2C);
+	public static final GlobalReceiverRegistry<ClientPlayNetworking.CustomChannelReceiver<?>> PLAY = new GlobalReceiverRegistry<>(NetworkSide.S2C, NetworkState.PLAY, PayloadTypeRegistryImpl.PLAY_S2C);
 	private static ClientPlayNetworkAddon currentPlayAddon;
 	private static ClientConfigurationNetworkAddon currentConfigurationAddon;
 
@@ -135,8 +137,8 @@ public final class ClientNetworkingImpl {
 			currentConfigurationAddon = null;
 		});
 
-		CustomPayloads.registerS2CPayload(CommonVersionPayload.PACKET_ID, CommonVersionPayload.CODEC);
-		CustomPayloads.registerS2CPayload(CommonRegisterPayload.PACKET_ID, CommonRegisterPayload.CODEC);
+		PayloadTypeRegistry.playS2C().register(CommonVersionPayload.PACKET_ID, CommonVersionPayload.CODEC);
+		PayloadTypeRegistry.playS2C().register(CommonRegisterPayload.PACKET_ID, CommonRegisterPayload.CODEC);
 
 		ClientConfigurationNetworking.registerGlobalReceiver(CommonVersionPayload.PACKET_ID, ClientNetworkingImpl::handleCommonVersion);
 		ClientConfigurationNetworking.registerGlobalReceiver(CommonRegisterPayload.PACKET_ID, ClientNetworkingImpl::handleCommonRegister);

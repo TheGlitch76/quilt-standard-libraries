@@ -27,13 +27,10 @@ import net.minecraft.util.Identifier;
 
 import org.quiltmc.loader.api.ModContainer;
 import org.quiltmc.qsl.base.api.entrypoint.client.ClientModInitializer;
-import org.quiltmc.qsl.networking.api.CustomPayloads;
-import org.quiltmc.qsl.networking.api.PacketByteBufs;
 import org.quiltmc.qsl.networking.api.PacketSender;
+import org.quiltmc.qsl.networking.api.PayloadTypeRegistry;
 import org.quiltmc.qsl.networking.api.ServerPlayConnectionEvents;
 import org.quiltmc.qsl.networking.api.client.ClientPlayNetworking;
-import org.quiltmc.qsl.networking.impl.NetworkingImpl;
-import org.quiltmc.qsl.networking.impl.common.CommonRegisterPayload;
 import org.quiltmc.qsl.networking.test.NetworkingTestMods;
 
 // Test cannot run on a server, so only run with a client
@@ -42,7 +39,7 @@ public class S2CPayloadTest implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient(ModContainer mod) {
-		CustomPayloads.registerS2CPayload(TestS2CPayload.ID, TestS2CPayload.CODEC);
+		PayloadTypeRegistry.playS2C().register(TestS2CPayload.ID, TestS2CPayload.CODEC);
 		ClientPlayNetworking.registerGlobalReceiver(TestS2CPayload.ID, this::handleTestPayload);
 
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {

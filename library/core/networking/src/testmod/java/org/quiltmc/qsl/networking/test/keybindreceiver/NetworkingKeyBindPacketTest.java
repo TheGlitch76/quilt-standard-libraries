@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.quiltmc.qsl.networking.test.keybindreciever;
+package org.quiltmc.qsl.networking.test.keybindreceiver;
 
 import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.server.MinecraftServer;

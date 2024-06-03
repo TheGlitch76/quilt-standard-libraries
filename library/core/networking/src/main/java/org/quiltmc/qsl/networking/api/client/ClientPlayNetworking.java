@@ -61,7 +61,7 @@ public final class ClientPlayNetworking {
 	 * @param channelName    the identifier of the channel
 	 * @param channelHandler the handler
 	 * @return {@code false} if a handler is already registered to the channel, otherwise {@code true}
-	 * @see ClientPlayNetworking#registerGlobalReciever(CustomPayload.Id, ChannelReceiver)
+	 * @see ClientPlayNetworking#registerGlobalReceiver(CustomPayload.Id, ChannelReceiver)
 	 * @see ClientPlayNetworking#unregisterGlobalReceiver(CustomPayload.Id)
 	 * @see ClientPlayNetworking#registerReceiver(CustomPayload.Id, CustomChannelReceiver)
 	 */
