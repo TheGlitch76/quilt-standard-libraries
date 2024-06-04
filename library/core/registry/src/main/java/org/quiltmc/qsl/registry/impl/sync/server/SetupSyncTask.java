@@ -37,10 +37,10 @@ public record SetupSyncTask(ServerConfigurationNetworkHandler handler) implement
 			// First check if Quilt sync is available
 			if (ServerConfigurationNetworking.getSendable(this.handler).contains(ServerPackets.Handshake.ID)) {
 				((ServerConfigurationTaskManager) this.handler).addImmediateTask(new QuiltSyncTask(this.handler, ((AbstractServerPacketHandlerAccessor) this.handler).getConnection()));
-			} else if (ServerRegistrySync.forceFabricFallback || (ServerRegistrySync.supportFabric && ServerConfigurationNetworking.getSendable(this.handler).contains(ServerFabricRegistrySync.ID))) {
+			} else if (ServerRegistrySync.forceFabricFallback || (ServerRegistrySync.supportFabric && ServerConfigurationNetworking.getSendable(this.handler).contains(ServerFabricRegistrySync.Payload.ID))) {
 				// TODO: If the client says that it supports fabric sync but then doesnt respond, the client will sit in an idle loop forever.
 				FabricSyncTask fabricSyncTask = new FabricSyncTask(this.handler);
-				ServerConfigurationNetworking.registerReceiver(this.handler, ServerFabricRegistrySync.SYNC_COMPLETE_ID, (server, handler, buf, responseSender) -> fabricSyncTask.handleComplete());
+				ServerConfigurationNetworking.registerReceiver(this.handler, ServerFabricRegistrySync.SyncCompletePayload.ID, (server, handler, buf, responseSender) -> fabricSyncTask.handleComplete());
 				((ServerConfigurationTaskManager) this.handler).addImmediateTask(fabricSyncTask);
 			} else {
 				if (ServerRegistrySync.requiresSync()) {

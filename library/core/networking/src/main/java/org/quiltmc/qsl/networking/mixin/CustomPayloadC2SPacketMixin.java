@@ -17,12 +17,11 @@
 package org.quiltmc.qsl.networking.mixin;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.network.RegistryByteBuf;
-import org.quiltmc.qsl.networking.impl.FabricCustomPayloadPacketCodec;
+import org.quiltmc.qsl.networking.impl.QuiltCustomPayloadPacketCodec;
 import org.quiltmc.qsl.networking.impl.PayloadTypeRegistryImpl;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
@@ -31,10 +30,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.payload.CustomPayload;
-import net.minecraft.network.packet.payload.DiscardedCustomPayload;
-import net.minecraft.util.Identifier;
 
-// TODO cleanup. What's still needed?
 @Mixin(CustomPayloadC2SPacket.class)
 public class CustomPayloadC2SPacketMixin {
 	@WrapOperation(
@@ -46,8 +42,8 @@ public class CustomPayloadC2SPacketMixin {
 	)
 	private static PacketCodec<PacketByteBuf, CustomPayload> wrapCodec(CustomPayload.CodecFactory<PacketByteBuf> unknownCodecFactory, List<CustomPayload.Type<PacketByteBuf, ?>> types, Operation<PacketCodec<PacketByteBuf, CustomPayload>> original) {
 		PacketCodec<PacketByteBuf, CustomPayload> codec = original.call(unknownCodecFactory, types);
-		FabricCustomPayloadPacketCodec<PacketByteBuf> fabricCodec = (FabricCustomPayloadPacketCodec<PacketByteBuf>) codec;
-		fabricCodec.fabric_setPacketCodecProvider((packetByteBuf, identifier) -> {
+		QuiltCustomPayloadPacketCodec<PacketByteBuf> fabricCodec = (QuiltCustomPayloadPacketCodec<PacketByteBuf>) codec;
+		fabricCodec.setPacketCodecProvider((packetByteBuf, identifier) -> {
 			// CustomPayloadC2SPacket does not have a separate codec for play/configuration. We know if the packetByteBuf is a PacketByteBuf we are in the play phase.
 			if (packetByteBuf instanceof RegistryByteBuf) {
 				return (CustomPayload.Type<PacketByteBuf, ? extends CustomPayload>) (Object) PayloadTypeRegistryImpl.PLAY_C2S.get(identifier);

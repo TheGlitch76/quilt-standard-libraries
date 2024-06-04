@@ -16,6 +16,7 @@
 
 package org.quiltmc.qsl.networking.mixin;
 
+import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -50,6 +51,13 @@ abstract class ServerPlayNetworkHandlerMixin extends AbstractServerPacketHandler
 		this.addon = new ServerPlayNetworkAddon((ServerPlayNetworkHandler) (Object) this, this.server);
 		// A bit of a hack but it allows the field above to be set in case someone registers handlers during INIT event which refers to said field
 		this.addon.lateInit();
+	}
+
+	@Inject(method = "onCustomPayload", at = @At("HEAD"), cancellable = true)
+	private void handleCustomPayloadReceivedAsync(CustomPayloadC2SPacket packet, CallbackInfo ci) {
+		if (getAddon().handle(packet.payload())) {
+			ci.cancel();
+		}
 	}
 
 	@Inject(method = "onDisconnected", at = @At("HEAD"))

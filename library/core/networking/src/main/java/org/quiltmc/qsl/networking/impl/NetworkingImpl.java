@@ -52,11 +52,15 @@ public final class NetworkingImpl {
 
 
 	public static void init(ModContainer mod) {
-
+		PayloadTypeRegistry.configurationC2S().register(REGISTER_CHANNEL, ChannelPayload.RegisterChannelPayload.CODEC);
+		PayloadTypeRegistry.configurationC2S().register(UNREGISTER_CHANNEL, ChannelPayload.UnregisterChannelPayload.CODEC);
+		PayloadTypeRegistry.configurationS2C().register(REGISTER_CHANNEL, ChannelPayload.RegisterChannelPayload.CODEC);
+		PayloadTypeRegistry.configurationS2C().register(UNREGISTER_CHANNEL, ChannelPayload.UnregisterChannelPayload.CODEC);
 		PayloadTypeRegistry.playS2C().register(REGISTER_CHANNEL, ChannelPayload.RegisterChannelPayload.CODEC);
 		PayloadTypeRegistry.playS2C().register(UNREGISTER_CHANNEL, ChannelPayload.UnregisterChannelPayload.CODEC);
 		PayloadTypeRegistry.playC2S().register(REGISTER_CHANNEL, ChannelPayload.RegisterChannelPayload.CODEC);
 		PayloadTypeRegistry.playC2S().register(UNREGISTER_CHANNEL, ChannelPayload.UnregisterChannelPayload.CODEC);
+
 	}
 
 	public static boolean isReservedCommonChannel(CustomPayload.Id<?> channelName) {

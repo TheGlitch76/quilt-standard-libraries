@@ -20,8 +20,8 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.util.Identifier;
 
-public interface FabricCustomPayloadPacketCodec<B extends PacketByteBuf> {
-	void fabric_setPacketCodecProvider(CustomPayloadTypeProvider<B> customPayloadTypeProvider);
+public interface QuiltCustomPayloadPacketCodec<B extends PacketByteBuf> {
+	void setPacketCodecProvider(CustomPayloadTypeProvider<B> customPayloadTypeProvider);
 
 
 	interface CustomPayloadTypeProvider<B extends PacketByteBuf> {

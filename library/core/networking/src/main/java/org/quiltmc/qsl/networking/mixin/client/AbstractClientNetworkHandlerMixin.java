@@ -16,6 +16,9 @@
 
 package org.quiltmc.qsl.networking.mixin.client;
 
+import net.minecraft.network.packet.payload.CustomPayload;
+import org.quiltmc.qsl.networking.impl.client.ClientConfigurationNetworkAddon;
+import org.quiltmc.qsl.networking.impl.client.ClientPlayNetworkAddon;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -33,16 +36,25 @@ import org.quiltmc.qsl.networking.impl.NetworkHandlerExtensions;
 @ClientOnly
 @Mixin(value = AbstractClientNetworkHandler.class, priority = 999)
 abstract class AbstractClientNetworkHandlerMixin implements NetworkHandlerExtensions {
-	@Inject(method = "onCustomPayload", at = @At("HEAD"), cancellable = true)
-	private void handleCustomPayload(CustomPayloadS2CPacket packet, CallbackInfo ci) {
-		AbstractChanneledNetworkAddon<?> addon = (AbstractChanneledNetworkAddon<?>) this.getAddon();
-		boolean payloadHandled = addon.handle(packet.payload());
 
-		if (payloadHandled) {
+	@Inject(method = "onCustomPayload(Lnet/minecraft/network/packet/s2c/common/CustomPayloadS2CPacket;)V", at = @At("HEAD"), cancellable = true)
+	public void onCustomPayload(CustomPayloadS2CPacket packet, CallbackInfo ci) {
+		final CustomPayload payload = packet.payload();
+		boolean handled;
+
+		if (this.getAddon() instanceof ClientPlayNetworkAddon addon) {
+			handled = addon.handle(payload);
+		} else if (this.getAddon() instanceof ClientConfigurationNetworkAddon addon) {
+			handled = addon.handle(payload);
+		} else {
+			throw new IllegalStateException("Unknown network addon");
+		}
+
+		if (handled) {
 			ci.cancel();
 		}
 	}
-
+	
 	@Inject(method = "onDisconnected", at = @At("HEAD"))
 	private void handleDisconnection(Text reason, CallbackInfo ci) {
 		this.getAddon().handleDisconnect();

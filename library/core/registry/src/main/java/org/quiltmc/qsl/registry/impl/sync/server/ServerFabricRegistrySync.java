@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.minecraft.network.codec.PacketCodec;
 import org.jetbrains.annotations.ApiStatus;
 
 import net.minecraft.network.PacketByteBuf;
@@ -50,8 +51,6 @@ import org.quiltmc.qsl.registry.impl.sync.registry.SynchronizedRegistry;
 @ApiStatus.Internal
 public class ServerFabricRegistrySync {
 	private static final int MAX_PAYLOAD_SIZE = 1048576;
-	public static final CustomPayload.Id<?> SYNC_COMPLETE_ID = new CustomPayload.Id<>(new Identifier("fabric", "registry/sync/complete"));
-	public static final CustomPayload.Id<?> ID = new CustomPayload.Id<>(new Identifier("fabric", "registry/sync/direct"));
 
 	public static void sendSyncPackets(Consumer<Packet<?>> sender) {
 		var registryMap = createRegistryMap();
@@ -168,10 +167,47 @@ public class ServerFabricRegistrySync {
 	}
 
 	private static void sendPacket(Consumer<Packet<?>> sender, PacketByteBuf buf) {
-		sender.accept(ServerPlayNetworking.createS2CPacket(ID, buf));
+		sender.accept(ServerPlayNetworking.createS2CPacket(new Payload(buf.array())));
 	}
 
 	private static String optimizeNamespace(String namespace) {
 		return namespace.equals(Identifier.DEFAULT_NAMESPACE) ? "" : namespace;
+	}
+
+	public record Payload(byte[] data) implements CustomPayload {
+		public static CustomPayload.Id<Payload> ID = new Id<>(new Identifier("fabric", "registry/sync/direct"));
+		public static PacketCodec<PacketByteBuf, Payload> CODEC = CustomPayload.create(Payload::write, Payload::new);
+
+		Payload(PacketByteBuf buf) {
+			this(readAllBytes(buf));
+		}
+
+		private void write(PacketByteBuf buf) {
+			buf.writeBytes(data);
+		}
+
+		private static byte[] readAllBytes(PacketByteBuf buf) {
+			byte[] bytes = new byte[buf.readableBytes()];
+			buf.readBytes(bytes);
+			return bytes;
+		}
+
+		@Override
+		public Id<? extends CustomPayload> getId() {
+			return ID;
+		}
+	}
+
+	public static class SyncCompletePayload implements CustomPayload {
+		public static final SyncCompletePayload INSTANCE = new SyncCompletePayload();
+		public static final CustomPayload.Id<?> ID = new CustomPayload.Id<>(new Identifier("fabric", "registry/sync/complete"));
+		public static final PacketCodec<PacketByteBuf, SyncCompletePayload> CODEC = PacketCodec.unit(INSTANCE);
+
+		private SyncCompletePayload() { }
+
+		@Override
+		public Id<? extends CustomPayload> getId() {
+			return ID;
+		}
 	}
 }

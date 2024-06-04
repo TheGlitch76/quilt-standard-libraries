@@ -28,6 +28,7 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import net.minecraft.network.codec.PacketCodec;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -63,26 +64,28 @@ public class ClientFabricRegistrySync {
 	private static boolean isPacketFinished = false;
 
 	public static void registerHandlers() {
-		ClientConfigurationNetworking.registerGlobalReceiver(ServerFabricRegistrySync.ID, ClientFabricRegistrySync::handlePacket);
+		ClientConfigurationNetworking.registerGlobalReceiver(ServerFabricRegistrySync.Payload.ID, ClientFabricRegistrySync::handlePacket);
 	}
 
-	private static void handlePacket(MinecraftClient client, ClientConfigurationNetworkHandler handler, PacketByteBuf buf, PacketSender<CustomPayload> sender) {
-		receiveSlicedPacket(buf);
+	private static void handlePacket(MinecraftClient client, ClientConfigurationNetworkHandler handler, ServerFabricRegistrySync.Payload payload, PacketSender<CustomPayload> sender) {
+		receiveSlicedPacket(payload);
 
 		if (isPacketFinished) {
 			applyRegistry(handler, sender);
 		}
 	}
 
-	private static void receiveSlicedPacket(PacketByteBuf slicedBuf) {
+	private static void receiveSlicedPacket(ServerFabricRegistrySync.Payload payload) {
 		Preconditions.checkState(!isPacketFinished);
 
 		if (combinedBuf == null) {
 			combinedBuf = PacketByteBufs.create();
 		}
 
-		if (slicedBuf.readableBytes() != 0) {
-			combinedBuf.writeBytes(slicedBuf);
+		byte[] data = payload.data();
+
+		if (data.length != 0) {
+			combinedBuf.writeBytes(data);
 			return;
 		}
 
@@ -184,6 +187,8 @@ public class ClientFabricRegistrySync {
 		}
 
 		ClientRegistrySync.rebuildEverything(MinecraftClient.getInstance());
-		ClientConfigurationNetworking.send(ServerFabricRegistrySync.SYNC_COMPLETE_ID, PacketByteBufs.empty());
+		ClientConfigurationNetworking.send(ServerFabricRegistrySync.SyncCompletePayload.INSTANCE);
 	}
+
+
 }

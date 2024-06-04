@@ -22,6 +22,7 @@ import net.minecraft.registry.Registries;
 
 import org.quiltmc.loader.api.ModContainer;
 import org.quiltmc.qsl.base.api.entrypoint.ModInitializer;
+import org.quiltmc.qsl.networking.api.PayloadTypeRegistry;
 import org.quiltmc.qsl.networking.api.ServerConfigurationConnectionEvents;
 import org.quiltmc.qsl.networking.api.ServerConfigurationTaskManager;
 import org.quiltmc.qsl.registry.impl.sync.mod_protocol.ModProtocolImpl;
@@ -62,21 +63,21 @@ public class RegistrySyncInitializer implements ModInitializer {
 		});
 
 		ServerRegistrySync.registerHandlers();
-		CustomPayloads.registerS2CPayload(ServerPackets.Handshake.ID, ServerPackets.Handshake.CODEC);
-		CustomPayloads.registerS2CPayload(ServerPackets.End.ID, ServerPackets.End.CODEC);
-		CustomPayloads.registerS2CPayload(ServerPackets.RegistryStart.ID, ServerPackets.RegistryStart.CODEC);
-		CustomPayloads.registerS2CPayload(ServerPackets.RegistryData.ID, ServerPackets.RegistryData.CODEC);
-		CustomPayloads.registerS2CPayload(ServerPackets.RegistryApply.ID, ServerPackets.RegistryApply.CODEC);
-		CustomPayloads.registerS2CPayload(ServerPackets.ValidateStates.StateType.BLOCK.packetId(), ServerPackets.ValidateStates.CODEC_BLOCK);
-		CustomPayloads.registerS2CPayload(ServerPackets.ValidateStates.StateType.FLUID.packetId(), ServerPackets.ValidateStates.CODEC_FLUID);
-		CustomPayloads.registerS2CPayload(ServerPackets.RegistryRestore.ID, ServerPackets.RegistryRestore.CODEC);
-		CustomPayloads.registerS2CPayload(ServerPackets.ErrorStyle.ID, ServerPackets.ErrorStyle.CODEC);
-		CustomPayloads.registerS2CPayload(ServerPackets.ModProtocol.ID, ServerPackets.ModProtocol.CODEC);
+		PayloadTypeRegistry.configurationS2C().register(ServerPackets.Handshake.ID, ServerPackets.Handshake.CODEC);
+		PayloadTypeRegistry.configurationS2C().register(ServerPackets.End.ID, ServerPackets.End.CODEC);
+		PayloadTypeRegistry.configurationS2C().register(ServerPackets.RegistryStart.ID, ServerPackets.RegistryStart.CODEC);
+		PayloadTypeRegistry.configurationS2C().register(ServerPackets.RegistryData.ID, ServerPackets.RegistryData.CODEC);
+		PayloadTypeRegistry.configurationS2C().register(ServerPackets.RegistryApply.ID, ServerPackets.RegistryApply.CODEC);
+		PayloadTypeRegistry.configurationS2C().register(ServerPackets.ValidateStates.StateType.BLOCK.packetId(), ServerPackets.ValidateStates.CODEC_BLOCK);
+		PayloadTypeRegistry.configurationS2C().register(ServerPackets.ValidateStates.StateType.FLUID.packetId(), ServerPackets.ValidateStates.CODEC_FLUID);
+		PayloadTypeRegistry.configurationS2C().register(ServerPackets.RegistryRestore.ID, ServerPackets.RegistryRestore.CODEC);
+		PayloadTypeRegistry.configurationS2C().register(ServerPackets.ErrorStyle.ID, ServerPackets.ErrorStyle.CODEC);
+		PayloadTypeRegistry.configurationS2C().register(ServerPackets.ModProtocol.ID, ServerPackets.ModProtocol.CODEC);
 
-		CustomPayloads.registerC2SPayload(ClientPackets.Handshake.ID, ClientPackets.Handshake.CODEC);
-		CustomPayloads.registerC2SPayload(ClientPackets.SyncFailed.ID, ClientPackets.SyncFailed.CODEC);
-		CustomPayloads.registerC2SPayload(ClientPackets.UnknownEntry.ID, ClientPackets.UnknownEntry.CODEC);
-		CustomPayloads.registerC2SPayload(ClientPackets.ModProtocol.ID, ClientPackets.ModProtocol.CODEC);
-		CustomPayloads.registerC2SPayload(ClientPackets.End.ID, ClientPackets.End.CODEC);
+		PayloadTypeRegistry.configurationC2S().register(ClientPackets.Handshake.ID, ClientPackets.Handshake.CODEC);
+		PayloadTypeRegistry.configurationC2S().register(ClientPackets.SyncFailed.ID, ClientPackets.SyncFailed.CODEC);
+		PayloadTypeRegistry.configurationC2S().register(ClientPackets.UnknownEntry.ID, ClientPackets.UnknownEntry.CODEC);
+		PayloadTypeRegistry.configurationC2S().register(ClientPackets.ModProtocol.ID, ClientPackets.ModProtocol.CODEC);
+		PayloadTypeRegistry.configurationC2S().register(ClientPackets.End.ID, ClientPackets.End.CODEC);
 	}
 }

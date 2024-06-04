@@ -20,7 +20,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.payload.CustomPayload;
-import org.quiltmc.qsl.networking.impl.FabricCustomPayloadPacketCodec;
+import org.quiltmc.qsl.networking.impl.QuiltCustomPayloadPacketCodec;
 import org.quiltmc.qsl.networking.impl.PayloadTypeRegistryImpl;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -43,8 +43,8 @@ public class CustomPayloadS2CPacketMixin {
 	)
 	private static PacketCodec<RegistryByteBuf, CustomPayload> wrapPlayCodec(CustomPayload.CodecFactory<RegistryByteBuf> unknownCodecFactory, List<CustomPayload.Type<RegistryByteBuf, ?>> types, Operation<PacketCodec<RegistryByteBuf, CustomPayload>> original) {
 		PacketCodec<RegistryByteBuf, CustomPayload> codec = original.call(unknownCodecFactory, types);
-		FabricCustomPayloadPacketCodec<RegistryByteBuf> fabricCodec = (FabricCustomPayloadPacketCodec<RegistryByteBuf>) codec;
-		fabricCodec.fabric_setPacketCodecProvider((packetByteBuf, identifier) -> PayloadTypeRegistryImpl.PLAY_S2C.get(identifier));
+		QuiltCustomPayloadPacketCodec<RegistryByteBuf> fabricCodec = (QuiltCustomPayloadPacketCodec<RegistryByteBuf>) codec;
+		fabricCodec.setPacketCodecProvider((packetByteBuf, identifier) -> PayloadTypeRegistryImpl.PLAY_S2C.get(identifier));
 		return codec;
 	}
 
@@ -58,8 +58,8 @@ public class CustomPayloadS2CPacketMixin {
 	)
 	private static PacketCodec<PacketByteBuf, CustomPayload> wrapConfigCodec(CustomPayload.CodecFactory<PacketByteBuf> unknownCodecFactory, List<CustomPayload.Type<PacketByteBuf, ?>> types, Operation<PacketCodec<PacketByteBuf, CustomPayload>> original) {
 		PacketCodec<PacketByteBuf, CustomPayload> codec = original.call(unknownCodecFactory, types);
-		FabricCustomPayloadPacketCodec<PacketByteBuf> fabricCodec = (FabricCustomPayloadPacketCodec<PacketByteBuf>) codec;
-		fabricCodec.fabric_setPacketCodecProvider((packetByteBuf, identifier) -> PayloadTypeRegistryImpl.CONFIGURATION_S2C.get(identifier));
+		QuiltCustomPayloadPacketCodec<PacketByteBuf> fabricCodec = (QuiltCustomPayloadPacketCodec<PacketByteBuf>) codec;
+		fabricCodec.setPacketCodecProvider((packetByteBuf, identifier) -> PayloadTypeRegistryImpl.CONFIGURATION_S2C.get(identifier));
 		return codec;
 	}
 }

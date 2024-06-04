@@ -11,6 +11,7 @@
     "EntityTrackerEntryMixin",
     "JoinWorldConfigurationTaskMixin",
     "PacketBundleMixin",
+    "PacketCodecDispatcherMixin",
     "PlayerManagerMixin",
     "ServerConfigurationNetworkHandlerMixin",
     "ServerLoginNetworkHandlerMixin",

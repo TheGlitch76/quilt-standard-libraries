@@ -39,7 +39,7 @@ import org.quiltmc.qsl.base.api.entrypoint.ModInitializer;
 import org.quiltmc.qsl.base.api.entrypoint.client.ClientModInitializer;
 import org.quiltmc.qsl.base.api.entrypoint.server.DedicatedServerModInitializer;
 import org.quiltmc.qsl.base.api.event.Event;
-import org.quiltmc.qsl.networking.api.CustomPayloads;
+import org.quiltmc.qsl.networking.api.PayloadTypeRegistry;
 import org.quiltmc.qsl.networking.api.ServerConfigurationConnectionEvents;
 import org.quiltmc.qsl.networking.api.ServerConfigurationTaskManager;
 import org.quiltmc.qsl.networking.api.client.ClientConfigurationNetworking;
@@ -81,7 +81,7 @@ public class RegistryLibSyncOrderTest implements ModInitializer, DedicatedServer
 			Registry.register(Registries.ITEM, new Identifier("quilt", "reg_sync_order_a"), ITEM_A);
 		}
 
-		CustomPayloads.registerS2CPayload(PACKET_ID, PACKET_CODEC);
+		PayloadTypeRegistry.configurationS2C().register(PACKET_ID, PACKET_CODEC);
 	}
 
 	@Override

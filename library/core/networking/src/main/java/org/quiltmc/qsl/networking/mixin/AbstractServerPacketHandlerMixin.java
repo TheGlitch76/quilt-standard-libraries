@@ -16,6 +16,7 @@
 
 package org.quiltmc.qsl.networking.mixin;
 
+import net.minecraft.network.packet.payload.CustomPayload;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -46,12 +47,20 @@ abstract class AbstractServerPacketHandlerMixin implements NetworkHandlerExtensi
 	@Final
 	protected ClientConnection connection;
 
+
 	@Inject(method = "onCustomPayload", at = @At("HEAD"), cancellable = true)
 	private void handleCustomPayloadReceivedAsync(CustomPayloadC2SPacket packet, CallbackInfo ci) {
-		AbstractChanneledNetworkAddon<?> addon = (AbstractChanneledNetworkAddon<?>) this.getAddon();
-		boolean payloadHandled = addon.handle(packet.payload());
+		final CustomPayload payload = packet.payload();
+		boolean handled;
 
-		if (payloadHandled) {
+		if (getAddon() instanceof ServerConfigurationNetworkAddon addon) {
+			handled = addon.handle(payload);
+		} else {
+			// Play should be handled in ServerPlayNetworkHandlerMixin
+			throw new IllegalStateException("Unknown addon");
+		}
+
+		if (handled) {
 			ci.cancel();
 		}
 	}
