@@ -19,6 +19,7 @@ package org.quiltmc.qsl.networking.api.client;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -50,16 +51,16 @@ public final class ClientLoginNetworking {
 	 * A global receiver is registered to all connections, in the present and future.
 	 * <p>
 	 * If a handler is already registered to the {@code channel}, this method will return {@code false}, and no change will be made.
-	 * Use {@link #unregisterGlobalReceiver(CustomPayload.Id)} to unregister the existing handler.
+	 * Use {@link #unregisterGlobalReceiver(Identifier)} to unregister the existing handler.
 	 *
 	 * @param channelName  the identifier of the channel
 	 * @param queryHandler the handler
 	 * @return {@code false} if a handler is already registered to the channel, otherwise {@code true}
-	 * @see ClientLoginNetworking#unregisterGlobalReceiver(CustomPayload.Id)
-	 * @see ClientLoginNetworking#registerReceiver(CustomPayload.Id, QueryRequestReceiver)
+	 * @see ClientLoginNetworking#unregisterGlobalReceiver(Identifier)
+	 * @see ClientLoginNetworking#registerReceiver(Identifier, QueryRequestReceiver)
 	 */
-	public static boolean registerGlobalReceiver(CustomPayload.Id<?> channelName, QueryRequestReceiver queryHandler) {
-		return ClientNetworkingImpl.LOGIN.registerGlobalReceiver(channelName, queryHandler);
+	public static boolean registerGlobalReceiver(Identifier channelName, QueryRequestReceiver queryHandler) {
+		return ClientNetworkingImpl.LOGIN.registerGlobalReceiver(new CustomPayload.Id<>(channelName), queryHandler);
 	}
 
 	/**
@@ -70,12 +71,12 @@ public final class ClientLoginNetworking {
 	 *
 	 * @param channelName the identifier of the channel
 	 * @return the previous handler, or {@code null} if no handler was bound to the channel
-	 * @see ClientLoginNetworking#registerGlobalReceiver(CustomPayload.Id, QueryRequestReceiver)
-	 * @see ClientLoginNetworking#unregisterReceiver(CustomPayload.Id)
+	 * @see ClientLoginNetworking#registerGlobalReceiver(Identifier, QueryRequestReceiver)
+	 * @see ClientLoginNetworking#unregisterReceiver(Identifier)
 	 */
 	@Nullable
-	public static ClientLoginNetworking.QueryRequestReceiver unregisterGlobalReceiver(CustomPayload.Id<?> channelName) {
-		return ClientNetworkingImpl.LOGIN.unregisterGlobalReceiver(channelName);
+	public static ClientLoginNetworking.QueryRequestReceiver unregisterGlobalReceiver(Identifier channelName) {
+		return ClientNetworkingImpl.LOGIN.unregisterGlobalReceiver(new CustomPayload.Id<>(channelName));
 	}
 
 	/**
@@ -84,29 +85,29 @@ public final class ClientLoginNetworking {
 	 *
 	 * @return all channel names which global receivers are registered for
 	 */
-	public static Set<CustomPayload.Id<?>> getGlobalReceivers() {
-		return ClientNetworkingImpl.LOGIN.getChannels();
+	public static Set<Identifier> getGlobalReceivers() {
+		return ClientNetworkingImpl.LOGIN.getChannels().stream().map(CustomPayload.Id::id).collect(Collectors.toUnmodifiableSet());
 	}
 
 	/**
 	 * Registers a handler to a query request channel.
 	 * <p>
 	 * If a handler is already registered to the {@code channelName}, this method will return {@code false}, and no change will be made.
-	 * Use {@link #unregisterReceiver(CustomPayload.Id)} to unregister the existing handler.
+	 * Use {@link #unregisterReceiver(Identifier)} to unregister the existing handler.
 	 *
 	 * @param channelName  the identifier of the channel
 	 * @param queryHandler the handler
 	 * @return {@code false} if a handler is already registered to the channel name, otherwise {@code true}
 	 * @throws IllegalStateException if the client is not logging in
 	 */
-	public static boolean registerReceiver(CustomPayload.Id<?> channelName, QueryRequestReceiver queryHandler) throws IllegalStateException {
+	public static boolean registerReceiver(Identifier channelName, QueryRequestReceiver queryHandler) throws IllegalStateException {
 		final ClientConnection connection = ClientNetworkingImpl.getLoginConnection();
 
 		if (connection != null) {
 			final PacketListener packetListener = connection.getPacketListener();
 
 			if (packetListener instanceof ClientLoginNetworkHandler clientHandler) {
-				return ClientNetworkingImpl.getAddon(clientHandler).registerChannel(channelName, queryHandler);
+				return ClientNetworkingImpl.getAddon(clientHandler).registerChannel(new CustomPayload.Id<>(channelName), queryHandler);
 			}
 		}
 
@@ -123,14 +124,14 @@ public final class ClientLoginNetworking {
 	 * @throws IllegalStateException if the client is not logging in
 	 */
 	@Nullable
-	public static ClientLoginNetworking.QueryRequestReceiver unregisterReceiver(CustomPayload.Id<?> channelName) throws IllegalStateException {
+	public static ClientLoginNetworking.QueryRequestReceiver unregisterReceiver(Identifier channelName) throws IllegalStateException {
 		final ClientConnection connection = ClientNetworkingImpl.getLoginConnection();
 
 		if (connection != null) {
 			final PacketListener packetListener = connection.getPacketListener();
 
 			if (packetListener instanceof ClientLoginNetworkHandler clientHandler) {
-				return ClientNetworkingImpl.getAddon(clientHandler).unregisterChannel(channelName);
+				return ClientNetworkingImpl.getAddon(clientHandler).unregisterChannel(new CustomPayload.Id<>(channelName));
 			}
 		}
 

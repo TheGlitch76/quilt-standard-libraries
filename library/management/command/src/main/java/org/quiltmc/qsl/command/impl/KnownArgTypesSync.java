@@ -21,10 +21,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 import io.netty.buffer.Unpooled;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.payload.CustomPayload;
 
 import org.quiltmc.loader.api.minecraft.ClientOnly;
 import org.quiltmc.qsl.networking.api.PacketByteBufs;
@@ -37,7 +37,7 @@ public final class KnownArgTypesSync {
 	private KnownArgTypesSync() {
 	}
 
-	public static final CustomPayload.Id<?> ID = new CustomPayload.Id<>(Initializer.id("known_arg_types"));
+	public static final Identifier ID = Initializer.id("known_arg_types");
 
 	public static void register() {
 		ServerLoginConnectionEvents.QUERY_START.register((handler, server, sender, synchronizer) ->

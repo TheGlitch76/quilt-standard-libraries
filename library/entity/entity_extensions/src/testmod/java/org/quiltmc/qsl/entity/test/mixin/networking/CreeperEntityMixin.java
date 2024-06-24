@@ -16,7 +16,6 @@
 
 package org.quiltmc.qsl.entity.test.mixin.networking;
 
-import org.quiltmc.qsl.entity.extensions.api.networking.QuiltExtendedSpawnDataEntity;
 import org.quiltmc.qsl.entity.test.networking.CreeperWithItem;
 import org.quiltmc.qsl.entity.test.networking.TrackedDataTestInitializer;
 import org.spongepowered.asm.mixin.Mixin;

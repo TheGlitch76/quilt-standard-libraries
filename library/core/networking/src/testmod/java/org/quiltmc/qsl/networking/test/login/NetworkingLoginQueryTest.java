@@ -36,8 +36,8 @@ import org.quiltmc.qsl.networking.api.ServerLoginNetworking;
 import org.quiltmc.qsl.networking.test.NetworkingTestMods;
 
 public final class NetworkingLoginQueryTest implements ModInitializer {
-	public static final CustomPayload.Id<?> TEST_CHANNEL_GLOBAL = NetworkingTestMods.id("test_channel_global");
-	public static final CustomPayload.Id<?> TEST_CHANNEL = NetworkingTestMods.id("test_channel");
+	public static final Identifier TEST_CHANNEL_GLOBAL = NetworkingTestMods.id("test_channel_global").id();
+	public static final Identifier TEST_CHANNEL = NetworkingTestMods.id("test_channel").id();
 	private static final boolean useLoginDelayTest = System.getProperty("quilt_networking.login_delay_test") != null;
 
 	@Override
@@ -97,8 +97,8 @@ public final class NetworkingLoginQueryTest implements ModInitializer {
 		});
 
 		// Send a dummy query when the client starts accepting queries.
-		sender.sendPayload(new EmptyQuery(TEST_CHANNEL.id())); // dummy packet
-		sender.sendPayload(new EmptyQuery(TEST_CHANNEL_GLOBAL.id())); // dummy packet
+		sender.sendPayload(new EmptyQuery(TEST_CHANNEL)); // dummy packet
+		sender.sendPayload(new EmptyQuery(TEST_CHANNEL_GLOBAL)); // dummy packet
 	}
 
 	record EmptyQuery(Identifier id) implements CustomQueryPayload {

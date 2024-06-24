@@ -80,7 +80,7 @@ public final class ServerLoginConnectionEvents {
 	 */
 	@FunctionalInterface
 	public interface QueryStart extends EventAwareListener {
-		void onLoginStart(ServerLoginNetworkHandler handler, MinecraftServer server, PacketSender<CustomQueryPayload> sender, ServerLoginNetworking.LoginSynchronizer synchronizer);
+		void onLoginStart(ServerLoginNetworkHandler handler, MinecraftServer server, LoginPacketSender<CustomQueryPayload> sender, ServerLoginNetworking.LoginSynchronizer synchronizer);
 	}
 
 	/**

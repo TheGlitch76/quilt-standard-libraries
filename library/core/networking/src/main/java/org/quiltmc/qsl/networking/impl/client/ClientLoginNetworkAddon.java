@@ -68,7 +68,7 @@ public final class ClientLoginNetworkAddon extends AbstractNetworkAddon<ClientLo
 		if (this.firstResponse) {
 			// Register global handlers
 			for (Map.Entry<CustomPayload.Id<?>, ClientLoginNetworking.QueryRequestReceiver> entry : ClientNetworkingImpl.LOGIN.getReceivers().entrySet()) {
-				ClientLoginNetworking.registerReceiver(entry.getKey(), entry.getValue());
+				ClientLoginNetworking.registerReceiver(entry.getKey().id(), entry.getValue());
 			}
 
 			ClientLoginConnectionEvents.QUERY_START.invoker().onLoginQueryStart(this.handler, this.client);

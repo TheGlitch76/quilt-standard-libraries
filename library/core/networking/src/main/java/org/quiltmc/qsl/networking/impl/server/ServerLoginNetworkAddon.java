@@ -26,6 +26,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,17 +43,14 @@ import net.minecraft.network.packet.s2c.login.payload.CustomQueryPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerLoginNetworkHandler;
 
-import org.quiltmc.qsl.networking.api.PacketByteBufs;
-import org.quiltmc.qsl.networking.api.PacketSender;
-import org.quiltmc.qsl.networking.api.ServerLoginConnectionEvents;
-import org.quiltmc.qsl.networking.api.ServerLoginNetworking;
+import org.quiltmc.qsl.networking.api.*;
 import org.quiltmc.qsl.networking.impl.AbstractNetworkAddon;
 import org.quiltmc.qsl.networking.impl.payload.PacketByteBufLoginQueryRequestPayload;
 import org.quiltmc.qsl.networking.impl.payload.PacketByteBufLoginQueryResponsePayload;
 import org.quiltmc.qsl.networking.mixin.accessor.ServerLoginNetworkHandlerAccessor;
 
 @ApiStatus.Internal
-public final class ServerLoginNetworkAddon extends AbstractNetworkAddon<ServerLoginNetworking.QueryResponseReceiver> implements PacketSender<CustomQueryPayload> {
+public final class ServerLoginNetworkAddon extends AbstractNetworkAddon<ServerLoginNetworking.QueryResponseReceiver> implements LoginPacketSender<CustomQueryPayload> {
 	private final ClientConnection connection;
 	private final ServerLoginNetworkHandler handler;
 	private final MinecraftServer server;
@@ -80,7 +78,7 @@ public final class ServerLoginNetworkAddon extends AbstractNetworkAddon<ServerLo
 
 			// Register global receivers.
 			for (Map.Entry<CustomPayload.Id<?>, ServerLoginNetworking.QueryResponseReceiver> entry : ServerNetworkingImpl.LOGIN.getReceivers().entrySet()) {
-				ServerLoginNetworking.registerReceiver(this.handler, entry.getKey(), entry.getValue());
+				ServerLoginNetworking.registerReceiver(this.handler, entry.getKey().id(), entry.getValue());
 			}
 
 			ServerLoginConnectionEvents.QUERY_START.invoker().onLoginStart(this.handler, this.server, this, this.waits::add);
@@ -221,5 +219,10 @@ public final class ServerLoginNetworkAddon extends AbstractNetworkAddon<ServerLo
 	@Override
 	protected boolean isReservedChannel(CustomPayload.Id<?> channelName) {
 		return false;
+	}
+
+	@Override
+	public Packet<?> createPacket(Identifier channelName, PacketByteBuf buf) {
+		return null;
 	}
 }
