@@ -15,6 +15,9 @@ qslModule {
 		management {
 			testmodOnly("command")
 		}
+		gui {
+			testmodOnly("screen") // for resource loader
+		}
 	}
 	entrypoints {
 		init {

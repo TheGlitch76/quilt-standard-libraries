@@ -45,12 +45,11 @@ import net.minecraft.server.network.ServerLoginNetworkHandler;
 
 import org.quiltmc.qsl.networking.api.*;
 import org.quiltmc.qsl.networking.impl.AbstractNetworkAddon;
-import org.quiltmc.qsl.networking.impl.payload.PacketByteBufLoginQueryRequestPayload;
 import org.quiltmc.qsl.networking.impl.payload.PacketByteBufLoginQueryResponsePayload;
 import org.quiltmc.qsl.networking.mixin.accessor.ServerLoginNetworkHandlerAccessor;
 
 @ApiStatus.Internal
-public final class ServerLoginNetworkAddon extends AbstractNetworkAddon<ServerLoginNetworking.QueryResponseReceiver> implements LoginPacketSender<CustomQueryPayload> {
+public final class ServerLoginNetworkAddon extends AbstractNetworkAddon<ServerLoginNetworking.QueryResponseReceiver> implements LoginPacketSender {
 	private final ClientConnection connection;
 	private final ServerLoginNetworkHandler handler;
 	private final MinecraftServer server;
@@ -221,8 +220,4 @@ public final class ServerLoginNetworkAddon extends AbstractNetworkAddon<ServerLo
 		return false;
 	}
 
-	@Override
-	public Packet<?> createPacket(Identifier channelName, PacketByteBuf buf) {
-		return null;
-	}
 }

@@ -151,7 +151,7 @@ public final class ServerLoginNetworking {
 		 * @param synchronizer   the synchronizer which may be used to delay log-in till a {@link Future} is completed.
 		 * @param responseSender the packet sender
 		 */
-		void receive(MinecraftServer server, ServerLoginNetworkHandler handler, boolean understood, PacketByteBuf buf, LoginSynchronizer synchronizer, LoginPacketSender<CustomQueryPayload> responseSender);
+		void receive(MinecraftServer server, ServerLoginNetworkHandler handler, boolean understood, PacketByteBuf buf, LoginSynchronizer synchronizer, LoginPacketSender responseSender);
 	}
 
 	/**

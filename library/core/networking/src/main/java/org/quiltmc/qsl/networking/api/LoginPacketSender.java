@@ -19,19 +19,21 @@ package org.quiltmc.qsl.networking.api;
 import java.util.Objects;
 
 import net.minecraft.network.PacketSendListener;
+import net.minecraft.network.packet.s2c.login.payload.CustomQueryPayload;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.util.Identifier;
+import org.quiltmc.qsl.networking.impl.payload.PacketByteBufLoginQueryRequestPayload;
 
 /**
  * Represents something that supports sending packets to login channels.
  * @see PacketSender
  */
 @ApiStatus.NonExtendable
-public interface LoginPacketSender<C> extends PacketSender<C> {
+public interface LoginPacketSender extends PacketSender<CustomQueryPayload> {
 	/**
 	 * Creates a packet for sending to a login channel.
 	 *
@@ -39,7 +41,9 @@ public interface LoginPacketSender<C> extends PacketSender<C> {
 	 * @param buf the content of the packet
 	 * @return the created packet
 	 */
-	Packet<?> createPacket(Identifier channelName, PacketByteBuf buf);
+	default Packet<?> createPacket(Identifier channelName, PacketByteBuf buf) {
+		return this.createPacket(new PacketByteBufLoginQueryRequestPayload(channelName, buf));
+	}
 
 	/**
 	 * Sends a packet to a channel.
